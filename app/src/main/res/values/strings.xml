@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">MoneyDrop</string>
+    <string name="positive">Positive</string>
+    <string name="negative">Negative</string>
+    <string name="neutral">Neutral</string>
+    <string name="dialog_title">Dialog Title</string>
+    <string name="dialog_message">Dialog message</string>
+    <string name="app_logo">App logo</string>
+    <string name="get_started">Get started</string>
+    <string name="let_s_get_started">Let\'s get started</string>
+    <string name="intro">Money should be easy to get, we made it easy.</string>
+    <string name="create_account">Create account</string>
+    <string name="login">Login</string>
+    <string name="title_activity_verification">VerificationActivity</string>
+    <string name="back_button">Back Button</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="verification_fragment">Verification Fragment</string>
+    <string name="registration">Registration</string>
+    <string name="registration_note">Enter your email address, we will send you OTP to verify later.</string>
+    <string name="email_hint">Enter your email address</string>
+    <string name="agreement_notice">By clicking start you agree to our</string>
+    <string name="privacy_policy_and_terms">Privacy Policy and Terms</string>
+    <string name="start_using">Start using</string>
+    <string name="verification">Verification</string>
+    <string name="verification_note">Enter the 4 digit code we sent you</string>
+    <string name="resend_code">Resend code</string>
+    <string name="continues">Continue</string>
+    <string name="button">Button</string>
+    <string name="resending">Resending…</string>
+    <string name="fill_in_your_information">Fill in your information</string>
+    <string name="enter_your_details">Enter your details</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="dob">DOB</string>
+    <string name="gender">Gender</string>
+    <string name="phone">Phone</string>
+    <string name="create_new_password">Create new password</string>
+    <string name="confirm_new_password">Confirm new password</string>
+    <string name="done">Done</string>
+    <string name="email">Email</string>
+    <string name="success">Success!</string>
+    <string name="successful_registration_note">You have been registered successfully, now you are good to go.</string>
+    <string name="error">Error</string>
+    <string name="select_dob">Please select your date of birth</string>
+    <string name="invalid_email">Please enter a valid email address</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
+    <string name="signup">Signup</string>
+    <string name="welcome">Welcome back</string>
+    <string name="forgot_password_title">Forgot Password</string>
+    <string name="forgot_password_note">Please enter your details to retrieve your password</string>
+    <string name="send_otp">Send OTP</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="reset_password_note">Please enter the OTP sent to your email to reset your password</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="reset">Reset</string>
+    <string name="already_have_a_code">I already have a code</string>
+    <string name="confirm_password">Confirm password</string>
+
+</resources>

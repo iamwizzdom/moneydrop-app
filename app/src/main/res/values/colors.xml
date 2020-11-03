@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#e04805</color>
+    <color name="colorPrimaryDark">#e04805</color>
+    <color name="colorPrimaryTransparent">#85E04805</color>
+    <color name="colorAccent">#e04805</color>
+
+    <color name="colorPrimaryShadow">#52E04805</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorButton">#e04805</color>
+    <color name="colorFragment">#eef5f9</color>
+    <color name="colorBackground">#f7f7f7</color>
+    <color name="colorGray">#787e89</color>
+    <color name="colorGrayLightExtra">#DEE8F6</color>
+    <color name="colorGrayLight">#9ea7b6</color>
+    <color name="colorGrayDark">#555961</color>
+    <color name="colorGrayReal">#CFCFCF</color>
+    <color name="colorTransparent">#0000ffff</color>
+    <color name="danger">#f55f78</color>
+    <color name="warning">#ffbd31</color>
+    <color name="success">#39c9ac</color>
+
+    <!-- bootstrap colors -->
+    <color name="successBackground">#45ccb1</color>
+    <color name="successBorder">#39c9ac</color>
+    <color name="successColor">#f6fcfb</color>
+
+    <color name="warningBackground">#ffc241</color>
+    <color name="warningBorder">#ffbd31</color>
+    <color name="warningColor">#ffffff</color>
+    <color name="warningTextColor">#856404</color>
+
+    <color name="dangerBackground">#f66e84</color>
+    <color name="dangerBorder">#f55f78</color>
+    <color name="dangerColor">#ffffff</color>
+
+    <!-- dots inactive colors -->
+    <color name="dot_dark_screen1">#1765a9</color>
+    <color name="dot_dark_screen2">#1765a9</color>
+    <color name="dot_dark_screen3">#1765a9</color>
+    <color name="dot_dark_screen4">#1765a9</color>
+
+    <!-- dots active colors -->
+    <color name="dot_light_screen1">#1e88e5</color>
+    <color name="dot_light_screen2">#1e88e5</color>
+    <color name="dot_light_screen3">#1e88e5</color>
+    <color name="dot_light_screen4">#1e88e5</color>
+    <color name="table_head_color">#26c6da</color>
+
+    <color name="titleColor">#8a99a9</color>
+    <color name="subtitleColor">#455a64</color>
+
+    <array name="array_dot_active">
+        <item>@color/dot_light_screen1</item>
+        <item>@color/dot_light_screen2</item>
+        <item>@color/dot_light_screen3</item>
+        <item>@color/dot_light_screen4</item>
+    </array>
+
+    <array name="array_dot_inactive">
+        <item>@color/dot_dark_screen1</item>
+        <item>@color/dot_dark_screen2</item>
+        <item>@color/dot_dark_screen3</item>
+        <item>@color/dot_dark_screen4</item>
+    </array>
+</resources>

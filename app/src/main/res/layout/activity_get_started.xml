@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingBottom="5dp"
+    android:paddingTop="5dp"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    tools:context=".activity.GetStartedActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:drawablePadding="@dimen/activity_vertical_margin_max"
+        android:layout_marginTop="@dimen/activity_vertical_margin_max"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:textColor="@color/colorAccent"
+        android:text="@string/let_s_get_started"
+        style="@style/text_view_style"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        app:drawableTopCompat="@drawable/ic_splash_graphics" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="60dp"
+        android:paddingEnd="60dp"
+        style="@style/text_view_style"
+        android:text="@string/intro" />
+
+    <Button
+        android:id="@+id/create_acct_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        style="@style/button_style"
+        android:text="@string/create_account"
+        android:textAllCaps="false"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/login_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        style="@style/text_view_style"
+        android:textColor="@color/colorAccent"
+        android:text="@string/login"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+
+</LinearLayout>
