@@ -59,5 +59,11 @@
     <string name="reset">Reset</string>
     <string name="already_have_a_code">I already have a code</string>
     <string name="confirm_password">Confirm password</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_loans">Loans</string>
+    <string name="title_wallets">Wallets</string>
 
 </resources>
