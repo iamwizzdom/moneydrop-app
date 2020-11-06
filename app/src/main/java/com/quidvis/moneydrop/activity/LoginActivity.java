@@ -20,6 +20,7 @@ import com.android.volley.Request;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
+import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.utility.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
@@ -40,11 +41,14 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etEmail;
     private EditText etPassword;
     private CircularProgressButton loginBtn;
+    private Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        session = new Session(this);
 
         TextView appName = findViewById(R.id.appName);
         TextView forgotPassword = findViewById(R.id.forgotPassword);
@@ -146,8 +150,9 @@ public class LoginActivity extends AppCompatActivity {
 
                     JSONObject object = new JSONObject(response);
                     Utility.toastMessage(LoginActivity.this, object.getString("message"));
-                    Intent intent = new Intent(LoginActivity.this, RegistrationSuccessfulActivity.class);
-                    intent.putExtra(RegistrationSuccessfulActivity.USER_DATA, object.getJSONObject("response").toString());
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    session.setLoggedIn(true);
+                    session.setAccountInfo(object.getJSONObject("response"));
                     startActivity(intent);
                     finish();
 

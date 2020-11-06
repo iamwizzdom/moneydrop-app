@@ -11,20 +11,22 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.preference.Session;
 
 import java.util.Calendar;
 
 public class Splash extends AppCompatActivity {
 
     private static boolean isFirstTimeSplash = true;
-    private Handler handler = new Handler();
-    private Runnable runnable = new Runnable() {
+    private final Handler handler = new Handler();
+    private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
             isFirstTimeSplash = false;
             startActivity();
         }
     };
+    private Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,8 @@ public class Splash extends AppCompatActivity {
         setContentView(R.layout.splash_activity);
         TextView appName = findViewById(R.id.appName);
         TextView copyRight = findViewById(R.id.tvCopyRight);
+
+        session = new Session(this);
 
         int year = Calendar.getInstance().get(Calendar.YEAR);
         String copy_right = String.format(getResources().getString(R.string.app_name) + ". © %s", year);
@@ -45,7 +49,12 @@ public class Splash extends AppCompatActivity {
 
     private void startActivity() {
         if (isFinishing()) return;
-        startActivity(new Intent(Splash.this, GetStartedActivity.class));
+        startActivity(
+                new Intent(
+                Splash.this, session.isLoggedIn() ?
+                        MainActivity.class : GetStartedActivity.class
+                )
+        );
         finish();
     }
 

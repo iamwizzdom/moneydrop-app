@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 /**
  * Created by Wisdom Emenike.
  * Date: 6/17/2017
@@ -41,7 +43,7 @@ public class Session {
     public JSONObject getAccountInfo(){
         JSONObject defaultValue = new JSONObject();
         try {
-            return new JSONObject(prefs.getString("accountInfo", defaultValue.toString()));
+            return new JSONObject(Objects.requireNonNull(prefs.getString("accountInfo", defaultValue.toString())));
         } catch (JSONException e) {
             e.printStackTrace();
         }
