@@ -102,42 +102,23 @@ public class VerificationOTPFragment extends Fragment {
 
         tvOTP = view.findViewById(R.id.verification_otp);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                Utility.requestFocus(tvOTP, activity);
-            }
-        }, 1000);
+        new Handler().postDelayed(() -> Utility.requestFocus(tvOTP, activity), 1000);
 
         verifyBtn = view.findViewById(R.id.verifyBtn);
 
-        resendCodeListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                requestVerification();
-            }
-        };
+        resendCodeListener = v -> requestVerification();
 
         countDown();
 
 
-        verifyBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                verifyOTP();
-            }
-        });
+        verifyBtn.setOnClickListener(v -> verifyOTP());
 
-        tvOTP.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    verifyOTP();
-                    return true;
-                }
-                return false;
+        tvOTP.setOnEditorActionListener((textView, id, keyEvent) -> {
+            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
+                verifyOTP();
+                return true;
             }
+            return false;
         });
 
         return view;
@@ -239,7 +220,7 @@ public class VerificationOTPFragment extends Fragment {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(activity, error);
+                    Utility.toastMessage(activity, "Something unexpected happened. Please try that again.");
                 }
             }
 
@@ -332,15 +313,12 @@ public class VerificationOTPFragment extends Fragment {
 
                     if (statusCode == HttpURLConnection.HTTP_CONFLICT) {
                         dialog.setCancelable(false);
-                        dialog.setPositiveButton("Ok", new OnAwesomeDialogClickListener() {
-                            @Override
-                            public void onClick(AwesomeAlertDialog dialog) {
-                                dialog.dismiss();
-                                final Intent intent = new Intent(activity, RegistrationActivity.class);
-                                intent.putExtra(RegistrationActivity.EMAIL, email);
-                                startActivity(intent);
-                                activity.finish();
-                            }
+                        dialog.setPositiveButton("Ok", dialog1 -> {
+                            dialog1.dismiss();
+                            final Intent intent = new Intent(activity, RegistrationActivity.class);
+                            intent.putExtra(RegistrationActivity.EMAIL, email);
+                            startActivity(intent);
+                            activity.finish();
                         });
                     } else dialog.setPositiveButton("Ok");
 
@@ -348,7 +326,8 @@ public class VerificationOTPFragment extends Fragment {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(activity, error);
+                    Utility.toastMessage(activity, statusCode == 503 ? error :
+                                    "Something unexpected happened. Please try that again.");
                 }
 
                 verifyBtn.revertAnimation();

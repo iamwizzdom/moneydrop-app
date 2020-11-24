@@ -20,7 +20,7 @@ import com.quidvis.moneydrop.model.User;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = BuildConfig.VERSION_CODE;
-    private static Cursor schoolCursor = null;
+    private Context context = null;
 
     private static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS "
             + DbContract.USERS_TABLE_NAME + "("
@@ -37,6 +37,7 @@ public class DbHelper extends SQLiteOpenHelper {
             + DbContract.USER_COUNTY + " CHAR(500) NOT NULL,"
             + DbContract.USER_STATE + " CHAR(500) NOT NULL,"
             + DbContract.USER_STATUS + " INT NOT NULL,"
+            + DbContract.USER_BVN + " CHAR(20) NOT NULL,"
             + DbContract.USER_TOKEN + " CHAR(500) NOT NULL,"
             + DbContract.USER_VERIFIED_EMAIL + " INT NOT NULL,"
             + DbContract.USER_VERIFIED_PHONE + " INT NOT NULL"
@@ -46,6 +47,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public DbHelper(Context context) {
         super(context, DbContract.DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -86,10 +88,11 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.USER_ADDRESS, user.getAddress());
         contentValues.put(DbContract.USER_COUNTY, user.getCountry());
         contentValues.put(DbContract.USER_STATE, user.getState());
+        contentValues.put(DbContract.USER_BVN, user.getBvn());
         contentValues.put(DbContract.USER_TOKEN, user.getToken());
         contentValues.put(DbContract.USER_STATUS, user.getStatus());
-        contentValues.put(DbContract.USER_VERIFIED_EMAIL, user.getVerifiedEmail());
-        contentValues.put(DbContract.USER_VERIFIED_PHONE, user.getVerifiedPhone());
+        contentValues.put(DbContract.USER_VERIFIED_EMAIL, user.isVerifiedEmail());
+        contentValues.put(DbContract.USER_VERIFIED_PHONE, user.isVerifiedPhone());
 
         SQLiteDatabase database = this.getReadableDatabase();
         boolean result = database.insert(DbContract.USERS_TABLE_NAME, null, contentValues) > 0;
@@ -98,11 +101,11 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Update farmer info in SQLite Database
+     * Update user info in SQLite Database
      * @param user
      * @return
      */
-    public boolean updateFarmer(User user) {
+    public boolean updateUser(User user) {
 
         if (user.getId() <= 0) return false;
 
@@ -120,10 +123,11 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.USER_ADDRESS, user.getAddress());
         contentValues.put(DbContract.USER_COUNTY, user.getCountry());
         contentValues.put(DbContract.USER_STATE, user.getState());
+        contentValues.put(DbContract.USER_BVN, user.getBvn());
         contentValues.put(DbContract.USER_TOKEN, user.getToken());
         contentValues.put(DbContract.USER_STATUS, user.getStatus());
-        contentValues.put(DbContract.USER_VERIFIED_EMAIL, user.getVerifiedEmail());
-        contentValues.put(DbContract.USER_VERIFIED_PHONE, user.getVerifiedPhone());
+        contentValues.put(DbContract.USER_VERIFIED_EMAIL, user.isVerifiedEmail());
+        contentValues.put(DbContract.USER_VERIFIED_PHONE, user.isVerifiedPhone());
 
         if (contentValues.size() <= 0) return false;
 
@@ -153,6 +157,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.USER_ADDRESS,
                 DbContract.USER_COUNTY,
                 DbContract.USER_STATE,
+                DbContract.USER_BVN,
                 DbContract.USER_TOKEN,
                 DbContract.USER_VERIFIED_EMAIL,
                 DbContract.USER_VERIFIED_PHONE,
@@ -163,7 +168,8 @@ public class DbHelper extends SQLiteOpenHelper {
         Cursor cursor = (database.query(DbContract.USERS_TABLE_NAME, projection,
                 null, null, null, null, null));
 
-        User user = new User();
+        User user = new User(context);
+
         if (cursor != null && cursor.moveToFirst()) {
             user.setId(cursor.getInt(cursor.getColumnIndex(DbContract.USER_UID)));
             user.setFirstname(cursor.getString(cursor.getColumnIndex(DbContract.USER_FIRSTNAME)));
@@ -172,14 +178,15 @@ public class DbHelper extends SQLiteOpenHelper {
             user.setEmail(cursor.getString(cursor.getColumnIndex(DbContract.USER_EMAIL)));
             user.setPhone(cursor.getString(cursor.getColumnIndex(DbContract.USER_PHONE)));
             user.setDob(cursor.getString(cursor.getColumnIndex(DbContract.USER_DOB)));
-            user.setGender(cursor.getString(cursor.getColumnIndex(DbContract.USER_GENDER)));
+            user.setGender(cursor.getInt(cursor.getColumnIndex(DbContract.USER_GENDER)));
             user.setPicture(cursor.getString(cursor.getColumnIndex(DbContract.USER_PICTURE)));
             user.setAddress(cursor.getString(cursor.getColumnIndex(DbContract.USER_ADDRESS)));
             user.setCountry(cursor.getString(cursor.getColumnIndex(DbContract.USER_COUNTY)));
             user.setState(cursor.getString(cursor.getColumnIndex(DbContract.USER_STATE)));
+            user.setBvn(cursor.getString(cursor.getColumnIndex(DbContract.USER_BVN)));
             user.setToken(cursor.getString(cursor.getColumnIndex(DbContract.USER_TOKEN)));
-            user.setVerifiedEmail(cursor.getInt(cursor.getColumnIndex(DbContract.USER_VERIFIED_EMAIL)));
-            user.setVerifiedPhone(cursor.getInt(cursor.getColumnIndex(DbContract.USER_VERIFIED_PHONE)));
+            user.setVerifiedEmail(cursor.getInt(cursor.getColumnIndex(DbContract.USER_VERIFIED_EMAIL)) == 1);
+            user.setVerifiedPhone(cursor.getInt(cursor.getColumnIndex(DbContract.USER_VERIFIED_PHONE)) == 1);
             user.setStatus(cursor.getInt(cursor.getColumnIndex(DbContract.USER_STATUS)));
             cursor.close();
         }
@@ -191,13 +198,11 @@ public class DbHelper extends SQLiteOpenHelper {
 
     /**
      * Delete user from SQLite Database
-     * @param userID
      * @return
      */
-    public boolean deleteUser(int userID) {
+    public boolean deleteUser() {
         SQLiteDatabase db = this.getWritableDatabase();
-        int affectedRows = db.delete(DbContract.USERS_TABLE_NAME,
-                DbContract.USER_UID + " = ?", new String[]{String.valueOf(userID)});
+        int affectedRows = db.delete(DbContract.USERS_TABLE_NAME, null, null);
         db.close();
         return affectedRows > 0;
     }

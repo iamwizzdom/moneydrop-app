@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.quidvis.moneydrop.model.User;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,32 +23,17 @@ public class Session {
     private final SharedPreferences.Editor editor;
 
     @SuppressLint("CommitPrefEdits")
-    public Session(Context context){
+    public Session(Context context) {
         this.prefs = context.getSharedPreferences("moneydrop_session", Context.MODE_PRIVATE);
         this.editor = prefs.edit();
     }
 
-    public void setLoggedIn(boolean loggedIn){
+    public void setLoggedIn(boolean loggedIn) {
         this.editor.putBoolean("loggedIn", loggedIn);
         this.editor.commit();
     }
 
-    public boolean isLoggedIn(){
+    public boolean isLoggedIn() {
         return prefs.getBoolean("loggedIn", false);
-    }
-
-    public void setAccountInfo(JSONObject accountInfo) {
-        this.editor.putString("accountInfo", accountInfo.toString());
-        this.editor.commit();
-    }
-
-    public JSONObject getAccountInfo(){
-        JSONObject defaultValue = new JSONObject();
-        try {
-            return new JSONObject(Objects.requireNonNull(prefs.getString("accountInfo", defaultValue.toString())));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return defaultValue;
     }
 }

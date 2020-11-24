@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.ProfileActivity;
 import com.quidvis.moneydrop.activity.RegistrationActivity;
 import com.quidvis.moneydrop.activity.VerificationActivity;
 import com.quidvis.moneydrop.constant.URLContract;
@@ -216,7 +217,8 @@ public class VerificationFragment extends Fragment {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(activity, error);
+                    Utility.toastMessage(activity, statusCode == 503 ? error :
+                                    "Something unexpected happened. Please try that again.");
                 }
                 verifyBtn.revertAnimation();
             }

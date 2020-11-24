@@ -33,4 +33,10 @@ public class Constant {
      */
     public static final int MALE = 1;
     public static final int FEMALE = 2;
+
+
+    /**
+     * Pagination
+     */
+    public static final int DEFAULT_RECORD_PER_VIEW = 30;
 }

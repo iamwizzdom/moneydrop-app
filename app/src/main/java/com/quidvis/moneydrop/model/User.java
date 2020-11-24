@@ -1,5 +1,9 @@
 package com.quidvis.moneydrop.model;
 
+import android.content.Context;
+
+import com.quidvis.moneydrop.database.DbHelper;
+
 /**
  * Created by Wisdom Emenike.
  * Date: 5/24/2020
@@ -7,8 +11,18 @@ package com.quidvis.moneydrop.model;
  */
 public class User {
 
-    private int id, status, verifiedEmail, verifiedPhone;
-    private String firstname, middlename, lastname, email, phone, dob, gender, address, country, state, picture, token;
+    private final DbHelper dbHelper;
+
+    public final static int GENDER_MALE = 1, GENDER_FEMALE = 2;
+    
+    private int id, gender, status;
+    private boolean verifiedEmail, verifiedPhone;
+    private String firstname, middlename, lastname, email, phone, bvn,
+            dob, address, country, state, picture, token;
+    
+    public User(Context context) {
+        this.dbHelper = new DbHelper(context);
+    }
 
     public int getId() {
         return id;
@@ -16,22 +30,6 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getVerifiedEmail() {
-        return verifiedEmail;
-    }
-
-    public void setVerifiedEmail(int verifiedEmail) {
-        this.verifiedEmail = verifiedEmail;
-    }
-
-    public int getVerifiedPhone() {
-        return verifiedPhone;
-    }
-
-    public void setVerifiedPhone(int verifiedPhone) {
-        this.verifiedPhone = verifiedPhone;
     }
 
     public String getFirstname() {
@@ -74,6 +72,14 @@ public class User {
         this.phone = phone;
     }
 
+    public String getBvn() {
+        return bvn;
+    }
+
+    public void setBvn(String bvn) {
+        this.bvn = bvn;
+    }
+
     public String getDob() {
         return dob;
     }
@@ -82,11 +88,11 @@ public class User {
         this.dob = dob;
     }
 
-    public String getGender() {
+    public int getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(int gender) {
         this.gender = gender;
     }
 
@@ -130,11 +136,31 @@ public class User {
         this.status = status;
     }
 
+    public boolean isVerifiedEmail() {
+        return verifiedEmail;
+    }
+
+    public void setVerifiedEmail(boolean verifiedEmail) {
+        this.verifiedEmail = verifiedEmail;
+    }
+
+    public boolean isVerifiedPhone() {
+        return verifiedPhone;
+    }
+
+    public void setVerifiedPhone(boolean verifiedPhone) {
+        this.verifiedPhone = verifiedPhone;
+    }
+
     public String getToken() {
         return token;
     }
 
     public void setToken(String token) {
         this.token = token;
+    }
+    
+    public boolean update() {
+        return dbHelper.updateUser(this);
     }
 }

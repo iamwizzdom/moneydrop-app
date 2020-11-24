@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/layout_background_top_rounded"
+    android:paddingTop="@dimen/padding_10"
+    android:paddingBottom="@dimen/padding_10"
+    android:paddingStart="@dimen/padding_20"
+    android:paddingEnd="@dimen/padding_20"
+    tools:context=".fragment.MainFragment">
+
+    <ScrollView
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/button_container">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.2"
+                    style="@style/text_view_style"
+                    android:gravity="start"
+                    android:text="@string/offer_amount"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="23sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvInterestRate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".8"
+                    android:padding="@dimen/padding_15"
+                    style="@style/text_view_style"
+                    android:background="@drawable/layout_background_rounded"
+                    android:backgroundTint="@color/colorGrayExtraLight"
+                    android:gravity="center"
+                    android:text="@string/_5_in_return"
+                    android:textColor="@color/successColor"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/margin_20"
+                android:weightSum="3">
+
+                <ImageView
+                    android:id="@+id/ivDecrement"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_cancel"
+                    android:layout_weight="0.5"
+                    android:contentDescription="@string/decrement"/>
+
+                <com.cottacush.android.currencyedittext.CurrencyEditText
+                    android:id="@+id/amount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    style="@style/edit_text_style"
+                    android:gravity="center|center_vertical"
+                    android:fontFamily="@font/campton_medium"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="30sp"
+                    android:inputType="number"
+                    app:currencySymbol="₦"
+                    app:useCurrencySymbolAsHint="true"
+                    android:autofillHints="@string/offer_amount"
+                    tools:ignore="LabelFor" />
+
+                <ImageView
+                    android:id="@+id/ivIncrement"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_cancel"
+                    android:layout_weight="0.5"
+                    android:contentDescription="@string/decrement"/>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="8dp"
+                android:layout_marginTop="@dimen/margin_20"
+                android:indeterminate="false"
+                android:max="20"
+                android:progress="8"
+                android:progressDrawable="@drawable/seekbar_progress_style"
+                android:thumb="@drawable/seekbar_thumb"
+                android:thumbOffset="0dp" />
+
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_20"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/amount_list"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/margin_20">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.5"
+                        style="@style/text_view_style"
+                        android:gravity="start"
+                        android:text="@string/previous_offers"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="23sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight=".5"
+                        style="@style/text_view_style"
+                        android:gravity="center|end"
+                        android:text="@string/view_all"
+                        android:textColor="@color/colorAccent"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/loan_offer_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:background="@drawable/layout_background_rounded"
+                    android:paddingStart="3dp"
+                    android:paddingEnd="3dp"
+                    android:paddingTop="@dimen/padding_5"
+                    android:paddingBottom="@dimen/padding_5">
+
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmer_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:duration="800">
+
+                        <!-- Adding 7 rows of placeholders -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <include layout="@layout/list_placeholder" />
+                            <include layout="@layout/list_placeholder" />
+                        </LinearLayout>
+
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+                    <TextView
+                        android:id="@+id/no_content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        android:padding="@dimen/activity_vertical_margin"
+                        android:textColor="@color/colorGray"
+                        android:text="@string/no_content"
+                        style="@style/text_view_style"
+                        android:visibility="gone"
+                        android:drawablePadding="@dimen/padding_15"
+                        app:drawableTopCompat="@drawable/ic_no_content" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/padding_20"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        app:layout_constraintTop_toBottomOf="@+id/content"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="@dimen/margin_10"
+            style="@style/button_style_white"
+            android:text="@string/cancel"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:textColor="@color/colorGrayButton"/>
+
+        <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            android:id="@+id/submit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/margin_10"
+            android:layout_marginEnd="0dp"
+            style="@style/button_style"
+            android:text="@string/make_offer"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            app:spinning_bar_width="4dp"
+            app:spinning_bar_color="@color/colorWhite"
+            app:spinning_bar_padding="6dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

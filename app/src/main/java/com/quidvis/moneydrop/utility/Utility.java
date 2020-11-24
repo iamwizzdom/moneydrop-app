@@ -2,22 +2,31 @@ package com.quidvis.moneydrop.utility;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.ArrayMap;
+import android.util.TypedValue;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.chaos.view.PinView;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.MainActivity;
+import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +54,7 @@ import static com.quidvis.moneydrop.constant.Constant.MALE;
 public class Utility {
 
     private static boolean permitNet = true;
+    private static final Bundle state = new Bundle();
 
     /**
      *
@@ -212,6 +222,60 @@ public class Utility {
         return message;
     }
 
+    public static ArrayMap<String, Integer> getTheme(String status) {
+        ArrayMap<String, Integer> theme = new ArrayMap<>();
+        switch (status.toLowerCase()) {
+            case "successful":
+                theme.put("icon", R.drawable.ic_transaction_outgoing_success);
+                theme.put("color", R.color.successColor);
+                theme.put("badge", R.style.tag_success);
+                theme.put("background", R.drawable.tag_success);
+                break;
+            case "frozen":
+                theme.put("icon", R.drawable.ic_transaction_outgoing_pending);
+                theme.put("color", R.color.pendingColor);
+                theme.put("badge", R.style.tag_pending);
+                theme.put("background", R.drawable.tag_pending);
+                break;
+            case "failed":
+                theme.put("icon", R.drawable.ic_transaction_outgoing_danger);
+                theme.put("color", R.color.dangerColor);
+                theme.put("badge", R.style.tag_danger);
+                theme.put("background", R.drawable.tag_danger);
+                break;
+            default:
+                theme.put("icon", R.drawable.ic_transaction_outgoing_warning);
+                theme.put("color", R.color.warningColor);
+                theme.put("badge", R.style.tag_warning);
+                theme.put("background", R.drawable.tag_warning);
+                break;
+        }
+        return theme;
+    }
+
+    public static Bundle getState(String key) {
+        Bundle prevState = state.getBundle(key);
+        if (prevState == null) prevState = new Bundle();
+        return prevState;
+    }
+
+    public static int getDip(Activity activity, int dip) {
+        float scale = activity.getResources().getDisplayMetrics().density;
+        return (int) (dip * scale + 0.5f);
+    }
+
+    public static void saveState(String key, Bundle state) {
+        Utility.state.putBundle(key, state);
+    }
+
+    public static void clearState(String key) {
+        state.remove(key);
+    }
+
+    public static void clearAllState() {
+        state.clear();
+    }
+
     /**
      *
      * @param editText
@@ -255,6 +319,36 @@ public class Utility {
         editText.setTextColor(color);
     }
 
+    public static void startRevealActivity(Activity activity, View v, Class<?> className) {
+        startRevealActivity(activity, v, className, null);
+    }
+
+    public static void startRevealActivity(Activity activity, View v, Class<?> className, Bundle bundle) {
+        //calculates the center of the View v you are passing
+        int revealX = (int) (v.getX() + v.getWidth() / 2);
+        int revealY = (int) (v.getY() + v.getHeight() / 2);
+
+        //create an intent, that launches the second activity and pass the x and y coordinates
+        Intent intent = new Intent(activity, className);
+        intent.putExtra(RevealAnimation.EXTRA_CIRCULAR_REVEAL_X, revealX);
+        intent.putExtra(RevealAnimation.EXTRA_CIRCULAR_REVEAL_Y, revealY);
+        intent.putExtra(RevealAnimation.EXTRA_CIRCULAR_REVEAL_BUNDLE, bundle);
+
+        //just start the activity as an shared transition, but set the options bundle to null
+        ActivityCompat.startActivity(activity, intent, null);
+
+        //to prevent strange behaviours override the pending transitions
+        activity.overridePendingTransition(0, 0);
+    }
+
+    private static int getDips(Activity activity, int dps) {
+        Resources resources = activity.getResources();
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dps,
+                resources.getDisplayMetrics());
+    }
+
     /**
      *
      * @param drawable
@@ -276,21 +370,32 @@ public class Utility {
         return bitmap;
     }
 
+    public static Bitmap getResizedBitmap(Bitmap image) {
+        return getResizedBitmap(image, 2, 600);
+    }
+
+    public static Bitmap getResizedBitmap(Bitmap image, int sampleSize) {
+        return getResizedBitmap(image, sampleSize, 600);
+    }
+
     /**
      *
      * @param image
      * @return
      */
-    public static Bitmap getResizedBitmap(Bitmap image) {
+    public static Bitmap getResizedBitmap(Bitmap image, int sampleSize, int minDimension) {
+
         int width = image.getWidth();
         int height = image.getHeight();
 
         float bitmapRatio = (float) width / (float) height;
         if (bitmapRatio > 1) {
-            width = 600;
+            width = width / sampleSize;
+            if (width < minDimension) width = minDimension;
             height = (int) (width / bitmapRatio);
         } else {
-            height = 600;
+            height = height / sampleSize;
+            if (height < minDimension) height = minDimension;
             width = (int) (height * bitmapRatio);
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
@@ -453,6 +558,180 @@ public class Utility {
      */
     public static String isEmpty(String value, String defaultValue) {
         return (TextUtils.isEmpty(value = isNull(value)) ? defaultValue : value);
+    }
+
+    /**
+     *
+     * @param context
+     * @param message
+     */
+    public static void alertDialog(Context context, String message) {
+        alertDialog(context, null, message, null,
+                null, null,
+                null, null,
+                null);
+    }
+
+    /**
+     *
+     * @param context
+     * @param message
+     */
+    public static void alertDialog(Context context, String message, boolean cancelable) {
+        alertDialog(context, null, message, null,
+                null, null,
+                null, null,
+                null, cancelable);
+    }
+
+    /**
+     *
+     * @param context
+     * @param title
+     * @param message
+     */
+    public static void alertDialog(Context context, String title, String message) {
+        alertDialog(context, title, message, null,
+                null, null,
+                null, null,
+                null);
+    }
+
+    /**
+     *
+     * @param context
+     * @param title
+     * @param message
+     * @param cancelable
+     */
+    public static void alertDialog(Context context, String title, String message, boolean cancelable) {
+        alertDialog(context, title, message, null,
+                null, null,
+                null, null,
+                null, cancelable);
+    }
+
+    /**
+     *
+     * @param context
+     * @param title
+     * @param message
+     * @param positiveBtnText
+     * @param positiveBtnOnClickListner
+     */
+    public static void alertDialog(Context context, String title, String message,
+                                   String positiveBtnText, OnCustomDialogClickListener positiveBtnOnClickListner) {
+        alertDialog(context, title, message, positiveBtnText,
+                positiveBtnOnClickListner, null,
+                null, null,
+                null);
+    }
+
+    /**
+     *
+     * @param context
+     * @param title
+     * @param message
+     * @param positiveBtnText
+     * @param positiveBtnOnClickListner
+     * @param cancelable
+     */
+    public static void alertDialog(Context context, String title, String message,
+                                   String positiveBtnText, OnCustomDialogClickListener positiveBtnOnClickListner, boolean cancelable) {
+        alertDialog(context, title, message, positiveBtnText,
+                positiveBtnOnClickListner, null,
+                null, null,
+                null, cancelable);
+    }
+
+    /**
+     *
+     * @param context
+     * @param title
+     * @param message
+     * @param positiveBtnText
+     * @param positiveBtnOnClickListner
+     * @param negativeBtnText
+     * @param negativeBtnOnClickListner
+     */
+    public static void alertDialog(Context context, String title, String message,
+                                   String positiveBtnText, OnCustomDialogClickListener positiveBtnOnClickListner,
+                                   String negativeBtnText, OnCustomDialogClickListener negativeBtnOnClickListner) {
+        alertDialog(context, title, message, positiveBtnText,
+                positiveBtnOnClickListner, negativeBtnText,
+                negativeBtnOnClickListner, null,
+                null);
+    }
+
+    /**
+     *
+     * @param context
+     * @param title
+     * @param message
+     * @param positiveBtnText
+     * @param positiveBtnOnClickListner
+     * @param negativeBtnText
+     * @param negativeBtnOnClickListner
+     * @param cancelable
+     */
+    public static void alertDialog(Context context, String title, String message,
+                                   String positiveBtnText, OnCustomDialogClickListener positiveBtnOnClickListner,
+                                   String negativeBtnText, OnCustomDialogClickListener negativeBtnOnClickListner, boolean cancelable) {
+        alertDialog(context, title, message, positiveBtnText,
+                positiveBtnOnClickListner, negativeBtnText,
+                negativeBtnOnClickListner, null,
+                null, cancelable);
+    }
+
+    /**
+     *
+     * @param context
+     * @param title
+     * @param message
+     * @param positiveBtnText
+     * @param positiveBtnOnClickListner
+     * @param negativeBtnText
+     * @param negativeBtnOnClickListner
+     * @param neutralBtnText
+     * @param neutralBtnOnClickListner
+     */
+    public static void alertDialog(Context context, String title, String message,
+                                   String positiveBtnText, OnCustomDialogClickListener positiveBtnOnClickListner,
+                                   String negativeBtnText, OnCustomDialogClickListener negativeBtnOnClickListner,
+                                   String neutralBtnText, OnCustomDialogClickListener neutralBtnOnClickListner) {
+
+        alertDialog(context, title, message, positiveBtnText,
+                positiveBtnOnClickListner, negativeBtnText,
+                negativeBtnOnClickListner, neutralBtnText,
+                neutralBtnOnClickListner, true);
+    }
+
+    /**
+     *
+     * @param context
+     * @param title
+     * @param message
+     * @param positiveBtnText
+     * @param positiveBtnOnClickListner
+     * @param negativeBtnText
+     * @param negativeBtnOnClickListner
+     * @param neutralBtnText
+     * @param neutralBtnOnClickListner
+     * @param cancelable
+     */
+    public static void alertDialog(Context context, String title, String message,
+                                   String positiveBtnText, OnCustomDialogClickListener positiveBtnOnClickListner,
+                                   String negativeBtnText, OnCustomDialogClickListener negativeBtnOnClickListner,
+                                   String neutralBtnText, OnCustomDialogClickListener neutralBtnOnClickListner, boolean cancelable) {
+
+        CustomAlertDialog customAlertDialog = new CustomAlertDialog(context);
+        if (title != null) customAlertDialog.setTitle(title);
+        if (message != null) customAlertDialog.setMessage(message);
+        if (positiveBtnText != null) customAlertDialog.setPositiveButton(positiveBtnText, positiveBtnOnClickListner);
+        if (negativeBtnText != null) customAlertDialog.setNegativeButton(negativeBtnText, negativeBtnOnClickListner);
+        if (neutralBtnText != null) customAlertDialog.setNeutralButton(neutralBtnText, neutralBtnOnClickListner);
+        customAlertDialog.setCancelable(cancelable);
+        customAlertDialog.display();
     }
 
 

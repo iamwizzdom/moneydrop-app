@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -28,6 +29,8 @@ import com.quidvis.moneydrop.utility.Validator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,7 +54,9 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
     private TextView tvDobError;
     private TextView tvEmailError;
     private CircularProgressButton signupBtn;
-    private int mYear, mMonth, mDay;
+    private final Calendar calendar = Calendar.getInstance();
+    private final DateFormat formatter = new SimpleDateFormat(
+            "yyyy-MM-dd", new java.util.Locale("en","ng"));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,41 +89,22 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
 
         signupBtn = findViewById(R.id.signUpBtn);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                Utility.requestFocus(etFirstname, RegistrationActivity.this);
-            }
-        }, 1000);
+        new Handler(Looper.myLooper()).postDelayed(() -> Utility.requestFocus(etFirstname, RegistrationActivity.this), 1000);
 
         etEmail.setText(email);
         Utility.disableEditText(etEmail);
 
-        etDOB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setDate();
-            }
-        });
+        etDOB.setOnClickListener(v -> setDate());
 
-        etConfirmPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    signup();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        signupBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        etConfirmPassword.setOnEditorActionListener((textView, id, keyEvent) -> {
+            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 signup();
+                return true;
             }
+            return false;
         });
+
+        signupBtn.setOnClickListener(v -> signup());
     }
 
     @Override
@@ -301,7 +287,8 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(RegistrationActivity.this, error.contains("{") ? "Something unexpected happened. Please try that again." : error);
+                    Utility.toastMessage(RegistrationActivity.this, statusCode == 503 ? error :
+                                    "Something unexpected happened. Please try that again.");
                 }
                 Utility.enableEditText(etFirstname);
                 Utility.enableEditText(etLastname);
@@ -322,8 +309,8 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
     private void setDate() {
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(RegistrationActivity.this,
-                RegistrationActivity.this, mYear > 0 ? mYear : calendar.get(Calendar.YEAR),
-                mMonth > 0 ? mMonth : calendar.get(Calendar.MONTH), mDay > 0 ? mDay : calendar.get(Calendar.DAY_OF_MONTH));
+                RegistrationActivity.this, calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.show();
     }
 
@@ -336,10 +323,7 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
      */
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        mYear = year;
-        mMonth = month;
-        mDay = dayOfMonth;
-        etDOB.setText(String.format("%s-%s-%s", mYear, ((mMonth + 1) >= 10 ? (mMonth + 1) :
-                ("0" + (mMonth + 1))), (mDay >= 10 ? mDay : ("0" + mDay))));
+        calendar.set(year, month, dayOfMonth);
+        etDOB.setText(formatter.format(calendar.getTime()));
     }
 }

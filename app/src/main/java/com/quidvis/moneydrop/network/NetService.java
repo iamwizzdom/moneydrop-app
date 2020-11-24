@@ -85,7 +85,7 @@ public class NetService extends IntentService {
             case GET_COUNTRY_LIST:
 
                 // Request a string response from the provided URL.
-                stringRequest = new StringRequest(Request.Method.POST, URLContract.COUNTRY_LIST_REQUEST_URL,
+                stringRequest = new StringRequest(Request.Method.POST, URLContract.LOGIN_URL,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String data) {

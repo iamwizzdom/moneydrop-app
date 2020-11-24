@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:layout_margin="@dimen/custom_dialog_spacing"
-    android:background="@drawable/layout_background">
+    android:background="@drawable/layout_background_rounded">
 
     <TextView
         android:id="@+id/dialog_title"

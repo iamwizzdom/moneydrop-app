@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.widget.TextView;
@@ -14,17 +15,15 @@ import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.preference.Session;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 public class Splash extends AppCompatActivity {
 
     private static boolean isFirstTimeSplash = true;
-    private final Handler handler = new Handler();
-    private final Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            isFirstTimeSplash = false;
-            startActivity();
-        }
+    private final Handler handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
+    private final Runnable runnable = () -> {
+        isFirstTimeSplash = false;
+        startActivity();
     };
     private Session session;
 
@@ -33,13 +32,13 @@ public class Splash extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity);
         TextView appName = findViewById(R.id.appName);
-        TextView copyRight = findViewById(R.id.tvCopyRight);
+        TextView tvCopyRight = findViewById(R.id.tvCopyRight);
 
         session = new Session(this);
 
         int year = Calendar.getInstance().get(Calendar.YEAR);
-        String copy_right = String.format(getResources().getString(R.string.app_name) + ". © %s", year);
-        copyRight.setText(copy_right);
+        String copyRight = String.format(getResources().getString(R.string.app_name) + ". © %s", year);
+        if (tvCopyRight != null) tvCopyRight.setText(copyRight);
 
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(getResources().getString(R.string.app_name));
         spannableStringBuilder.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), 5, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -49,12 +48,7 @@ public class Splash extends AppCompatActivity {
 
     private void startActivity() {
         if (isFinishing()) return;
-        startActivity(
-                new Intent(
-                Splash.this, session.isLoggedIn() ?
-                        MainActivity.class : GetStartedActivity.class
-                )
-        );
+        startActivity(new Intent(Splash.this, session.isLoggedIn() ? MainActivity.class : GetStartedActivity.class));
         finish();
     }
 
@@ -68,7 +62,7 @@ public class Splash extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (!isFirstTimeSplash) startActivity();
-        else if (handler != null) handler.postDelayed(runnable, 2000);
+        else if (handler != null) handler.postDelayed(runnable, 500);
     }
 
     @Override

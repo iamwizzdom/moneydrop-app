@@ -245,7 +245,8 @@ public class PasswordResetActivity extends AppCompatActivity {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(PasswordResetActivity.this, error.startsWith("{") || error.startsWith("<") ? "Something unexpected happened. Please try that again." : error);
+                    Utility.toastMessage(PasswordResetActivity.this, statusCode == 503 ? error :
+                                    "Something unexpected happened. Please try that again.");
                 }
 
                 Utility.enableEditText(etOTP);

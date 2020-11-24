@@ -30,6 +30,7 @@ public class DbContract {
     public static final String USER_COUNTY = "country";
     public static final String USER_STATE = "state";
     public static final String USER_STATUS = "status";
+    public static final String USER_BVN = "bvn";
     public static final String USER_TOKEN = "token";
     public static final String USER_VERIFIED_EMAIL = "verified_email";
     public static final String USER_VERIFIED_PHONE = "verified_phone";

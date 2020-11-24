@@ -1,8 +1,8 @@
 package com.quidvis.moneydrop.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -19,9 +19,13 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
+import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
+import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
+import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
+import com.quidvis.moneydrop.utility.CustomAlertDialog;
 import com.quidvis.moneydrop.utility.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
@@ -38,17 +42,31 @@ import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
 public class LoginActivity extends AppCompatActivity {
 
+    public static final String TITLE = "intent-title";
+    public static final String MESSAGE = "intent-message";
     private EditText etEmail;
     private EditText etPassword;
     private CircularProgressButton loginBtn;
     private Session session;
+    private DbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Intent intent = getIntent();
+        String title = intent.getStringExtra(TITLE);
+        String message = intent.getStringExtra(MESSAGE);
+
+        if (title != null && message != null) {
+            showDialogMessage(title, message);
+        } else if (message != null) {
+            Utility.toastMessage(this, message);
+        }
+
         session = new Session(this);
+        dbHelper = new DbHelper(this);
 
         TextView appName = findViewById(R.id.appName);
         TextView forgotPassword = findViewById(R.id.forgotPassword);
@@ -61,37 +79,19 @@ public class LoginActivity extends AppCompatActivity {
         string.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), 5, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         appName.setText(string);
 
-        etPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    login();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        forgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
-            }
-        });
-
-        signUpBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, VerificationActivity.class));
-            }
-        });
-
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        etPassword.setOnEditorActionListener((textView, id, keyEvent) -> {
+            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 login();
+                return true;
             }
+            return false;
         });
+
+        forgotPassword.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class)));
+
+        signUpBtn.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, VerificationActivity.class)));
+
+        loginBtn.setOnClickListener(v -> login());
     }
 
     private void login() {
@@ -146,15 +146,42 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+
                 try {
 
                     JSONObject object = new JSONObject(response);
-                    Utility.toastMessage(LoginActivity.this, object.getString("message"));
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    session.setLoggedIn(true);
-                    session.setAccountInfo(object.getJSONObject("response"));
-                    startActivity(intent);
-                    finish();
+
+                    JSONObject userData = object.getJSONObject("response");
+                    JSONObject userObject = userData.getJSONObject("user");
+
+                    User user = new User(LoginActivity.this);
+                    user.setFirstname(userObject.getString("firstname"));
+                    user.setMiddlename(userObject.getString("middlename"));
+                    user.setLastname(userObject.getString("lastname"));
+                    user.setPhone(userObject.getString("phone"));
+                    user.setEmail(userObject.getString("email"));
+                    user.setBvn(userObject.getString("bvn"));
+                    user.setPicture(userObject.getString("picture"));
+                    user.setDob(userObject.getString("dob"));
+                    user.setGender(Integer.parseInt(Utility.isNull(userObject.getString("gender"), "0")));
+                    user.setAddress(userObject.getString("address"));
+                    user.setCountry(userObject.getString("country"));
+                    user.setState(userObject.getString("state"));
+                    user.setStatus(userObject.getInt("status"));
+                    JSONObject verified = userObject.getJSONObject("verified");
+                    user.setVerifiedEmail(verified.getBoolean("email"));
+                    user.setVerifiedPhone(verified.getBoolean("phone"));
+                    user.setToken(userData.getString("token"));
+
+                    if (dbHelper.saveUser(user)) {
+                        session.setLoggedIn(true);
+                        Utility.toastMessage(LoginActivity.this, object.getString("message"));
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Utility.toastMessage(LoginActivity.this, "Failed to start log in session. Please try again later.");
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -162,6 +189,7 @@ public class LoginActivity extends AppCompatActivity {
                     Utility.enableEditText(etPassword, Color.WHITE);
                     Utility.toastMessage(LoginActivity.this, "Something unexpected happened. Please try that again.");
                 }
+
                 loginBtn.revertAnimation();
             }
 
@@ -200,7 +228,8 @@ public class LoginActivity extends AppCompatActivity {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(LoginActivity.this, error.contains("{") ? "Something unexpected happened. Please try that again." : error);
+                    Utility.toastMessage(LoginActivity.this, statusCode == 503 ? error :
+                                    "Something unexpected happened. Please try that again.");
                 }
                 Utility.enableEditText(etEmail, Color.WHITE);
                 Utility.enableEditText(etPassword, Color.WHITE);
@@ -213,5 +242,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
         httpRequest.send(LoginActivity.this);
+    }
+
+    public void showDialogMessage(String title, String message) {
+        Utility.alertDialog(LoginActivity.this, title, message, "Ok", Dialog::dismiss);
     }
 }

@@ -184,7 +184,8 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(ForgotPasswordActivity.this, error.startsWith("{") || error.startsWith("<") ? "Something unexpected happened. Please try that again." : error);
+                    Utility.toastMessage(ForgotPasswordActivity.this, statusCode == 503 ? error :
+                                    "Something unexpected happened. Please try that again.");
                 }
                 Utility.enableEditText(etEmail);
                 sendOTPBtn.revertAnimation();

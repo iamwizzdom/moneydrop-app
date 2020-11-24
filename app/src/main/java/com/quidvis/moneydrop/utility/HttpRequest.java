@@ -1,6 +1,8 @@
 package com.quidvis.moneydrop.utility;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -9,11 +11,16 @@ import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.network.VolleySingleton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.HttpURLConnection;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.quidvis.moneydrop.constant.Constant.RETRY_IN_30_SEC;
 
@@ -30,6 +37,8 @@ public abstract class HttpRequest {
     private StringRequest stringRequest;
     private Map<String, String> headers;
     private int statusCode;
+    private Runnable runnable;
+    private final Handler handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
     private static boolean ongoingTask = false;
 
     protected HttpRequest(String url, int method) {
@@ -65,30 +74,55 @@ public abstract class HttpRequest {
         }
 
         if (isOngoingTask()) {
-            onRequestError("There's an ongoing network task, please wait...", 429, null);
+            if (runnable == null) {
+                Utility.toastMessage(activity, "There's an ongoing network task, please wait.");
+            } else handler.removeCallbacks(runnable);
+            handler.postDelayed(runnable = (Runnable) () -> HttpRequest.this.send(activity), 500);
             return;
         }
 
         setOngoingTask(true);
         onRequestStarted();
 
-        Response.Listener<String> listener = new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                // Give back the response string.
-                setOngoingTask(false);
-                onRequestCompleted(response.trim(), statusCode, headers);
+        Response.Listener<String> listener = response -> {
+            // Give back the response string.
+            setOngoingTask(false);
+            response = response.trim();
+            if (statusCode == 419) {
+                String title = "Auth Error", message = "Seems your authentication token has expired, please login again to continue.";
+                try {
+                    JSONObject object = new JSONObject(response);
+                    title = object.getString("title");
+                    message = object.getString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MainActivity.logout(activity, title, message);
+                return;
             }
+            onRequestCompleted(response, statusCode, headers);
         };
 
-        Response.ErrorListener errorListener = new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                NetworkResponse response = error.networkResponse;
-                setOngoingTask(false);
-                onRequestError(response != null ? new String(response.data) : "", response != null ? response.statusCode : HttpURLConnection.HTTP_NO_CONTENT, headers);
-                error.printStackTrace();
+        Response.ErrorListener errorListener = error -> {
+            NetworkResponse response = error.networkResponse;
+            setOngoingTask(false);
+            int statusCode = response != null ? response.statusCode : HttpURLConnection.HTTP_NO_CONTENT;
+            String responseData = response != null ? new String(response.data) : "";
+            responseData = responseData.trim();
+            if (statusCode == 419) {
+                String title = "Auth Error", message = "Seems your authentication token has expired, please login again to continue.";
+                try {
+                    JSONObject object = new JSONObject(responseData);
+                    title = object.getString("title");
+                    message = object.getString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MainActivity.logout(activity, title, message);
+                return;
             }
+            onRequestError(responseData, statusCode, headers);
+            error.printStackTrace();
         };
 
         // Request a string response from the provided URL.
