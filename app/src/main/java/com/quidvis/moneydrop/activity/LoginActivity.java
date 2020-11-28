@@ -44,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public static final String TITLE = "intent-title";
     public static final String MESSAGE = "intent-message";
+    public static final String EMAIL = "intent-email";
     private EditText etEmail;
     private EditText etPassword;
     private CircularProgressButton loginBtn;
@@ -58,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String title = intent.getStringExtra(TITLE);
         String message = intent.getStringExtra(MESSAGE);
+        String email = intent.getStringExtra(EMAIL);
 
         if (title != null && message != null) {
             showDialogMessage(title, message);
@@ -74,6 +76,10 @@ public class LoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         loginBtn = findViewById(R.id.loginBtn);
+
+        if (email != null && Validator.isValidEmail(email)) {
+            etEmail.setText(email);
+        }
 
         SpannableStringBuilder string = new SpannableStringBuilder(getResources().getString(R.string.app_name));
         string.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), 5, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -246,5 +252,18 @@ public class LoginActivity extends AppCompatActivity {
 
     public void showDialogMessage(String title, String message) {
         Utility.alertDialog(LoginActivity.this, title, message, "Ok", Dialog::dismiss);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Utility.requestFocus(etEmail, this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Utility.clearFocus(etEmail, this);
+        Utility.clearFocus(etPassword, this);
     }
 }

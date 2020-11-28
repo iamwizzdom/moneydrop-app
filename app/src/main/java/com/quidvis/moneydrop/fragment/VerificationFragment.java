@@ -1,15 +1,18 @@
 package com.quidvis.moneydrop.fragment;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +40,7 @@ import org.json.JSONObject;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
@@ -78,45 +82,30 @@ public class VerificationFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_verification, container, false);
+        return inflater.inflate(R.layout.fragment_verification, container, false);
+    }
 
-        if (activity == null) activity = getActivity();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        assert activity != null;
+        activity = requireActivity();
 
         dialog = new AwesomeAlertDialog(activity);
 
         etEmail = view.findViewById(R.id.etEmail);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                Utility.requestFocus(etEmail, activity);
-            }
-        }, 1000);
-
         verifyBtn = view.findViewById(R.id.verifyBtn);
 
-        etEmail.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    requestVerification();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        verifyBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        etEmail.setOnEditorActionListener((textView, id, keyEvent) -> {
+            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 requestVerification();
+                return true;
             }
+            return false;
         });
 
-        return view;
+        verifyBtn.setOnClickListener(v -> requestVerification());
     }
 
     private void requestVerification() {
@@ -162,12 +151,7 @@ public class VerificationFragment extends Fragment {
 
                     dialog.setTitle(object.getString("title"));
                     dialog.setMessage(object.getString("message"));
-                    dialog.setPositiveButton("Ok", new OnAwesomeDialogClickListener() {
-                        @Override
-                        public void onClick(AwesomeAlertDialog dialog) {
-                            dialog.dismiss();
-                        }
-                    });
+                    dialog.setPositiveButton("Ok", Dialog::dismiss);
                     dialog.display();
                     etEmail.setText("");
                     Bundle bundle = new Bundle();
@@ -192,28 +176,24 @@ public class VerificationFragment extends Fragment {
 
                     JSONObject object = new JSONObject(error);
 
-                    dialog.setTitle(object.getString("title"));
-
-                    JSONObject errors = object.getJSONObject("error");
-
-                    if (errors.length() > 0) dialog.setMessage(Utility.serializeObject(errors));
-                    else dialog.setMessage(object.getString("message"));
-
                     if (statusCode == HttpURLConnection.HTTP_CONFLICT) {
-                        dialog.setCancelable(false);
-                        dialog.setPositiveButton("Ok", new OnAwesomeDialogClickListener() {
-                            @Override
-                            public void onClick(AwesomeAlertDialog dialog) {
-                                dialog.dismiss();
-                                final Intent intent = new Intent(activity, RegistrationActivity.class);
-                                intent.putExtra(RegistrationActivity.EMAIL, email);
-                                startActivity(intent);
-                                activity.finish();
-                            }
-                        });
-                    } else dialog.setPositiveButton("Ok");
 
-                    dialog.display();
+                        Utility.toastMessage(activity, object.getString("message"));
+                        final Intent intent = new Intent(activity, RegistrationActivity.class);
+                        intent.putExtra(RegistrationActivity.EMAIL, email);
+                        startActivity(intent);
+                        activity.finish();
+
+                    } else {
+
+                        dialog.setTitle(object.getString("title"));
+                        JSONObject errors = object.getJSONObject("error");
+                        if (errors.length() > 0) dialog.setMessage(Utility.serializeObject(errors));
+                        else dialog.setMessage(object.getString("message"));
+                        dialog.setPositiveButton("Ok");
+                        dialog.display();
+
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -244,6 +224,18 @@ public class VerificationFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Utility.requestFocus(etEmail, activity);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Utility.clearFocus(etEmail, activity);
     }
 
     /**

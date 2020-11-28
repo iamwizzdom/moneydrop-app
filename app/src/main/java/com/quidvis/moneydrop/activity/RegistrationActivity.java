@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -18,9 +19,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.Request;
+import com.hbb20.CountryCodePicker;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
+import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
+import com.quidvis.moneydrop.model.User;
+import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.utility.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
@@ -47,6 +52,7 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
     private EditText etFirstname;
     private EditText etLastname;
     private EditText etPhone;
+    private CountryCodePicker ccp;
     private EditText etEmail;
     private EditText etDOB;
     private EditText etPassword;
@@ -58,21 +64,20 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
     private final DateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", new java.util.Locale("en","ng"));
 
+    private Session session;
+    private DbHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_registration);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         ImageView backBtn = toolbar.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        backBtn.setOnClickListener(v -> onBackPressed());
+
+        session = new Session(this);
+        dbHelper = new DbHelper(this);
 
         Intent intent = getIntent();
         email = intent.getStringExtra(EMAIL);
@@ -81,15 +86,15 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
         etLastname = findViewById(R.id.etLastname);
         etDOB = findViewById(R.id.etDOB);
         tvDobError = findViewById(R.id.tvDobError);
+        ccp = findViewById(R.id.ccp);
         etPhone = findViewById(R.id.etPhone);
+        ccp.registerCarrierNumberEditText(etPhone);
         etEmail = findViewById(R.id.etEmail);
         tvEmailError = findViewById(R.id.tvEmailError);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
 
         signupBtn = findViewById(R.id.signUpBtn);
-
-        new Handler(Looper.myLooper()).postDelayed(() -> Utility.requestFocus(etFirstname, RegistrationActivity.this), 1000);
 
         etEmail.setText(email);
         Utility.disableEditText(etEmail);
@@ -116,7 +121,7 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
 
         final String firstname = Objects.requireNonNull(etFirstname.getText()).toString();
         final String lastname = Objects.requireNonNull(etLastname.getText()).toString();
-        final String phone = Objects.requireNonNull(etPhone.getText()).toString();
+        final String phone = ccp.getFullNumber();
         final String password = Objects.requireNonNull(etPassword.getText()).toString();
         final String confirmPassword = Objects.requireNonNull(etConfirmPassword.getText()).toString();
         final String dob = Objects.requireNonNull(etDOB.getText()).toString();
@@ -217,14 +222,45 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
 
             @Override
             protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+                Log.e("response", response);
                 try {
 
                     JSONObject object = new JSONObject(response);
-                    Utility.toastMessage(RegistrationActivity.this, object.getString("message"));
-                    Intent intent = new Intent(RegistrationActivity.this, RegistrationSuccessfulActivity.class);
-                    intent.putExtra(RegistrationSuccessfulActivity.USER_DATA, object.getJSONObject("response").toString());
-                    startActivity(intent);
-                    finish();
+                    if (object.getBoolean("status")) {
+
+                        Utility.toastMessage(RegistrationActivity.this, object.getString("message"));
+
+                        JSONObject userData = object.getJSONObject("response");
+                        JSONObject userObject = userData.getJSONObject("user");
+
+                        User user = new User(RegistrationActivity.this);
+                        user.setFirstname(userObject.getString("firstname"));
+                        user.setMiddlename(userObject.getString("middlename"));
+                        user.setLastname(userObject.getString("lastname"));
+                        user.setPhone(userObject.getString("phone"));
+                        user.setEmail(userObject.getString("email"));
+                        user.setBvn(userObject.getString("bvn"));
+                        user.setPicture(userObject.getString("picture"));
+                        user.setDob(userObject.getString("dob"));
+                        user.setGender(Integer.parseInt(Utility.isNull(userObject.getString("gender"), "0")));
+                        user.setAddress(userObject.getString("address"));
+                        user.setCountry(userObject.getString("country"));
+                        user.setState(userObject.getString("state"));
+                        user.setStatus(userObject.getInt("status"));
+                        JSONObject verified = userObject.getJSONObject("verified");
+                        user.setVerifiedEmail(verified.getBoolean("email"));
+                        user.setVerifiedPhone(verified.getBoolean("phone"));
+                        user.setToken(userData.getString("token"));
+
+                        Intent intent = new Intent(RegistrationActivity.this, RegistrationSuccessfulActivity.class);
+
+                        if (dbHelper.saveUser(user)) session.setLoggedIn(true);
+                        else intent.putExtra(RegistrationSuccessfulActivity.USER_EMAIL, email);
+
+                        startActivity(intent);
+                        finish();
+
+                    } else showMessage(object);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -233,6 +269,7 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
                     Utility.enableEditText(etPhone);
                     Utility.enableEditText(etPassword);
                     Utility.enableEditText(etConfirmPassword);
+                    Log.e("reg-error", Objects.requireNonNull(e.getMessage()));
                     Utility.toastMessage(RegistrationActivity.this, "Something unexpected happened. Please try that again.");
                 }
                 signupBtn.revertAnimation();
@@ -243,47 +280,7 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
                 try {
 
                     JSONObject object = new JSONObject(error);
-                    AwesomeAlertDialog dialog = new AwesomeAlertDialog(RegistrationActivity.this);
-
-                    dialog.setTitle(object.getString("title"));
-                    dialog.setMessage(object.getString("message"));
-                    dialog.setPositiveButton("Ok");
-                    dialog.display();
-
-
-                    JSONObject errors = object.getJSONObject("error");
-
-                    if (errors.length() > 0) {
-                        for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
-                            String key = it.next();
-                            String value = errors.getString(key);
-                            if (TextUtils.isEmpty(value)) continue;
-                            switch (key) {
-                                case "firstname":
-                                    etFirstname.setError(value);
-                                    break;
-                                case "lastname":
-                                    etLastname.setError(value);
-                                    break;
-                                case "phone":
-                                    etPhone.setError(value);
-                                    break;
-                                case "email":
-                                    tvEmailError.setText(value);
-                                    tvEmailError.setVisibility(View.VISIBLE);
-                                    break;
-                                case "dob":
-                                    tvDobError.setText(value);
-                                    tvDobError.setVisibility(View.VISIBLE);
-                                    break;
-                                case "password":
-                                    etPassword.setError(value);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
+                    showMessage(object);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -306,6 +303,60 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
         httpRequest.send(RegistrationActivity.this);
     }
 
+    private void showMessage(JSONObject object) {
+        try {
+
+            AwesomeAlertDialog dialog = new AwesomeAlertDialog(RegistrationActivity.this);
+
+            dialog.setTitle(object.getString("title"));
+            dialog.setMessage(object.getString("message"));
+            dialog.setPositiveButton("Ok");
+            dialog.display();
+
+
+            if (object.has("error")) {
+                JSONObject errors = object.getJSONObject("error");
+
+                if (errors.length() > 0) {
+                    for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
+                        String key = it.next();
+                        String value = errors.getString(key);
+                        if (TextUtils.isEmpty(value)) continue;
+                        switch (key) {
+                            case "firstname":
+                                etFirstname.setError(value);
+                                break;
+                            case "lastname":
+                                etLastname.setError(value);
+                                break;
+                            case "phone":
+                                etPhone.setError(value);
+                                break;
+                            case "email":
+                                tvEmailError.setText(value);
+                                tvEmailError.setVisibility(View.VISIBLE);
+                                break;
+                            case "dob":
+                                tvDobError.setText(value);
+                                tvDobError.setVisibility(View.VISIBLE);
+                                break;
+                            case "password":
+                                etPassword.setError(value);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
+        } catch (JSONException e) {
+
+            Utility.toastMessage(RegistrationActivity.this,
+                    "Something unexpected happened. Please try that again.");
+        }
+    }
+
     private void setDate() {
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(RegistrationActivity.this,
@@ -325,5 +376,21 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         calendar.set(year, month, dayOfMonth);
         etDOB.setText(formatter.format(calendar.getTime()));
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Utility.requestFocus(etFirstname, this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Utility.clearFocus(etFirstname, this);
+        Utility.clearFocus(etLastname, this);
+        Utility.clearFocus(etPhone, this);
+        Utility.clearFocus(etPassword, this);
+        Utility.clearFocus(etConfirmPassword, this);
     }
 }

@@ -6,18 +6,17 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.style.StyleSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
@@ -27,7 +26,6 @@ import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.utility.Utility;
 
 import java.text.NumberFormat;
-import java.util.Objects;
 
 public class OfferLoanFragment extends Fragment {
 
@@ -40,8 +38,13 @@ public class OfferLoanFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_offer_loan, container, false);
 
+        return inflater.inflate(R.layout.fragment_offer_loan, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         activity = requireActivity();
         format.setMaximumFractionDigits(0);
 
@@ -66,8 +69,8 @@ public class OfferLoanFragment extends Fragment {
 
         setInterestRate(seekBar.getProgress());
 
-        ((MainActivity) activity).setTitle("Offer Loan");
-        ((MainActivity) activity).setSubtitle("How much would you like to offer?");
+        ((MainActivity) activity).setCustomTitle("Offer Loan");
+        ((MainActivity) activity).setCustomSubtitle("How much would you like to offer?");
 
         int[] amounts = new int[]{10000, 25000, 50000, 100000, 200000, 300000, 400000,
                 500000, 600000, 700000, 800000, 900000, 1000000};
@@ -115,8 +118,6 @@ public class OfferLoanFragment extends Fragment {
 
             }
         });
-
-        return view;
     }
 
     private void setInterestRate(int interestRate) {

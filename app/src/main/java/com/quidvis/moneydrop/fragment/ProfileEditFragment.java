@@ -56,6 +56,8 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
     private final Calendar calendar = Calendar.getInstance();
     private final DateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", new java.util.Locale("en","ng"));
+    private LayoutInflater inflater;
+    private ViewGroup container;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,7 +71,16 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View contentView = null, view = inflater.inflate(R.layout.fragment_profile_edit, container, false);
+        this.inflater = inflater;
+        this.container = container;
+        return inflater.inflate(R.layout.fragment_profile_edit, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        View contentView = null;
 
         LinearLayout content = view.findViewById(R.id.content);
 
@@ -145,8 +156,6 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
             submitBtn.setOnClickListener(view1 -> update());
             content.addView(contentView);
         }
-
-        return view;
     }
 
     private String getUpdateUriType() {
@@ -330,5 +339,24 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         calendar.set(year, month, dayOfMonth);
         Objects.requireNonNull(editTexts.get("dob")).setText(formatter.format(calendar.getTime()));
+    }
+
+    @Override
+    public void onDestroy() {
+        clearFocus();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onPause() {
+        clearFocus();
+        super.onPause();
+    }
+
+    private void clearFocus() {
+        for (Map.Entry<String, EditText> entry : editTexts.entrySet()) {
+            EditText editText = entry.getValue();
+            if (editText.hasFocus()) Utility.clearFocus(editText, activity);
+        }
     }
 }

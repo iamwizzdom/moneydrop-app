@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.quidvis.moneydrop.R;
@@ -28,7 +29,12 @@ public class ProfileOptionFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile_option, container, false);
+        return inflater.inflate(R.layout.fragment_profile_option, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         TextView tvName = view.findViewById(R.id.account_name_text);
         TextView tvPhone = view.findViewById(R.id.phone_number_text);
@@ -46,7 +52,5 @@ public class ProfileOptionFragment extends Fragment {
         tvEmail.setText(user.getEmail());
         tvDob.setText(user.getDob());
         tvBvn.setText(Utility.isEmpty(user.getBvn(), "Not set"));
-
-        return view;
     }
 }

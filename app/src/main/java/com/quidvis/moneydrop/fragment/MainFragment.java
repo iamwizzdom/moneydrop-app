@@ -11,13 +11,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.activity.LoanRequestActivity;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
@@ -50,8 +50,13 @@ public class MainFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
 
+        return inflater.inflate(R.layout.fragment_main, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         activity = requireActivity();
 
         dbHelper = new DbHelper(activity);
@@ -64,9 +69,9 @@ public class MainFragment extends Fragment {
         loanRequestShimmerFrameLayout = view.findViewById(R.id.loan_request_shimmer_view);
         transactionShimmerFrameLayout = view.findViewById(R.id.transaction_shimmer_view);
 
-        ((MainActivity) activity).setSubtitle("Available balance");
+        ((MainActivity) activity).setCustomSubtitle("Available balance");
 
-        Bundle savedState = ((MainActivity) activity).getState(STATE_KEY);
+        Bundle savedState = getState();
 
         if(savedState != null && savedState.size() > 0) {
             try {
@@ -92,13 +97,11 @@ public class MainFragment extends Fragment {
             setBalance(0);
             getDashboardData();
         }
-
-        return view;
     }
 
     private void setBalance(double amount) {
         format.setMaximumFractionDigits(2);
-        ((MainActivity) activity).setTitle(format.format(amount));
+        ((MainActivity) activity).setCustomTitle(format.format(amount));
         format.setMaximumFractionDigits(0);
     }
 
@@ -131,9 +134,10 @@ public class MainFragment extends Fragment {
             try {
 
                 View view = getView(trans.getJSONObject(i));
-                if ((i == 0 && size > 1) || i > 0 && i < (size - 1))
-                    view.setBackgroundResource(R.drawable.layout_underline);
-                transactionView.addView(view);
+                if (view != null) {
+                    if ((i == 0 && size > 1) || i > 0 && i < (size - 1)) view.setBackgroundResource(R.drawable.layout_underline);
+                    transactionView.addView(view);
+                }
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -284,6 +288,10 @@ public class MainFragment extends Fragment {
     }
 
     private Bundle getState() {
+        return ((MainActivity) activity).getState(STATE_KEY);
+    }
+
+    private Bundle getCurrentState() {
         Bundle bundle = new Bundle();
         if (data != null) bundle.putString("data", data.toString());
         return bundle;
@@ -291,13 +299,13 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onPause() {
-        ((MainActivity) activity).saveState(STATE_KEY, getState());
+        ((MainActivity) activity).saveState(STATE_KEY, getCurrentState());
         super.onPause();
     }
 
     @Override
     public void onDestroyView() {
-        ((MainActivity) activity).saveState(STATE_KEY, getState());
+        ((MainActivity) activity).saveState(STATE_KEY, getCurrentState());
         super.onDestroyView();
     }
 }

@@ -7,11 +7,12 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.view.KeyEvent;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,6 @@ import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.RegistrationActivity;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.interfaces.OnAwesomeDialogClickListener;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.utility.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
@@ -56,7 +56,7 @@ public class VerificationOTPFragment extends Fragment {
     private TextView tvResend;
     private View.OnClickListener resendCodeListener;
     private CountDownTimer countDownTimer;
-    private PinView tvOTP;
+    private PinView pvOTP;
     private CircularProgressButton verifyBtn;
 
     static final String COUNT_DOWN_TIME = "countDownTime", EMAIL = "email";
@@ -91,18 +91,21 @@ public class VerificationOTPFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_verification_otp, container, false);
+        return inflater.inflate(R.layout.fragment_verification_otp, container, false);
+    }
 
-        if (activity == null) activity = getActivity();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        activity = requireActivity();
 
         tvResend = view.findViewById(R.id.resend_code);
         TextView verificationNote = view.findViewById(R.id.verification_note);
         String text = getResources().getString(R.string.verification_note) + " at " + email;
         verificationNote.setText(text);
 
-        tvOTP = view.findViewById(R.id.verification_otp);
-
-        new Handler().postDelayed(() -> Utility.requestFocus(tvOTP, activity), 1000);
+        pvOTP = view.findViewById(R.id.verification_otp);
 
         verifyBtn = view.findViewById(R.id.verifyBtn);
 
@@ -110,18 +113,15 @@ public class VerificationOTPFragment extends Fragment {
 
         countDown();
 
-
         verifyBtn.setOnClickListener(v -> verifyOTP());
 
-        tvOTP.setOnEditorActionListener((textView, id, keyEvent) -> {
+        pvOTP.setOnEditorActionListener((textView, id, keyEvent) -> {
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 verifyOTP();
                 return true;
             }
             return false;
         });
-
-        return view;
     }
 
     private void countDown() {
@@ -136,7 +136,7 @@ public class VerificationOTPFragment extends Fragment {
 
                 String time = String.format(FORMAT, minutes > 9 ? minutes : "0" + minutes, seconds > 9 ? seconds : "0" + seconds);
                 tvResend.setText(time);
-                tvResend.setTextColor(getResources().getColor(R.color.titleColor));
+                tvResend.setTextColor(getResources().getColor(R.color.titleColorGray));
                 tvResend.setOnClickListener(null);
             }
 
@@ -235,7 +235,7 @@ public class VerificationOTPFragment extends Fragment {
 
     private void verifyOTP() {
 
-        final String otp = Objects.requireNonNull(tvOTP.getText()).toString();
+        final String otp = Objects.requireNonNull(pvOTP.getText()).toString();
 
         if (!Validator.isValidEmail(email)) {
             Utility.toastMessage(activity, "Please enter a valid email address");
@@ -268,8 +268,8 @@ public class VerificationOTPFragment extends Fragment {
         }) {
             @Override
             protected void onRequestStarted() {
-                Utility.disableEditText(tvOTP);
-                Utility.clearFocus(tvOTP, activity);
+                Utility.disableEditText(pvOTP);
+                Utility.clearFocus(pvOTP, activity);
                 verifyBtn.startAnimation();
             }
 
@@ -293,7 +293,7 @@ public class VerificationOTPFragment extends Fragment {
                     Utility.toastMessage(activity, "Something unexpected happened. Please try that again.");
                 }
                 verifyBtn.revertAnimation();
-                Utility.enableEditText(tvOTP);
+                Utility.enableEditText(pvOTP);
             }
 
             @Override
@@ -331,7 +331,7 @@ public class VerificationOTPFragment extends Fragment {
                 }
 
                 verifyBtn.revertAnimation();
-                Utility.enableEditText(tvOTP);
+                Utility.enableEditText(pvOTP);
             }
 
             @Override
@@ -355,6 +355,18 @@ public class VerificationOTPFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         if (countDownTimer != null) countDownTimer.cancel();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Utility.requestFocus(pvOTP, activity);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Utility.clearFocus(pvOTP, activity);
     }
 
     /**

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_loan">
+    app:startDestination="@+id/nav_home">
 
     <fragment
         android:id="@+id/nav_home"
@@ -11,7 +11,12 @@
         tools:layout="@layout/fragment_main" />
 
     <fragment
-        android:id="@+id/nav_loan"
+        android:id="@+id/nav_loans"
+        android:name="com.quidvis.moneydrop.fragment.LoansFragment"
+        tools:layout="@layout/loans_fragment" />
+
+    <fragment
+        android:id="@+id/nav_offer_loan"
         android:name="com.quidvis.moneydrop.fragment.OfferLoanFragment"
         tools:layout="@layout/fragment_offer_loan" />
 

@@ -75,7 +75,7 @@ public abstract class HttpRequest {
 
         if (isOngoingTask()) {
             if (runnable == null) {
-                Utility.toastMessage(activity, "There's an ongoing network task, please wait.");
+                Utility.toastMessage(activity, "There's an ongoing network operation, please wait.");
             } else handler.removeCallbacks(runnable);
             handler.postDelayed(runnable = (Runnable) () -> HttpRequest.this.send(activity), 500);
             return;

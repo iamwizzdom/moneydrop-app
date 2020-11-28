@@ -17,10 +17,12 @@
         android:baselineAligned="false">
 
         <LinearLayout
+            android:id="@+id/nav_offer_loan"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
+            android:onClick="loadFragment"
             tools:ignore="UseCompoundDrawables">
 
             <ImageView
@@ -38,7 +40,8 @@
                 android:gravity="center"
                 android:textColor="@color/colorWhite"
                 android:text="@string/offer_loan"
-                style="@style/text_view_style" />
+                style="@style/text_view_style"
+                android:textSize="14sp"/>
 
         </LinearLayout>
 
@@ -64,7 +67,8 @@
                 android:gravity="center"
                 android:textColor="@color/colorWhite"
                 android:text="@string/request_loan"
-                style="@style/text_view_style" />
+                style="@style/text_view_style"
+                android:textSize="14sp" />
 
         </LinearLayout>
 
@@ -90,7 +94,8 @@
                 android:gravity="center"
                 android:textColor="@color/colorWhite"
                 android:text="@string/history"
-                style="@style/text_view_style" />
+                style="@style/text_view_style"
+                android:textSize="14sp" />
 
         </LinearLayout>
 
@@ -116,7 +121,8 @@
                 android:gravity="center"
                 android:textColor="@color/colorWhite"
                 android:text="@string/top_up"
-                style="@style/text_view_style" />
+                style="@style/text_view_style"
+                android:textSize="14sp" />
 
         </LinearLayout>
 

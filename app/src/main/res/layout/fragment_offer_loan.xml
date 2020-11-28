@@ -70,15 +70,15 @@
                     android:id="@+id/ivDecrement"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/ic_cancel"
-                    android:layout_weight="0.5"
+                    android:src="@drawable/ic_minus"
+                    android:layout_weight="0.3"
                     android:contentDescription="@string/decrement"/>
 
                 <com.cottacush.android.currencyedittext.CurrencyEditText
                     android:id="@+id/amount"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
+                    android:layout_weight="2.4"
                     style="@style/edit_text_style"
                     android:gravity="center|center_vertical"
                     android:fontFamily="@font/campton_medium"
@@ -94,8 +94,8 @@
                     android:id="@+id/ivIncrement"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/ic_cancel"
-                    android:layout_weight="0.5"
+                    android:src="@drawable/ic_plus"
+                    android:layout_weight="0.3"
                     android:contentDescription="@string/decrement"/>
 
             </LinearLayout>

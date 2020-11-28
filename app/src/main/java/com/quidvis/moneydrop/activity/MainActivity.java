@@ -74,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void loadFragment(View view) {
+        navController.navigate(view.getId(), null, getNavOptions());
+    }
+
     @Override
     public void onBackPressed() {
         if (navController.popBackStack()) {
@@ -100,11 +104,11 @@ public class MainActivity extends AppCompatActivity {
         profilePic.setOnClickListener(view -> showBottomSheetDialog());
     }
 
-    public void setTitle(String title) {
+    public void setCustomTitle(String title) {
         titleTv.setText(title);
     }
 
-    public void setSubtitle(String title) {
+    public void setCustomSubtitle(String title) {
         subtitleTv.setText(title);
     }
 
@@ -194,7 +198,8 @@ public class MainActivity extends AppCompatActivity {
 
     public Bundle getState(String key) {
         Bundle state = Utility.getState(STATE_KEY);
-        return state.getBundle(key);
+        state = state.getBundle(key);
+        return state != null ? state : new Bundle();
     }
 
     public void saveState(String key, Bundle state) {

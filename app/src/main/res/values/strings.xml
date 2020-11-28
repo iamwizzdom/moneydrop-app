@@ -123,5 +123,14 @@
     <string name="previous_offers">Previous offers</string>
     <string name="cancel">Cancel</string>
     <string name="make_offer">Make offer</string>
+    <string name="offers">Offers</string>
+    <string name="requests">Requests</string>
+    <string name="loan_offers">Loan Offers</string>
+    <string name="loan_requests">Loan Requests</string>
+    <string name="loan_type">Loan Type</string>
+    <string name="loan_icon">Loan Icon</string>
+    <string name="loan_date">01/11/20</string>
+    <string name="loan_amount">#12,000</string>
+    <string name="loan_status">Pending</string>
 
 </resources>

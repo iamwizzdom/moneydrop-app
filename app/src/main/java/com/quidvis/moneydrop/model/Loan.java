@@ -2,9 +2,9 @@ package com.quidvis.moneydrop.model;
 
 public class Loan {
 
-    private int id;
+    private int id, userGender;
     private double amount;
-    private String type, status, date;
+    private String picture, type, status, date;
 
     public int getId() {
         return id;
@@ -12,6 +12,14 @@ public class Loan {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getUserGender() {
+        return userGender;
+    }
+
+    public void setUserGender(int userGender) {
+        this.userGender = userGender;
     }
 
     public String getType() {
@@ -44,5 +52,13 @@ public class Loan {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

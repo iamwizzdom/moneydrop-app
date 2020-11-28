@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -31,14 +32,11 @@ public class VerificationActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         ImageView backBtn = toolbar.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Objects.equals(CURRENT_TAG, TAG_VERIFICATION)) onBackPressed();
-                else loadFragment(TAG_VERIFICATION);
-            }
+        backBtn.setOnClickListener(v -> {
+            if (Objects.equals(CURRENT_TAG, TAG_VERIFICATION)) onBackPressed();
+            else loadFragment(TAG_VERIFICATION);
         });
-        mHandler = new Handler();
+        mHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         loadFragment(TAG_VERIFICATION);
     }
 
@@ -76,17 +74,14 @@ public class VerificationActivity extends AppCompatActivity {
         // when switching between navigation menus
         // So using runnable, the fragment is loaded with cross fade effect
 
-        Runnable mPendingRunnable = new Runnable() {
-            @Override
-            public void run() {
-                // update the main content by replacing fragments
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                Fragment currentFragment = getFragment(CURRENT_TAG = tag);
-                if (bundle != null) currentFragment.setArguments(bundle);
-                fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                fragmentTransaction.replace(R.id.content_main, currentFragment, tag);
-                fragmentTransaction.commitAllowingStateLoss();
-            }
+        Runnable mPendingRunnable = () -> {
+            // update the main content by replacing fragments
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            Fragment currentFragment = getFragment(CURRENT_TAG = tag);
+            if (bundle != null) currentFragment.setArguments(bundle);
+            fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            fragmentTransaction.replace(R.id.content_main, currentFragment, tag);
+            fragmentTransaction.commitAllowingStateLoss();
         };
 
         // If mPendingRunnable is not null, then add to the message queue

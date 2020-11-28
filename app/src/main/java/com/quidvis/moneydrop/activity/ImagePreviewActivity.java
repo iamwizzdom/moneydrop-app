@@ -32,10 +32,10 @@ public class ImagePreviewActivity extends AppCompatActivity {
 
         Intent intent = this.getIntent();   //get the intent to receive the x and y cords, that you passed before
 
-        RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.container); //there you have to get the root layout of your second activity
+        RelativeLayout rootLayout = findViewById(R.id.container); //there you have to get the root layout of your second activity
         mRevealAnimation = new RevealAnimation(rootLayout, intent, this);
 
-        ImageView zoomableImage = (ImageView) findViewById(R.id.zoomableImage);
+        ImageView zoomableImage = findViewById(R.id.zoomableImage);
 
         if (intent.hasExtra(RevealAnimation.EXTRA_CIRCULAR_REVEAL_BUNDLE)) {
 

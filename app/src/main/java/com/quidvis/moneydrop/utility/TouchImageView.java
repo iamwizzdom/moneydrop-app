@@ -5,10 +5,13 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-public class TouchImageView extends androidx.appcompat.widget.AppCompatImageView {
+import androidx.appcompat.widget.AppCompatImageView;
+
+public class TouchImageView extends AppCompatImageView {
 
     Matrix matrix;
 
@@ -32,6 +35,7 @@ public class TouchImageView extends androidx.appcompat.widget.AppCompatImageView
     int oldMeasuredWidth, oldMeasuredHeight;
 
     ScaleGestureDetector mScaleDetector;
+    GestureDetector mGestureDetector;
 
     Context context;
 
@@ -49,6 +53,7 @@ public class TouchImageView extends androidx.appcompat.widget.AppCompatImageView
         super.setClickable(true);
         this.context = context;
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        mGestureDetector = new GestureDetector(context, new GestureListener());
         matrix = new Matrix();
         m = new float[9];
         setImageMatrix(matrix);
@@ -56,6 +61,7 @@ public class TouchImageView extends androidx.appcompat.widget.AppCompatImageView
 
         setOnTouchListener((v, event) -> {
             mScaleDetector.onTouchEvent(event);
+            mGestureDetector.onTouchEvent(event);
             PointF curr = new PointF(event.getX(), event.getY());
 
             switch (event.getAction()) {
@@ -136,17 +142,73 @@ public class TouchImageView extends androidx.appcompat.widget.AppCompatImageView
         }
     }
 
+    private class GestureListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+
+            float origScale = saveScale;
+            saveScale = (saveScale == maxScale) ? minScale : maxScale;
+            float mScaleFactor = saveScale / origScale;
+
+            if (origWidth * saveScale <= viewWidth || origHeight * saveScale <= viewHeight)
+                matrix.postScale(mScaleFactor, mScaleFactor, (float) viewWidth / 2, (float) viewHeight / 2);
+            else matrix.postScale(mScaleFactor, mScaleFactor, e.getX(), e.getY());
+
+            fixTrans();
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(MotionEvent e) {
+            return false;
+        }
+    }
+
     void fixTrans() {
         matrix.getValues(m);
         float transX = m[Matrix.MTRANS_X];
         float transY = m[Matrix.MTRANS_Y];
 
         float fixTransX = getFixTrans(transX, viewWidth, origWidth * saveScale);
-        float fixTransY = getFixTrans(transY, viewHeight, origHeight
-                * saveScale);
+        float fixTransY = getFixTrans(transY, viewHeight, origHeight * saveScale);
 
-        if (fixTransX != 0 || fixTransY != 0)
-            matrix.postTranslate(fixTransX, fixTransY);
+        if (fixTransX != 0 || fixTransY != 0) matrix.postTranslate(fixTransX, fixTransY);
     }
 
     float getFixTrans(float trans, float viewSize, float contentSize) {

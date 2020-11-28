@@ -6,6 +6,7 @@
     <color name="colorAccent">#e04805</color>
 
     <color name="colorPrimaryShadow">#52E04805</color>
+    <color name="colorTabTint">#e9c5b5</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorBlack">#0b1c2a</color>
     <color name="colorButton">#e04805</color>

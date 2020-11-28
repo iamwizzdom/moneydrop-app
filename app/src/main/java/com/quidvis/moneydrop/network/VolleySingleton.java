@@ -23,7 +23,7 @@ import javax.net.ssl.X509TrustManager;
 
 @SuppressWarnings("ALL")
 public class VolleySingleton extends Application {
-    @SuppressLint("StaticFieldLeak")
+
     private static VolleySingleton mInstance;
     private RequestQueue mRequestQueue;
 
