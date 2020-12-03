@@ -22,6 +22,7 @@ public class URLContract {
     public static final String DASHBOARD_REQUEST_URL = API_URL + "/dashboard";
     public static final String PROFILE_UPDATE_REQUEST_URL = API_URL + "/profile/update";
     public static final String LOAN_REQUEST_LIST_URL = API_URL + "/user/loan/requests";
+    public static final String LOAN_OFFERS_LIST_URL = API_URL + "/user/loan/offers";
     public static final String TRANSACTION_LIST_URL = API_URL + "/user/transactions";
 
 }

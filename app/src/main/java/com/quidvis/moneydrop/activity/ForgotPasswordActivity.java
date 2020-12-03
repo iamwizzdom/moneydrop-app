@@ -99,7 +99,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             return;
         } else etEmail.setError(null);
 
-        HttpRequest httpRequest = new HttpRequest(URLContract.FORGOT_PASSWORD_URL, Request.Method.POST, new HttpRequestParams() {
+        HttpRequest httpRequest = new HttpRequest(this, URLContract.FORGOT_PASSWORD_URL, Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -196,6 +196,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
             }
         };
-        httpRequest.send(ForgotPasswordActivity.this);
+        httpRequest.send();
     }
 }

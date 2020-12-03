@@ -2,7 +2,7 @@ package com.quidvis.moneydrop.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.google.android.material.tabs.TabLayout;
@@ -18,10 +18,10 @@ import java.util.ArrayList;
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private final ArrayList<CustomFragment> mFragments;
-    private final FragmentActivity mActivity;
+    private final AppCompatActivity mActivity;
     private TabLayout mTabLayout = null;
 
-    public ViewPagerAdapter(FragmentActivity activity, ArrayList<CustomFragment> fragments) {
+    public ViewPagerAdapter(AppCompatActivity activity, ArrayList<CustomFragment> fragments) {
         super(activity.getSupportFragmentManager(), BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         mActivity = activity;
         mFragments = fragments;
@@ -45,7 +45,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 2 total pages.
         return mFragments.size();
     }
 

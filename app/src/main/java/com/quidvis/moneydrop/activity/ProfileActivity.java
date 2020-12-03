@@ -60,6 +60,7 @@ public class ProfileActivity extends AppCompatActivity {
     private NavController navController;
     private ProgressBar uploadProgressBar;
     private DbHelper dbHelper;
+    private User user;
     private ImageView imagePicker;
     private static File camImage;
     private CircleImageView profilePic;
@@ -69,6 +70,10 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        dbHelper = new DbHelper(this);
+
+        user = dbHelper.getUser();
+
         navController = getNavController();
         uploadProgressBar = findViewById(R.id.upload_photo_progress_bar);
         imagePicker = findViewById(R.id.image_picker);
@@ -76,12 +81,9 @@ public class ProfileActivity extends AppCompatActivity {
 
         profilePic = findViewById(R.id.profile_pic);
 
-        dbHelper = new DbHelper(this);
-
         profilePic.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            String imageUrl = (URLContract.URL_SCHEME + URLContract.HOST_URL + "/" + dbHelper.getUser().getPicture());
-            bundle.putString(ImagePreviewActivity.IMAGE_URL, imageUrl);
+            bundle.putString(ImagePreviewActivity.IMAGE_URL, user.getPictureUrl());
             startRevealActivity(this, v, ImagePreviewActivity.class, bundle);
         });
 
@@ -93,19 +95,12 @@ public class ProfileActivity extends AppCompatActivity {
         TextView tvName = findViewById(R.id.account_name);
         TextView tvEmail = findViewById(R.id.account_email);
 
-        User user = dbHelper.getUser();
-
-        String imageUrl = (URLContract.URL_SCHEME + URLContract.HOST_URL + "/" + user.getPicture());
-
         Glide.with(ProfileActivity.this)
-                .load(imageUrl)
+                .load(user.getPictureUrl())
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(
-                        user.getGender() == User.GENDER_MALE ? R.drawable.male : (
-                                user.getGender() == User.GENDER_FEMALE ? R.drawable.female : R.drawable.unisex
-                        )
-                ).into(profilePic);
+                .placeholder(user.getDefaultPicture())
+                .into(profilePic);
 
         tvName.setText(String.format("%s %s", user.getFirstname(), user.getLastname()));
         tvEmail.setText(user.getEmail());
@@ -269,7 +264,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void updatePhoto(String imageString) {
 
-        HttpRequest httpRequest = new HttpRequest(String.format("%s/%s",
+        HttpRequest httpRequest = new HttpRequest(this, String.format("%s/%s",
                 URLContract.PROFILE_UPDATE_REQUEST_URL, "picture"), Request.Method.POST,
                 new HttpRequestParams() {
                     @Override
@@ -367,7 +362,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         };
 
-        httpRequest.send(ProfileActivity.this);
+        httpRequest.send();
     }
 
     public void showDialogMessage(String title, String message) {

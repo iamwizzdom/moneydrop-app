@@ -164,7 +164,7 @@ public class TransactionsActivity extends AppCompatActivity {
 
     private void getTransactions(int page) {
 
-        HttpRequest httpRequest = new HttpRequest(
+        HttpRequest httpRequest = new HttpRequest(this,
                 String.format("%s?page=%s", URLContract.TRANSACTION_LIST_URL, page),
                 Request.Method.GET, new HttpRequestParams() {
 
@@ -231,7 +231,7 @@ public class TransactionsActivity extends AppCompatActivity {
 
             }
         };
-        httpRequest.send(TransactionsActivity.this);
+        httpRequest.send();
 
     }
 

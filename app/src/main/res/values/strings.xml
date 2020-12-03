@@ -132,5 +132,6 @@
     <string name="loan_date">01/11/20</string>
     <string name="loan_amount">#12,000</string>
     <string name="loan_status">Pending</string>
+    <string name="my_loans">My Loans</string>
 
 </resources>

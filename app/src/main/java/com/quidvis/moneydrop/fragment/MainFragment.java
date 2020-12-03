@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -214,7 +215,7 @@ public class MainFragment extends Fragment {
 
     private void getDashboardData() {
 
-        HttpRequest httpRequest = new HttpRequest(URLContract.DASHBOARD_REQUEST_URL, Request.Method.GET, new HttpRequestParams() {
+        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity, URLContract.DASHBOARD_REQUEST_URL, Request.Method.GET, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 return null;
@@ -283,7 +284,7 @@ public class MainFragment extends Fragment {
 
             }
         };
-        httpRequest.send(activity);
+        httpRequest.send();
 
     }
 

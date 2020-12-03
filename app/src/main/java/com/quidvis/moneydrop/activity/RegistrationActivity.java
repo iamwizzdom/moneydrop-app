@@ -181,7 +181,7 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
             return;
         } else etConfirmPassword.setError(null);
 
-        HttpRequest httpRequest = new HttpRequest(URLContract.REGISTRATION_URL, Request.Method.POST, new HttpRequestParams() {
+        HttpRequest httpRequest = new HttpRequest(this, URLContract.REGISTRATION_URL, Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -300,7 +300,7 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
 
             }
         };
-        httpRequest.send(RegistrationActivity.this);
+        httpRequest.send();
     }
 
     private void showMessage(JSONObject object) {

@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,7 @@ import com.android.volley.Request;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
+import com.quidvis.moneydrop.activity.UserLoanActivity;
 import com.quidvis.moneydrop.adapter.LoanAdapter;
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
 import com.quidvis.moneydrop.constant.URLContract;
@@ -78,11 +80,6 @@ public class LoanRequestsFragment extends CustomFragment {
     }
 
     @Override
-    public CustomFragment getNewInstance() {
-        return newInstance();
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(getResources().getString(R.string.loan_requests));
@@ -100,9 +97,11 @@ public class LoanRequestsFragment extends CustomFragment {
         super.onViewCreated(view, savedInstanceState);
 
         activity = requireActivity();
+        dbHelper = new DbHelper(activity);
         viewPagerAdapter = getViewPagerAdapter();
 
-        state = ((MainActivity) activity).getState(STATE_KEY);
+        if (activity instanceof MainActivity) state = ((MainActivity) activity).getState(STATE_KEY);
+        else if (activity instanceof UserLoanActivity) state = ((UserLoanActivity) activity).getState(STATE_KEY);
 
         if (viewPagerAdapter != null) viewPagerAdapter.notifyDataSetChanged(getPosition());
 
@@ -115,8 +114,6 @@ public class LoanRequestsFragment extends CustomFragment {
         });
 
         recyclerView = view.findViewById(R.id.loan_requests_list);
-
-        dbHelper = new DbHelper(activity);
 
         loanAdapter = new LoanAdapter(recyclerView, activity, loans);
         recyclerView.setAdapter(loanAdapter);
@@ -218,7 +215,7 @@ public class LoanRequestsFragment extends CustomFragment {
 
     private void getLoanRequests(int page) {
 
-        HttpRequest httpRequest = new HttpRequest(
+        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
                 String.format("%s?page=%s", URLContract.LOAN_REQUEST_LIST_URL, page),
                 Request.Method.GET, new HttpRequestParams() {
 
@@ -285,7 +282,7 @@ public class LoanRequestsFragment extends CustomFragment {
 
             }
         };
-        httpRequest.send(activity);
+        httpRequest.send();
 
     }
 
@@ -313,5 +310,11 @@ public class LoanRequestsFragment extends CustomFragment {
     @Override
     public void saveState() {
         if (isAdded()) ((MainActivity) activity).saveState(STATE_KEY, getCurrentState());
+    }
+
+    @Override
+    public void refresh() {
+
+        if (data == null) getLoanRequests(Objects.requireNonNull(state).getInt("page", 1));
     }
 }

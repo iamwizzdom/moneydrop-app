@@ -83,7 +83,7 @@
             android:theme="@style/AppTheme.Transparent" />
 
         <activity
-            android:name=".activity.LoanRequestActivity"
+            android:name=".activity.UserLoanActivity"
             android:label="@string/title_activity_loan_request"
             android:theme="@style/AppTheme.NoActionBar"/>
 

@@ -44,5 +44,5 @@ public abstract class CustomFragment extends Fragment {
 
     public abstract void saveState();
 
-    public abstract CustomFragment getNewInstance();
+    public abstract void refresh();
 }

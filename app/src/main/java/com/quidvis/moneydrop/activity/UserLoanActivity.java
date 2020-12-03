@@ -1,60 +1,35 @@
-package com.quidvis.moneydrop.fragment;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.FragmentActivity;
+package com.quidvis.moneydrop.activity;
 
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
+import com.quidvis.moneydrop.fragment.LoanOffersFragment;
+import com.quidvis.moneydrop.fragment.LoanRequestsFragment;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 import com.quidvis.moneydrop.utility.Utility;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class LoansFragment extends Fragment {
+public class UserLoanActivity extends AppCompatActivity {
 
-    private View view;
-    private FragmentActivity activity;
+    private final static String STATE_KEY = UserLoanActivity.class.getName();
     private final ArrayList<CustomFragment> fragments = new ArrayList<>();
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-
-        if (view != null) return view;
-
-        view = inflater.inflate(R.layout.loans_fragment, container, false);
-
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        activity = requireActivity();
+        setContentView(R.layout.activity_user_loan);
 
         if (fragments.size() <= 0) {
             LoanOffersFragment loanOffersFragment = LoanOffersFragment.newInstance();
@@ -63,10 +38,10 @@ public class LoansFragment extends Fragment {
             fragments.add(loanRequestsFragment);
         }
 
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter((AppCompatActivity) activity, fragments);
-        ViewPager viewPager = view.findViewById(R.id.view_pager);
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, fragments);
+        ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(viewPagerAdapter);
-        TabLayout tabs = view.findViewById(R.id.tabs);
+        TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
         viewPagerAdapter.setTabLayout(tabs);
 
@@ -106,16 +81,16 @@ public class LoansFragment extends Fragment {
     }
 
     private TextView getTextView() {
-        TextView tv = new TextView(activity);
+        TextView tv = new TextView(this);
 
-        tv.setTextAppearance(activity, R.style.text_view_style);
-        tv.setTextColor(activity.getResources().getColor(R.color.colorAccent));
+        tv.setTextAppearance(this, R.style.text_view_style);
+        tv.setTextColor(this.getResources().getColor(R.color.colorAccent));
 
-        int padding = Utility.getDip(activity, 10);
-        int paddingSides = Utility.getDip(activity, 20);
+        int padding = Utility.getDip(this, 10);
+        int paddingSides = Utility.getDip(this, 20);
         tv.setPadding(paddingSides, padding, paddingSides, padding);
 
-        Typeface typeface = ResourcesCompat.getFont(activity, R.font.campton_medium);
+        Typeface typeface = ResourcesCompat.getFont(this, R.font.campton_medium);
         tv.setTypeface(typeface);
         tv.setTextSize(16);
 
@@ -123,8 +98,8 @@ public class LoansFragment extends Fragment {
     }
 
     private void selectView(View view) {
-        view.setBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.layout_background_rounded, null));
-        view.setBackgroundTintList(ColorStateList.valueOf(activity.getResources().getColor(R.color.colorWhite)));
+        view.setBackground(ResourcesCompat.getDrawable(this.getResources(), R.drawable.layout_background_rounded, null));
+        view.setBackgroundTintList(ColorStateList.valueOf(this.getResources().getColor(R.color.colorWhite)));
     }
 
     private void deselectView(View view) {
@@ -132,12 +107,24 @@ public class LoansFragment extends Fragment {
         view.setBackgroundTintList(null);
     }
 
+    public Bundle getState(String key) {
+        Bundle state = Utility.getState(STATE_KEY);
+        state = state.getBundle(key);
+        return state != null ? state : new Bundle();
+    }
+
+    public void saveState(String key, Bundle state) {
+        Bundle prevState = Utility.getState(STATE_KEY);
+        prevState.putBundle(key, state);
+        Utility.saveState(STATE_KEY, prevState);
+    }
+
     @Override
-    public void onDestroyView() {
-        for (CustomFragment fragment : fragments) {
-            fragment.saveState();
-            fragment.onDestroyView();
-        }
-        super.onDestroyView();
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    public void onBackPressed(View view) {
+        onBackPressed();
     }
 }

@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
@@ -195,7 +196,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
     private void update() {
 
-        HttpRequest httpRequest = new HttpRequest(String.format("%s/%s", URLContract.PROFILE_UPDATE_REQUEST_URL,
+        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity, String.format("%s/%s", URLContract.PROFILE_UPDATE_REQUEST_URL,
                 getUpdateUriType()), Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
@@ -325,7 +326,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
             }
         };
-        httpRequest.send(activity);
+        httpRequest.send();
     }
 
     private void setDate() {

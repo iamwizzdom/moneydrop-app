@@ -122,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         } else etPassword.setError(null);
 
-        HttpRequest httpRequest = new HttpRequest(URLContract.LOGIN_URL, Request.Method.POST, new HttpRequestParams() {
+        HttpRequest httpRequest = new HttpRequest(this, URLContract.LOGIN_URL, Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -247,7 +247,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         };
-        httpRequest.send(LoginActivity.this);
+        httpRequest.send();
     }
 
     public void showDialogMessage(String title, String message) {

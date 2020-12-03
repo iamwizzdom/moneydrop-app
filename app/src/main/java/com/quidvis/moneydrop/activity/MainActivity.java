@@ -1,11 +1,8 @@
 package com.quidvis.moneydrop.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,14 +17,16 @@ import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
 import com.quidvis.moneydrop.utility.Utility;
+import com.quidvis.moneydrop.utility.model.BottomSheetLayoutModel;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -90,16 +89,12 @@ public class MainActivity extends AppCompatActivity {
 
         User user = dbHelper.getUser();
 
-        String imageUrl = (URLContract.URL_SCHEME + URLContract.HOST_URL + "/" + user.getPicture());
         Glide.with(MainActivity.this)
-                .load(imageUrl)
+                .load(user.getPictureUrl())
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(
-                        user.getGender() == User.GENDER_MALE ? R.drawable.male : (
-                                user.getGender() == User.GENDER_FEMALE ? R.drawable.female : R.drawable.unisex
-                        )
-                ).into(profilePic);
+                .placeholder(user.getDefaultPicture())
+                .into(profilePic);
 
         profilePic.setOnClickListener(view -> showBottomSheetDialog());
     }
@@ -166,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void viewAllLoanRequest(View view) {
-        startActivity(new Intent(this, LoanRequestActivity.class));
+        startActivity(new Intent(this, UserLoanActivity.class));
     }
 
     public void viewAllTransaction(View view) {
@@ -193,6 +188,20 @@ public class MainActivity extends AppCompatActivity {
             logout(this);
         });
         bottomSheet.setView(bottomSheetView);
+        bottomSheet.show();
+    }
+
+    public void showTopUpDialog(View view) {
+        ArrayList<BottomSheetLayoutModel> layoutModels = new ArrayList<>();
+        BottomSheetLayoutModel sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_bank_transfer, null));
+        sheetLayoutModel.setText("Bank Transfer");
+        layoutModels.add(sheetLayoutModel);
+        sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_credit_card, null));
+        sheetLayoutModel.setText("Credit Card");
+        layoutModels.add(sheetLayoutModel);
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, layoutModels);
         bottomSheet.show();
     }
 

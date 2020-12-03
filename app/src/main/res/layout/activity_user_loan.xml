@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.LoanRequestActivity">
+    tools:context=".activity.UserLoanActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -37,7 +37,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/text_view_style"
-                    android:text="@string/loan_request_title"
+                    android:text="@string/my_loans"
                     android:layout_margin="0dp"
                     android:fontFamily="@font/campton_bold"
                     android:textColor="@color/titleColorGray"
@@ -60,6 +60,6 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_loan_request" />
+    <include layout="@layout/content_user_loan" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

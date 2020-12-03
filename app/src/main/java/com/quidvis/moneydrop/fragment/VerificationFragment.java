@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -118,7 +119,7 @@ public class VerificationFragment extends Fragment {
             return;
         }
 
-        HttpRequest httpRequest = new HttpRequest(URLContract.VERIFY_EMAIL_REQUEST_URL, Request.Method.POST, new HttpRequestParams() {
+        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity, URLContract.VERIFY_EMAIL_REQUEST_URL, Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -209,7 +210,7 @@ public class VerificationFragment extends Fragment {
             }
 
         };
-        httpRequest.send(activity);
+        httpRequest.send();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

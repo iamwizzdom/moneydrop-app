@@ -2,6 +2,8 @@ package com.quidvis.moneydrop.model;
 
 import android.content.Context;
 
+import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 
 /**
@@ -122,6 +124,14 @@ public class User {
 
     public String getPicture() {
         return picture;
+    }
+
+    public String getPictureUrl() {
+        return (URLContract.URL_SCHEME + URLContract.HOST_URL + "/" + picture);
+    }
+
+    public int getDefaultPicture() {
+        return getGender() == User.GENDER_MALE ? R.drawable.male : R.drawable.female;
     }
 
     public void setPicture(String picture) {

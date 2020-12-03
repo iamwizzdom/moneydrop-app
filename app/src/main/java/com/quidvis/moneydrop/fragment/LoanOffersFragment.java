@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,7 @@ import com.android.volley.Request;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
+import com.quidvis.moneydrop.activity.UserLoanActivity;
 import com.quidvis.moneydrop.adapter.LoanAdapter;
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
 import com.quidvis.moneydrop.constant.URLContract;
@@ -78,11 +80,6 @@ public class LoanOffersFragment extends CustomFragment {
     }
 
     @Override
-    public CustomFragment getNewInstance() {
-        return newInstance();
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(getResources().getString(R.string.loan_offers));
@@ -101,9 +98,11 @@ public class LoanOffersFragment extends CustomFragment {
         super.onViewCreated(view, savedInstanceState);
 
         activity = requireActivity();
+        dbHelper = new DbHelper(activity);
         viewPagerAdapter = getViewPagerAdapter();
 
-        state = ((MainActivity) activity).getState(STATE_KEY);
+        if (activity instanceof MainActivity) state = ((MainActivity) activity).getState(STATE_KEY);
+        else if (activity instanceof UserLoanActivity) state = ((UserLoanActivity) activity).getState(STATE_KEY);
 
         if (viewPagerAdapter != null) viewPagerAdapter.notifyDataSetChanged(getPosition());
 
@@ -116,8 +115,6 @@ public class LoanOffersFragment extends CustomFragment {
         });
 
         recyclerView = view.findViewById(R.id.loan_offers_list);
-
-        dbHelper = new DbHelper(activity);
 
         loanAdapter = new LoanAdapter(recyclerView, activity, loans);
         recyclerView.setAdapter(loanAdapter);
@@ -137,7 +134,7 @@ public class LoanOffersFragment extends CustomFragment {
         if (data != null) {
 
             try {
-                setLoanOffers(data.getJSONArray("loan_requests"), false);
+                setLoanOffers(data.getJSONArray("loan_offers"), false);
             } catch (JSONException e) {
                 getLoanOffers(Objects.requireNonNull(state).getInt("page", 1));
                 e.printStackTrace();
@@ -203,7 +200,7 @@ public class LoanOffersFragment extends CustomFragment {
                 loan.setDate(loanRequest.getString("date"));
                 loans.add(loan);
                 if (!addUp) continue;
-                data.getJSONArray("loan_requests").put(loanRequest);
+                data.getJSONArray("loan_offers").put(loanRequest);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -219,8 +216,8 @@ public class LoanOffersFragment extends CustomFragment {
 
     private void getLoanOffers(int page) {
 
-        HttpRequest httpRequest = new HttpRequest(
-                String.format("%s?page=%s", URLContract.LOAN_REQUEST_LIST_URL, page),
+        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
+                String.format("%s?page=%s", URLContract.LOAN_OFFERS_LIST_URL, page),
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override
@@ -252,7 +249,7 @@ public class LoanOffersFragment extends CustomFragment {
                 try {
 
                     JSONObject object = new JSONObject(response);
-                    setLoanOffers(object.getJSONArray("loan_requests"), data != null);
+                    setLoanOffers(object.getJSONArray("loan_offers"), data != null);
                     state.putInt("page", object.getInt("page"));
                     if (data == null) data = object;
 
@@ -286,7 +283,7 @@ public class LoanOffersFragment extends CustomFragment {
 
             }
         };
-        httpRequest.send(activity);
+        httpRequest.send();
 
     }
 
@@ -314,5 +311,10 @@ public class LoanOffersFragment extends CustomFragment {
     @Override
     public void saveState() {
         if (isAdded()) ((MainActivity) activity).saveState(STATE_KEY, getCurrentState());
+    }
+
+    @Override
+    public void refresh() {
+        if (data == null) getLoanOffers(Objects.requireNonNull(state).getInt("page", 1));
     }
 }
