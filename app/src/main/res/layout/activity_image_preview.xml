@@ -7,7 +7,7 @@
     android:background="@color/black"
     tools:context=".activity.ImagePreviewActivity">
 
-    <com.quidvis.moneydrop.utility.TouchImageView
+    <com.quidvis.moneydrop.utility.view.TouchImageView
         android:id="@+id/zoomableImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

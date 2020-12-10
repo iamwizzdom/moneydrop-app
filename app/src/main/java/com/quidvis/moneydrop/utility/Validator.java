@@ -26,6 +26,10 @@ public class Validator {
         return !TextUtils.isEmpty(phone) && Patterns.PHONE.matcher(phone).matches() && phoneLength >= 7 && phoneLength <= 15;
     }
 
+    public static boolean isNumberBetween(int num, int number1, int number2) {
+        return num >= number1 && num <= number2;
+    }
+
     public static boolean isNetworkConnected(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkCapabilities networkCapabilities = null;

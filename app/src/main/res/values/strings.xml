@@ -129,9 +129,18 @@
     <string name="loan_requests">Loan Requests</string>
     <string name="loan_type">Loan Type</string>
     <string name="loan_icon">Loan Icon</string>
-    <string name="loan_date">01/11/20</string>
-    <string name="loan_amount">#12,000</string>
+    <string name="date">11/20</string>
+    <string name="amount">#12,000</string>
     <string name="loan_status">Pending</string>
     <string name="my_loans">My Loans</string>
+    <string name="enter_amount">Enter Amount</string>
+    <string name="min_amount">Amount not less than 1000</string>
+    <string name="credit_card">Credit Card</string>
+    <string name="proceed">Proceed</string>
+    <string name="secured_payment">Secured Payment by</string>
+    <string name="payment_gateways">Payment Gateways</string>
+    <string name="card_number">Card number</string>
+    <string name="expiration">Expiration</string>
+    <string name="cvv">CVV</string>
 
 </resources>

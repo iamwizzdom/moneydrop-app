@@ -46,7 +46,7 @@
             style="@style/text_view_style"
             android:gravity="start"
             android:textColor="@color/colorGrayDark"
-            android:text="@string/loan_date"/>
+            android:text="@string/date"/>
     </LinearLayout>
 
     <LinearLayout
@@ -64,7 +64,7 @@
             style="@style/text_view_style"
             android:gravity="start"
             android:textColor="@color/pending"
-            android:text="@string/loan_amount"/>
+            android:text="@string/amount"/>
 
         <TextView
             android:id="@+id/loan_status"

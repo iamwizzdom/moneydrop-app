@@ -95,7 +95,7 @@ public abstract class HttpRequest {
 
         if (isOngoingTask()) {
             if (runnable != null) handler.removeCallbacks(runnable);
-            handler.postDelayed(runnable = (Runnable) HttpRequest.this::send, 500);
+            handler.postDelayed(runnable = HttpRequest.this::send, 500);
             return;
         }
 

@@ -1,4 +1,4 @@
-package com.quidvis.moneydrop.utility;
+package com.quidvis.moneydrop.utility.view;
 
 import android.content.Context;
 import android.graphics.Matrix;

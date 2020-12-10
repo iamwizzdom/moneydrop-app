@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/margin_20">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_10"
+        style="@style/text_view_style"
+        android:textColor="@color/titleColorGray"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:text="@string/min_amount"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_credit_card"
+        android:drawablePadding="@dimen/margin_20"
+        android:layout_marginStart="@dimen/margin_40"
+        android:layout_marginEnd="@dimen/margin_40"
+        android:hint="@string/enter_amount"
+        style="@style/edit_text_stroked_style"
+        android:inputType="numberDecimal"
+        android:autofillHints="" />
+
+    <Button
+        android:id="@+id/create_acct_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_20"
+        android:paddingStart="60dp"
+        android:paddingEnd="60dp"
+        android:layout_gravity="center"
+        style="@style/button_style"
+        android:text="@string/top_up"
+        android:textAllCaps="false"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

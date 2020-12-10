@@ -222,6 +222,18 @@
         <item name="android:ems">10</item>
     </style>
 
+    <style name="edit_text_stroked_style">
+        <item name="android:gravity">start|center</item>
+        <item name="android:background">@drawable/edit_text_stroked_background</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ems">10</item>
+    </style>
+
     <style name="edit_text_disabled_style">
         <item name="android:gravity">start|center</item>
         <item name="android:background">@drawable/edit_text_disabled_background</item>

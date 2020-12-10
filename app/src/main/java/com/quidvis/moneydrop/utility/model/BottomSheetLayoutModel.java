@@ -3,11 +3,13 @@ package com.quidvis.moneydrop.utility.model;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
+import com.quidvis.moneydrop.utility.CustomBottomSheet;
+
 public class BottomSheetLayoutModel {
 
     private Drawable icon;
     private String text;
-    private View.OnClickListener onClickListener;
+    private OnClickListener onClickListener;
 
     public Drawable getIcon() {
         return icon;
@@ -25,11 +27,15 @@ public class BottomSheetLayoutModel {
         this.text = text;
     }
 
-    public View.OnClickListener getOnClickListener() {
+    public OnClickListener getOnClickListener() {
         return onClickListener;
     }
 
-    public void setOnClickListener(View.OnClickListener onClickListener) {
+    public void setOnClickListener(OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
+    }
+
+    public interface OnClickListener {
+        void onClick(CustomBottomSheet sheet, View v);
     }
 }

@@ -98,13 +98,10 @@ public class AwesomeAlertDialog extends Dialog {
         dialogBtnPositive.setVisibility(View.VISIBLE);
         dialogBtnPositive.setText(text);
 
-        View.OnClickListener onClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null)
-                    listener.onClick(AwesomeAlertDialog.this);
-                else detach();
-            }
+        View.OnClickListener onClickListener = v -> {
+            if (listener != null)
+                listener.onClick(AwesomeAlertDialog.this);
+            else detach();
         };
 
         dialogBtnPositive.setOnClickListener(onClickListener);
@@ -118,13 +115,10 @@ public class AwesomeAlertDialog extends Dialog {
         dialogBtnNegative.setVisibility(View.VISIBLE);
         dialogBtnNegative.setText(text);
 
-        View.OnClickListener onClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null)
-                    listener.onClick(AwesomeAlertDialog.this);
-                else detach();
-            }
+        View.OnClickListener onClickListener = v -> {
+            if (listener != null)
+                listener.onClick(AwesomeAlertDialog.this);
+            else detach();
         };
 
         dialogBtnNegative.setOnClickListener(onClickListener);
