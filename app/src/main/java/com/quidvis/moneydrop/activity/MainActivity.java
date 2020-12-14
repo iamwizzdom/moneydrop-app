@@ -205,7 +205,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showTopUpDialog(View view) {
+
         ArrayList<BottomSheetLayoutModel> layoutModels = new ArrayList<>();
+
         BottomSheetLayoutModel sheetLayoutModel = new BottomSheetLayoutModel();
         sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_bank_transfer, null));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
@@ -213,7 +215,9 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.this.showTopUpAmountDialog();
         });
         sheetLayoutModel.setText("Bank Transfer");
+
         layoutModels.add(sheetLayoutModel);
+
         sheetLayoutModel = new BottomSheetLayoutModel();
         sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_credit_card, null));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
@@ -221,7 +225,9 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.this.showTopUpCardDetailsDialog();
         });
         sheetLayoutModel.setText("Credit Card");
+
         layoutModels.add(sheetLayoutModel);
+
         CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, layoutModels);
         bottomSheet.setTitle("Top Up via");
         bottomSheet.show();

@@ -11,7 +11,7 @@ public class URLContract {
     private static final String URL_HTTP_SCHEME = "http://";
     private static final String URL_HTTPS_SCHEME = "https://";
     public static final String URL_SCHEME = URL_HTTP_SCHEME;
-    public static final String HOST_URL = "192.168.43.210:8000";
+    public static final String HOST_URL = "10.101.185.155:8000";
     private static final String API_URL = URL_SCHEME + HOST_URL + "/api/v1";
     public static final String LOGIN_URL = API_URL + "/auth/login";
     public static final String REGISTRATION_URL = API_URL + "/auth/register";

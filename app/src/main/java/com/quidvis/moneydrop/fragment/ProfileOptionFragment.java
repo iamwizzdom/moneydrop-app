@@ -12,9 +12,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.ProfileActivity;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.utility.Utility;
+
+import java.util.Objects;
 
 public class ProfileOptionFragment extends Fragment {
 

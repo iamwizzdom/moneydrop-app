@@ -91,6 +91,12 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void setUser() {
+        setUser(this.user);
+    }
+
+    public void setUser(User user) {
+
+        if (user == null) user = this.user = dbHelper.getUser();
 
         TextView tvName = findViewById(R.id.account_name);
         TextView tvEmail = findViewById(R.id.account_email);
@@ -253,7 +259,7 @@ public class ProfileActivity extends AppCompatActivity {
             bundle.putString(ProfileOptionFragment.EDIT_TITLE, "Update Password");
             bundle.putString(ProfileOptionFragment.EDIT_OPTION, ProfileOptionFragment.EDIT_PASSWORD);
         } else if (id == R.id.backBtn) {
-            setUser();
+            setUser(null);
             navController.popBackStack();
             navController.navigate(R.id.nav_profile_option, null, getNavOptions(false));
             new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> navController.popBackStack(), 500);
@@ -313,7 +319,7 @@ public class ProfileActivity extends AppCompatActivity {
                         user.setPicture(userObject.getString("picture"));
 
                         if (user.update()) {
-                            setUser();
+                            setUser(user);
                             Utility.toastMessage(ProfileActivity.this, object.getString("message"));
                         } else {
                             Utility.toastMessage(ProfileActivity.this, "Failed to update user picture locally. Please try again later.");

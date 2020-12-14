@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorWhite"
+    android:paddingStart="@dimen/padding_20"
+    android:paddingEnd="0dp"
+    android:paddingBottom="8dp"
+    android:paddingTop="8dp">
+
+    <!-- NOTE: This list should be displayed in a list
+    instead of nested layouts -->
+
+    <LinearLayout
+        android:id="@+id/profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/layout_underline"
+        android:paddingStart="@dimen/padding_10"
+        android:paddingEnd="@dimen/padding_10"
+        android:paddingBottom="@dimen/padding_20"
+        android:paddingTop="@dimen/padding_20">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/text_view_style"
+            android:gravity="start|center"
+            android:drawablePadding="@dimen/padding_20"
+            android:text="@string/user_account"
+            android:textColor="@color/titleColorGray"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_user" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/transactions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/layout_underline"
+        android:paddingStart="@dimen/padding_10"
+        android:paddingEnd="@dimen/padding_10"
+        android:paddingBottom="@dimen/padding_20"
+        android:paddingTop="@dimen/padding_20">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/text_view_style"
+            android:gravity="start|center"
+            android:drawablePadding="@dimen/padding_20"
+            android:text="@string/transactions"
+            android:textColor="@color/titleColorGray"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_transactions" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/wallet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/layout_underline"
+        android:paddingStart="@dimen/padding_10"
+        android:paddingEnd="@dimen/padding_10"
+        android:paddingBottom="@dimen/padding_20"
+        android:paddingTop="@dimen/padding_20">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/text_view_style"
+            android:gravity="start|center"
+            android:drawablePadding="@dimen/padding_20"
+            android:text="@string/wallet"
+            android:textColor="@color/titleColorGray"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_wallet" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/padding_10"
+        android:paddingEnd="@dimen/padding_10"
+        android:paddingBottom="@dimen/padding_20"
+        android:paddingTop="@dimen/padding_20">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/text_view_style"
+            android:gravity="start|center"
+            android:drawablePadding="@dimen/padding_20"
+            android:text="@string/logout"
+            android:textColor="@color/titleColorGray"
+            android:textStyle="bold"
+            app:drawableStartCompat="@drawable/ic_logout" />
+
+    </LinearLayout>
+
+</LinearLayout>
