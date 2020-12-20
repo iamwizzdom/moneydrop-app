@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -30,6 +31,7 @@ import com.quidvis.moneydrop.utility.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -159,6 +161,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     JSONObject userData = object.getJSONObject("response");
                     JSONObject userObject = userData.getJSONObject("user");
+                    JSONArray cards = userData.getJSONArray("cards");
 
                     User user = new User(LoginActivity.this);
                     user.setFirstname(userObject.getString("firstname"));
@@ -180,6 +183,20 @@ public class LoginActivity extends AppCompatActivity {
                     user.setToken(userData.getString("token"));
 
                     if (dbHelper.saveUser(user)) {
+
+                        for (int i = 0; i < cards.length(); i++) {
+                            JSONObject cardObject = cards.getJSONObject(i);
+                            com.quidvis.moneydrop.model.Card card = new com.quidvis.moneydrop.model.Card(LoginActivity.this);
+                            card.setUuid(cardObject.getString("uuid"));
+                            card.setName(cardObject.getString("name"));
+                            card.setCardType(cardObject.getString("card_type"));
+                            card.setLastFourDigits(cardObject.getString("last4"));
+                            card.setBrand(cardObject.getString("brand"));
+                            card.setExpMonth(cardObject.getString("exp_month"));
+                            card.setExpYear(cardObject.getString("exp_year"));
+                            dbHelper.saveCard(card);
+                        }
+
                         session.setLoggedIn(true);
                         Utility.toastMessage(LoginActivity.this, object.getString("message"));
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);

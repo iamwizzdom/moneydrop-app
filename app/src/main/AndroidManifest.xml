@@ -92,6 +92,11 @@
             android:label="@string/transactions"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity
+            android:name=".activity.CardsActivity"
+            android:label="@string/cards"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -101,6 +106,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <meta-data
+            android:name="co.paystack.android.PublicKey"
+            android:value="pk_test_2e24e05994f91052031815f4f3e31edbcaedf4ce"/>
     </application>
 
 </manifest>

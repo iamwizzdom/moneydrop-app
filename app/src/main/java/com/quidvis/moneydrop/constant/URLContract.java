@@ -11,7 +11,7 @@ public class URLContract {
     private static final String URL_HTTP_SCHEME = "http://";
     private static final String URL_HTTPS_SCHEME = "https://";
     public static final String URL_SCHEME = URL_HTTP_SCHEME;
-    public static final String HOST_URL = "10.101.185.155:8000";
+    public static final String HOST_URL = "192.168.0.109:8000";
     private static final String API_URL = URL_SCHEME + HOST_URL + "/api/v1";
     public static final String LOGIN_URL = API_URL + "/auth/login";
     public static final String REGISTRATION_URL = API_URL + "/auth/register";
@@ -24,5 +24,9 @@ public class URLContract {
     public static final String LOAN_REQUEST_LIST_URL = API_URL + "/user/loan/requests";
     public static final String LOAN_OFFERS_LIST_URL = API_URL + "/user/loan/offers";
     public static final String TRANSACTION_LIST_URL = API_URL + "/user/transactions";
+    public static final String CARD_TRANS_LOG_URL = API_URL + "/user/card/add/reference";
+    public static final String CARD_VERIFICATION_URL = API_URL + "/user/card/add/verify";
+    public static final String CARD_RETRIEVE_ALL_URL = API_URL + "/user/card/retrieve/all";
+    public static final String CARD_REMOVE_URL = API_URL + "/user/card/remove/";
 
 }

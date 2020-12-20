@@ -35,4 +35,18 @@ public class DbContract {
     public static final String USER_VERIFIED_EMAIL = "verified_email";
     public static final String USER_VERIFIED_PHONE = "verified_phone";
 
+
+    /**
+     * card db table variables
+     */
+    public static final String CARDS_TABLE_NAME = "cards";
+    public static final String CARD_UID = "_id";
+    public static final String CARD_UUID = "uuid";
+    public static final String CARD_NAME = "name";
+    public static final String CARD_TYPE = "cardType";
+    public static final String CARD_BRAND = "brand";
+    public static final String CARD_LAST_FOUR_DIGITS = "lastFourDigits";
+    public static final String CARD_EXP_MONTH = "expMonth";
+    public static final String CARD_EXP_YEAR = "expYear";
+
 }

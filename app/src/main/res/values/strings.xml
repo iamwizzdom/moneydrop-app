@@ -83,6 +83,7 @@
     <string name="background_bubble">Background bubble</string>
     <string name="user_name">John Doe</string>
     <string name="wallet">Wallet</string>
+    <string name="cards">Cards</string>
     <string name="user_account">User Account</string>
     <string name="logout">Logout</string>
     <string name="select_image">Select Image</string>
@@ -140,7 +141,19 @@
     <string name="secured_payment">Secured Payment by</string>
     <string name="payment_gateways">Payment Gateways</string>
     <string name="card_number">Card number</string>
+    <string name="card_number_hint">**** **** **** ****</string>
     <string name="expiration">Expiration</string>
     <string name="cvv">CVV</string>
+    <string name="cvv_hint">***</string>
+    <string name="add_new_card">Add new card</string>
+    <string name="cards_added">Cards Added</string>
+    <string name="added_successfully">Added successfully!</string>
+    <string name="add_card">Add Card</string>
+    <string name="card_name">Card Name</string>
+    <string name="card_name_optional">Card Name (Optional)</string>
+    <string name="card_icon">Card Icon</string>
+    <string name="check_mark">Check Mark</string>
+    <string name="remove_card">Remove card</string>
+    <string name="options">Options</string>
 
 </resources>

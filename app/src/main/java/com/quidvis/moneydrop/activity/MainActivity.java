@@ -42,12 +42,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity {
 
     private final static String STATE_KEY = MainActivity.class.getName();
-    private final static int TOPUP_BANK = 1, TOPUP_CARD = 2;
     private TextView titleTv, subtitleTv;
     private BottomNavigationView navView;
     private NavController navController;
     private DbHelper dbHelper;
-    private ArrayMap<String, Object> topUpInfo = new ArrayMap<>();
 
     private CircleImageView profilePic;
 
@@ -166,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
         session.setLoggedIn(false);
         dbHelper.deleteUser();
+        dbHelper.deleteAllCards();
 
         Intent intent = new Intent(activity, LoginActivity.class);
         if (title != null) intent.putExtra(LoginActivity.TITLE, title);
@@ -184,23 +183,59 @@ public class MainActivity extends AppCompatActivity {
 
     public void showBottomSheetDialog() {
 
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.dashboard_bottom_sheet_layout, null);
-        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, bottomSheetView);
-        LinearLayout vProfile = bottomSheetView.findViewById(R.id.profile);
-        LinearLayout vTransactions = bottomSheetView.findViewById(R.id.transactions);
-        LinearLayout vLogout = bottomSheetView.findViewById(R.id.logout);
-        vProfile.setOnClickListener(view -> {
-            bottomSheet.dismiss();
+        ArrayList<BottomSheetLayoutModel> layoutModels = new ArrayList<>();
+
+        BottomSheetLayoutModel sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_user, null));
+        sheetLayoutModel.setText(getResources().getString(R.string.user_account));
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            sheet.dismiss();
             startActivity(new Intent(MainActivity.this, ProfileActivity.class));
         });
-        vTransactions.setOnClickListener(view -> {
-            bottomSheet.dismiss();
-            viewAllTransaction(view);
+
+        layoutModels.add(sheetLayoutModel);
+
+        sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_transactions, null));
+        sheetLayoutModel.setText(getResources().getString(R.string.transactions));
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            sheet.dismiss();
+            viewAllTransaction(v);
         });
-        vLogout.setOnClickListener(view -> {
-            bottomSheet.dismiss();
+
+        layoutModels.add(sheetLayoutModel);
+
+        sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_wallet, null));
+        sheetLayoutModel.setText(getResources().getString(R.string.wallet));
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            sheet.dismiss();
+//            logout(this);
+        });
+
+        layoutModels.add(sheetLayoutModel);
+
+        sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_credit_card, null));
+        sheetLayoutModel.setText(getResources().getString(R.string.cards));
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            sheet.dismiss();
+            startActivity(new Intent(MainActivity.this, CardsActivity.class));
+        });
+
+        layoutModels.add(sheetLayoutModel);
+
+        sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_logout, null));
+        sheetLayoutModel.setText(getResources().getString(R.string.logout));
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            sheet.dismiss();
             logout(this);
         });
+
+        layoutModels.add(sheetLayoutModel);
+
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, layoutModels);
         bottomSheet.show();
     }
 
@@ -209,22 +244,21 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<BottomSheetLayoutModel> layoutModels = new ArrayList<>();
 
         BottomSheetLayoutModel sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_bank_transfer, null));
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_credit_card, null));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             sheet.dismiss();
             MainActivity.this.showTopUpAmountDialog();
         });
-        sheetLayoutModel.setText("Bank Transfer");
+        sheetLayoutModel.setText("Credit Card");
 
         layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_credit_card, null));
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_bank_transfer, null));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
-            sheet.dismiss();
-            MainActivity.this.showTopUpCardDetailsDialog();
+            Utility.toastMessage(MainActivity.this, "This feature is coming soon.");
         });
-        sheetLayoutModel.setText("Credit Card");
+        sheetLayoutModel.setText("Bank Transfer");
 
         layoutModels.add(sheetLayoutModel);
 
@@ -235,53 +269,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void showTopUpAmountDialog() {
         View bottomSheetView = getLayoutInflater().inflate(R.layout.topup_amount_bottom_sheet_layout, null);
-        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, bottomSheetView);
-        bottomSheet.show();
-    }
-
-    public void showTopUpCardDetailsDialog() {
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.topup_card_details_bottom_sheet_layout, null);
-        EditText etCardExp = bottomSheetView.findViewById(R.id.card_expiration);
-        EditText etCardCvv = bottomSheetView.findViewById(R.id.card_cvv);
-        etCardExp.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String initial = s.toString();
-                if (initial.contains("/")) {
-                    if (initial.length() < 2) s.replace(0, initial.length(), "0" + initial);
-                    return;
-                }
-                // insert a forward slash after all groups of 2 digits that are followed by another digit
-                String processed = initial.replaceAll("(\\d{2})(?=\\d)", "$1/");
-                if (!initial.contentEquals(processed) && processed.length() > 0) {
-                    // set the value
-                    s.replace(0, initial.length(), processed);
-                }
-            }
-        });
-        InputFilter filter = (source, start, end, dest, dstart, dend) -> {
-            String s = String.valueOf(source);
-            if (s.startsWith("/")) return "";
-            if (s.contains("/")) {
-                String[] sa = s.split("[/]");
-                int num = Integer.parseInt(sa[0]);
-                if (sa.length > 0 && (!sa[0].isEmpty() &&
-                        sa[0].length() <= 2) && (num < 1 || num > 12)) return "";
-            }
-            return null;
-        };
-        etCardExp.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(5)});
-        etCardCvv.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
         CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, bottomSheetView);
         bottomSheet.show();
     }

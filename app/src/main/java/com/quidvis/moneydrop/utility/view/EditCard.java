@@ -16,6 +16,7 @@ import com.quidvis.moneydrop.utility.CardPattern;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
@@ -38,9 +39,6 @@ public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
     }
 
     private void addListeners() {
-        // Changing the icon when it's empty
-        changeIcon();
-        setCompoundDrawablePadding(Utility.getDip((Activity) getContext(), 20));
         // Adding the TextWatcher
         addTextChangedListener(new TextWatcher() {
             @Override
@@ -92,8 +90,12 @@ public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
             }
             return null;
         };
+
+        // Changing the icon when it's empty
+        changeIcon();
+        setCompoundDrawablePadding(Utility.getDip((Activity) getContext(), 20));
         // Setting the filters
-        setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(19)});
+        setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(23)});
     }
 
     private void changeIcon() {
@@ -107,6 +109,9 @@ public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
         if (s.startsWith("4") || s.matches(CardPattern.VISA)) {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_visa_card, 0, 0,0);
             type = "Visa";
+        } else if (s.startsWith("50") || s.matches(CardPattern.VERVE)) {
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_verve, 0, 0,0);
+            type = "Verve";
         } else if (Validator.isNumberBetween(Integer.parseInt(st2), 51, 55) ||
                 Validator.isNumberBetween(Integer.parseInt(st4), 2221, 2720) ||
                 s.matches(CardPattern.MASTERCARD_SHORTER) || s.matches(CardPattern.MASTERCARD_SHORT) ||
@@ -115,7 +120,7 @@ public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
             type = "MasterCard";
         } else if (s.matches(CardPattern.AMERICAN_EXPRESS)) {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_american_express_card, 0, 0,0);
-            type = "American_Express";
+            type = "American Express";
         } else if (s.matches(CardPattern.DISCOVER_SHORT) || s.matches(CardPattern.DISCOVER)) {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_discover_card, 0, 0,0);
             type = "Discover";
@@ -124,15 +129,16 @@ public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
             type = "JCB";
         } else if (s.matches(CardPattern.DINERS_CLUB_SHORT) || s.matches(CardPattern.DINERS_CLUB)) {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_diners_club_card, 0, 0,0);
-            type = "Diners_Club";
+            type = "Diners Club";
         } else {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_credit_card,0, 0, 0);
-            type = "UNKNOWN";
+            type = "Unknown";
         }
     }
 
     public boolean isValid() {
         if (getCardNumber().matches(CardPattern.VISA_VALID)) return true;
+        if (getCardNumber().matches(CardPattern.VERVE_VALID)) return true;
         if (getCardNumber().matches(CardPattern.MASTERCARD_VALID)) return true;
         if (getCardNumber().matches(CardPattern.AMERICAN_EXPRESS_VALID)) return true;
         if (getCardNumber().matches(CardPattern.DISCOVER_VALID)) return true;
@@ -141,7 +147,7 @@ public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
     }
 
     public String getCardNumber() {
-        return getText().toString().replaceAll("[^0-9]", "").trim();
+        return Objects.requireNonNull(getText()).toString().replaceAll("[^0-9]", "").trim();
     }
 
     public String getCardType(){

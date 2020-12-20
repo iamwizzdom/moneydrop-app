@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:id="@+id/container"
+    android:layout_height="wrap_content"
+    style="@style/layout_rounded_style"
+    android:padding="@dimen/activity_vertical_margin"
+    android:weightSum="3">
+
+    <ImageView
+        android:id="@+id/card_issuer_icon"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight=".7"
+        android:src="@drawable/ic_credit_card"
+        android:contentDescription="@string/card_icon"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:layout_marginStart="15dp"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/card_number"
+            style="@style/text_view_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/card_number"
+            android:textSize="18sp"
+            android:textColor="@color/black" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/card_expiration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                style="@style/text_view_style"
+                android:gravity="start"
+                android:maxLines="1"
+                android:textColor="@color/colorGrayDark"
+                android:text="@string/expiration"/>
+
+            <TextView
+                android:id="@+id/card_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                style="@style/text_view_style"
+                android:maxLines="1"
+                android:gravity="end"
+                android:textColor="@color/colorAccent"
+                android:text="@string/card_name"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/option"
+        android:visibility="visible"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:layout_weight=".3"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_gravity="center|center_vertical"
+        android:src="@drawable/ic_more_option"
+        android:contentDescription="@string/options" />
+
+    <ImageView
+        android:id="@+id/check_mark"
+        android:visibility="gone"
+        android:layout_width="10dp"
+        android:layout_height="20dp"
+        android:layout_weight=".3"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_gravity="center|center_vertical"
+        android:src="@drawable/ic_checkmark"
+        android:contentDescription="@string/check_mark" />
+
+</LinearLayout>

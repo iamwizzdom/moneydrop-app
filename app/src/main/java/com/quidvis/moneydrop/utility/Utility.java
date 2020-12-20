@@ -1,5 +1,7 @@
 package com.quidvis.moneydrop.utility;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -558,6 +560,24 @@ public class Utility {
      */
     public static String isEmpty(String value, String defaultValue) {
         return (TextUtils.isEmpty(value = isNull(value)) ? defaultValue : value);
+    }
+
+    public static void fadeOut(Activity activity, View view) {
+        fadeOut(activity, view, null);
+    }
+
+    public static void fadeOut(Activity activity, View view, Runnable callback) {
+        view.animate()
+                .alpha(0f)
+                .setDuration(activity.getResources().getInteger(
+                        android.R.integer.config_shortAnimTime))
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        view.setVisibility(View.GONE);
+                        if (callback != null) callback.run();
+                    }
+                });
     }
 
     /**
