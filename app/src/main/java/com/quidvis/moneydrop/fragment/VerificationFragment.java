@@ -12,26 +12,20 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.activity.ProfileActivity;
 import com.quidvis.moneydrop.activity.RegistrationActivity;
 import com.quidvis.moneydrop.activity.VerificationActivity;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.interfaces.OnAwesomeDialogClickListener;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -41,7 +35,6 @@ import org.json.JSONObject;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
@@ -145,7 +138,13 @@ public class VerificationFragment extends Fragment {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+                verifyBtn.revertAnimation();
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
                 try {
 
                     JSONObject object = new JSONObject(response);
@@ -165,8 +164,6 @@ public class VerificationFragment extends Fragment {
                     Utility.enableEditText(etEmail);
                     Utility.toastMessage(activity, "Something unexpected happened. Please try that again.");
                 }
-
-                verifyBtn.revertAnimation();
             }
 
             @Override
@@ -201,7 +198,6 @@ public class VerificationFragment extends Fragment {
                     Utility.toastMessage(activity, statusCode == 503 ? error :
                                     "Something unexpected happened. Please try that again.");
                 }
-                verifyBtn.revertAnimation();
             }
 
             @Override

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/content_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".activity.WalletActivity"
+    tools:showIn="@layout/activity_wallet">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/activity_vertical_padding"
+            android:paddingEnd="@dimen/activity_vertical_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/padding_20"
+                    android:background="@drawable/layout_background_rounded"
+                    android:backgroundTint="@color/colorAccent">
+
+                    <TextView
+                        android:id="@+id/wallet_amount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/text_view_style"
+                        android:text="@string/amount"
+                        android:textStyle="bold"
+                        android:textSize="22sp"
+                        app:drawableTopCompat="@drawable/ic_wallet_accent"
+                        android:drawablePadding="@dimen/padding_10"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/text_view_style"
+                        android:text="@string/available_balance"
+                        android:textColor="@color/subtitleColor" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="@dimen/margin_5"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/top_up_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/margin_5"
+                            style="@style/text_view_style"
+                            android:gravity="start|center_vertical"
+                            android:text="@string/top_up"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            android:onClick="showTopUpDialog"
+                            app:drawableStartCompat="@drawable/ic_top_up_wallet"
+                            android:drawablePadding="@dimen/padding_5"/>
+
+                        <TextView
+                            android:id="@+id/cash_out_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/margin_5"
+                            style="@style/text_view_style"
+                            android:gravity="start|center_vertical"
+                            android:text="@string/cash_out"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            android:onClick="showCashoutAmountDialog"
+                            app:drawableStartCompat="@drawable/ic_cashout"
+                            android:drawablePadding="@dimen/padding_5"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            style="@style/text_view_style"
+                            android:gravity="start"
+                            android:text="@string/transactions"
+                            android:textColor="@color/colorAccent"
+                            android:textSize="23sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight=".5"
+                            style="@style/text_view_style"
+                            android:gravity="center|end"
+                            android:text="@string/view_all"
+                            android:textColor="@color/colorAccent"
+                            android:onClick="viewAllTransaction"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/transaction_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:background="@drawable/layout_background_rounded"
+                        android:paddingStart="3dp"
+                        android:paddingEnd="3dp"
+                        android:paddingTop="@dimen/padding_5"
+                        android:paddingBottom="@dimen/padding_5">
+
+                        <com.facebook.shimmer.ShimmerFrameLayout
+                            android:id="@+id/transaction_shimmer_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:duration="800">
+
+                            <!-- Adding 7 rows of placeholders -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                                <include layout="@layout/list_placeholder" />
+                                <include layout="@layout/list_placeholder" />
+                            </LinearLayout>
+
+                        </com.facebook.shimmer.ShimmerFrameLayout>
+
+                        <TextView
+                            android:id="@+id/transaction_empty"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:padding="@dimen/activity_vertical_margin"
+                            android:textColor="@color/colorGray"
+                            android:text="@string/no_content"
+                            style="@style/text_view_style"
+                            android:visibility="gone"
+                            android:drawablePadding="@dimen/padding_15"
+                            app:drawableTopCompat="@drawable/ic_no_content" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+</LinearLayout>

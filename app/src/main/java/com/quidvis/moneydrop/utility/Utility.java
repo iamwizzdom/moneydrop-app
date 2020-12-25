@@ -224,32 +224,51 @@ public class Utility {
         return message;
     }
 
+    /**
+     *
+     * @param array
+     * @param object
+     * @return
+     */
+    public static JSONArray prependJSONObject(JSONArray array, JSONObject object) {
+        JSONArray newArray = new JSONArray();
+        newArray.put(object);
+        for (int i = 0; i < array.length(); i++) {
+            try {
+                newArray.put(array.getJSONObject(i));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return newArray;
+    }
+
     public static ArrayMap<String, Integer> getTheme(String status) {
         ArrayMap<String, Integer> theme = new ArrayMap<>();
         switch (status.toLowerCase()) {
+            case "pending":
+                theme.put("icon", R.drawable.ic_transaction_outgoing_pending);
+                theme.put("color", R.color.pendingColor);
+                theme.put("badge", R.style.tag_pending);
+                theme.put("background", R.drawable.tag_pending);
+                break;
+            case "processing":
+                theme.put("icon", R.drawable.ic_transaction_outgoing_warning);
+                theme.put("color", R.color.warningColor);
+                theme.put("badge", R.style.tag_warning);
+                theme.put("background", R.drawable.tag_warning);
+                break;
             case "successful":
                 theme.put("icon", R.drawable.ic_transaction_outgoing_success);
                 theme.put("color", R.color.successColor);
                 theme.put("badge", R.style.tag_success);
                 theme.put("background", R.drawable.tag_success);
                 break;
-            case "frozen":
-                theme.put("icon", R.drawable.ic_transaction_outgoing_pending);
-                theme.put("color", R.color.pendingColor);
-                theme.put("badge", R.style.tag_pending);
-                theme.put("background", R.drawable.tag_pending);
-                break;
-            case "failed":
+            default:
                 theme.put("icon", R.drawable.ic_transaction_outgoing_danger);
                 theme.put("color", R.color.dangerColor);
                 theme.put("badge", R.style.tag_danger);
                 theme.put("background", R.drawable.tag_danger);
-                break;
-            default:
-                theme.put("icon", R.drawable.ic_transaction_outgoing_warning);
-                theme.put("color", R.color.warningColor);
-                theme.put("badge", R.style.tag_warning);
-                theme.put("background", R.drawable.tag_warning);
                 break;
         }
         return theme;

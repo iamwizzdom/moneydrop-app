@@ -16,6 +16,8 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.interfaces.OnViewPagerMountedListener;
@@ -92,6 +94,9 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
+        Objects.requireNonNull(dialog).getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
 
         LinearLayout layout = view.findViewById(R.id.sheet_layout);
         ViewPager viewPager = view.findViewById(R.id.view_pager);

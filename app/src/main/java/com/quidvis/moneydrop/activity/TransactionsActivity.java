@@ -16,8 +16,8 @@ import com.quidvis.moneydrop.adapter.TransactionAdapter;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.model.Loan;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.model.Transaction;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 
 import org.json.JSONArray;
@@ -34,7 +34,7 @@ public class TransactionsActivity extends AppCompatActivity {
     private final static String STATE_KEY = TransactionsActivity.class.getName();
     private DbHelper dbHelper;
     private TransactionAdapter transactionAdapter;
-    private final ArrayList<Loan> loans = new ArrayList<>();
+    private final ArrayList<Transaction> transactions = new ArrayList<>();
     private Bundle savedState;
     private JSONObject data;
 
@@ -56,7 +56,7 @@ public class TransactionsActivity extends AppCompatActivity {
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             setRefreshing(true);
-            getTransactions(1);
+            getTransactions(null);
         });
 
         recyclerView = findViewById(R.id.transaction_list);
@@ -65,12 +65,9 @@ public class TransactionsActivity extends AppCompatActivity {
 
         savedState = getState();
 
-        transactionAdapter = new TransactionAdapter(recyclerView, this, loans);
+        transactionAdapter = new TransactionAdapter(recyclerView, this, transactions);
         recyclerView.setAdapter(transactionAdapter);
-        transactionAdapter.setOnLoadMoreListener(() -> {
-            transactionAdapter.setLoading(true);
-            getTransactions(savedState.getInt("page", 1));
-        });
+        transactionAdapter.setOnLoadMoreListener(() -> getTransactions(savedState.getString("nextPage")));
 
         if (savedState != null && savedState.size() > 0) {
             try {
@@ -85,12 +82,12 @@ public class TransactionsActivity extends AppCompatActivity {
             try {
                 setTransaction(data.getJSONArray("transactions"), false);
             } catch (JSONException e) {
-                getTransactions(Objects.requireNonNull(savedState).getInt("page", 1));
+                getTransactions(Objects.requireNonNull(savedState).getString("nextPage"));
                 e.printStackTrace();
             }
 
         } else {
-            getTransactions(Objects.requireNonNull(savedState).getInt("page", 1));
+            getTransactions(Objects.requireNonNull(savedState).getString("nextPage"));
         }
     }
 
@@ -121,33 +118,17 @@ public class TransactionsActivity extends AppCompatActivity {
 
         int size = loanRequests.length();
 
-        if (addUp && size <= 0) {
-
-            if (transactionAdapter.isLoading()) {
-                setLoading(false, true);
-                transactionAdapter.setLoading(false);
-                transactionAdapter.setPermitLoadMore(false);
-                loans.add(null);
-                transactionAdapter.notifyItemInserted(loans.size() - 1);
-            }
-
-            return;
-        }
-
-        if (transactionAdapter.isLoading()) transactionAdapter.setLoading(false);
-        transactionAdapter.setPermitLoadMore(true);
-
         for (int i = 0; i < size; i++) {
             try {
 
                 JSONObject loanRequest = loanRequests.getJSONObject(i);
-                Loan loan = new Loan();
-                loan.setId(loanRequest.getInt("id"));
-                loan.setType(loanRequest.getString("type"));
-                loan.setAmount(loanRequest.getDouble("amount"));
-                loan.setStatus(loanRequest.getString("status"));
-                loan.setDate(loanRequest.getString("date"));
-                loans.add(loan);
+                Transaction transaction = new Transaction();
+                transaction.setId(loanRequest.getInt("id"));
+                transaction.setType(loanRequest.getString("type"));
+                transaction.setAmount(loanRequest.getDouble("amount"));
+                transaction.setStatus(loanRequest.getString("status"));
+                transaction.setDate(loanRequest.getString("date"));
+                transactions.add(transaction);
                 if (!addUp) continue;
                 data.getJSONArray("transactions").put(loanRequest);
 
@@ -157,15 +138,24 @@ public class TransactionsActivity extends AppCompatActivity {
         }
 
         setLoading(false, size > 0);
-        size = loans.size();
+        size = transactions.size();
         tvItemCount.setText((size > 0) ? String.format("%s %s", size, (size > 1 ? "records" : "record")) : getResources().getText(R.string.no_record));
         transactionAdapter.notifyDataSetChanged();
     }
 
-    private void getTransactions(int page) {
+    private void getTransactions(String nextPage) {
+
+        if (nextPage != null && nextPage.equals("#")) {
+            setLoading(false, true);
+            transactionAdapter.setLoading(false);
+            transactionAdapter.setPermitLoadMore(false);
+            transactions.add(null);
+            transactionAdapter.notifyItemInserted(transactions.size() - 1);
+            return;
+        }
 
         HttpRequest httpRequest = new HttpRequest(this,
-                String.format("%s?page=%s", URLContract.TRANSACTION_LIST_URL, page),
+                nextPage != null ? URLContract.BASE_URL + nextPage : URLContract.TRANSACTION_LIST_URL,
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override
@@ -188,17 +178,27 @@ public class TransactionsActivity extends AppCompatActivity {
             @Override
             protected void onRequestStarted() {
 
+                transactionAdapter.setLoading(true);
+                transactionAdapter.setPermitLoadMore(false);
                 if (data == null) setLoading(true);
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+                transactionAdapter.setLoading(false);
+                transactionAdapter.setPermitLoadMore(true);
+                if (onError && data == null) setLoading(false);
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
 
                 try {
 
                     JSONObject object = new JSONObject(response);
                     setTransaction(object.getJSONArray("transactions"), data != null);
-                    savedState.putInt("page", object.getInt("page"));
+                    savedState.putString("nextPage", object.getJSONObject("pagination").getString("nextPage"));
                     if (data == null) data = object;
 
                 } catch (JSONException e) {
@@ -222,8 +222,6 @@ public class TransactionsActivity extends AppCompatActivity {
                     Utility.toastMessage(TransactionsActivity.this, statusCode == 503 ? error :
                                     "Something unexpected happened. Please try that again.");
                 }
-
-                if (data == null) setLoading(false);
             }
 
             @Override
@@ -245,40 +243,27 @@ public class TransactionsActivity extends AppCompatActivity {
         if (refreshing) {
             data = null;
             savedState.putBundle("data", null);
-            savedState.putInt("page", 1);
-            loans.clear();
+            savedState.putString("nextPage", null);
+            transactions.clear();
             if (!transactionAdapter.isPermitLoadMore()) transactionAdapter.setPermitLoadMore(true);
         }
     }
 
-    private Bundle getState() {
-        return getState(null);
+    public Bundle getState() {
+        return Utility.getState(STATE_KEY);
     }
 
-    public Bundle getState(String key) {
-        Bundle state = Utility.getState(STATE_KEY);
-        return key != null ? state.getBundle(key) : state;
-    }
-
-    private void saveState(Bundle state) {
-        saveState(null, state);
-    }
-
-    public void saveState(String key, Bundle state) {
-        Bundle prevState;
-        if (key != null) {
-            prevState = Utility.getState(STATE_KEY);
-            prevState.putBundle(key, state);
-        } else prevState = state;
-        Utility.saveState(STATE_KEY, prevState);
+    public void saveState(Bundle state) {
+        Utility.saveState(STATE_KEY, state);
     }
 
     @Override
     protected void onDestroy() {
-        Bundle bundle = getState();
-        if (data != null) bundle.putString("data", data.toString());
-        if (savedState != null) bundle.putInt("page", savedState.getInt("page"));
-        saveState(bundle);
+        if (savedState != null) {
+            if (data != null) savedState.putString("data", data.toString());
+            savedState.putString("nextPage", savedState.getString("nextPage"));
+            saveState(savedState);
+        }
         super.onDestroy();
     }
 

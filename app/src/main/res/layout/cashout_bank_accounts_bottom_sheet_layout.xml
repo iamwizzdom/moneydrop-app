@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="@dimen/margin_20">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/text_view_style"
+        android:gravity="start"
+        android:paddingTop="@dimen/padding_10"
+        android:paddingBottom="@dimen/padding_10"
+        android:text="@string/select_bank_account"
+        android:fontFamily="@font/campton_light"
+        android:textColor="@color/colorAccent"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <LinearLayout
+        android:id="@+id/accounts_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        android:id="@+id/cash_out_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_20"
+        android:paddingStart="60dp"
+        android:paddingEnd="60dp"
+        android:layout_gravity="center"
+        android:background="@drawable/circular_border_shape"
+        android:text="@string/proceed"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorWhite"
+        android:textAllCaps="false"
+        app:spinning_bar_width="4dp"
+        app:spinning_bar_color="@color/colorWhite"
+        app:spinning_bar_padding="6dp" />
+
+</LinearLayout>

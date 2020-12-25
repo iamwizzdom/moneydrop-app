@@ -30,6 +30,7 @@
     <style name="BaseBottomSheetDialog" parent="@style/Theme.Design.Light.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
         <item name="bottomSheetStyle">@style/BottomSheet</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
     <style name="AppTheme.Transparent" parent="AppTheme">
@@ -242,6 +243,19 @@
         <item name="android:paddingEnd">20dp</item>
         <item name="android:paddingStart">20dp</item>
         <item name="android:textColor">@color/colorGray</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ems">10</item>
+    </style>
+
+    <style name="spinner_stroked_style">
+        <item name="android:gravity">start|center</item>
+        <item name="android:background">@drawable/spinner_stroked_background</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:spinnerMode">dropdown</item>
         <item name="android:maxLines">1</item>
         <item name="android:ems">10</item>
     </style>

@@ -1,5 +1,7 @@
 package com.quidvis.moneydrop.adapter;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +12,7 @@ import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -49,6 +52,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     public void notifyDataSetChanged(int position) {
+
         if (getTabLayout() != null && getTabLayout().getSelectedTabPosition() != position) return;
         if (mActivity != null && mActivity instanceof MainActivity) {
             String title = this.getItem(position).getTitle();

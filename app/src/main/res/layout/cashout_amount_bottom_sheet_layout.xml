@@ -29,7 +29,7 @@
         android:autofillHints="" />
 
     <Button
-        android:id="@+id/top_up_btn"
+        android:id="@+id/cash_out_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/margin_20"
@@ -37,7 +37,7 @@
         android:paddingEnd="60dp"
         android:layout_gravity="center"
         style="@style/button_style"
-        android:text="@string/top_up"
+        android:text="@string/cash_out"
         android:textAllCaps="false"
         android:textSize="14sp"
         android:textStyle="bold" />

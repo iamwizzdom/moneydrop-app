@@ -10,9 +10,6 @@ import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,12 +19,11 @@ import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
+import com.quidvis.moneydrop.model.Bank;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
-import com.quidvis.moneydrop.utility.CustomAlertDialog;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -153,7 +149,13 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+                loginBtn.revertAnimation();
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
 
                 try {
 
@@ -162,6 +164,7 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject userData = object.getJSONObject("response");
                     JSONObject userObject = userData.getJSONObject("user");
                     JSONArray cards = userData.getJSONArray("cards");
+                    JSONObject banks = userData.getJSONObject("banks");
 
                     User user = new User(LoginActivity.this);
                     user.setFirstname(userObject.getString("firstname"));
@@ -197,6 +200,16 @@ public class LoginActivity extends AppCompatActivity {
                             dbHelper.saveCard(card);
                         }
 
+                        for (Iterator<String> it = banks.keys(); it.hasNext();) {
+                            String key = it.next();
+                            JSONObject bankObject = banks.getJSONObject(key);
+                            Bank bank = new Bank(LoginActivity.this);
+                            bank.setUid(bankObject.getInt("id"));
+                            bank.setName(bankObject.getString("name"));
+                            bank.setCode(bankObject.getString("code"));
+                            dbHelper.saveBank(bank);
+                        }
+
                         session.setLoggedIn(true);
                         Utility.toastMessage(LoginActivity.this, object.getString("message"));
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -212,8 +225,6 @@ public class LoginActivity extends AppCompatActivity {
                     Utility.enableEditText(etPassword, Color.WHITE);
                     Utility.toastMessage(LoginActivity.this, "Something unexpected happened. Please try that again.");
                 }
-
-                loginBtn.revertAnimation();
             }
 
             @Override
@@ -256,7 +267,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 Utility.enableEditText(etEmail, Color.WHITE);
                 Utility.enableEditText(etPassword, Color.WHITE);
-                loginBtn.revertAnimation();
             }
 
             @Override

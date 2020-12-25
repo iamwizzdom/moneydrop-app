@@ -1,6 +1,5 @@
 package com.quidvis.moneydrop.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,12 +7,7 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,8 +25,9 @@ import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
+import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.view.EditCard;
 
@@ -46,7 +41,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
-import br.com.simplepass.loadingbutton.customViews.OnAnimationEndListener;
 import co.paystack.android.Paystack;
 import co.paystack.android.PaystackSdk;
 import co.paystack.android.Transaction;
@@ -62,7 +56,7 @@ public class CardsActivity extends AppCompatActivity {
 
 //    private Animation animFadeIn, animFadeOut;
     private LinearLayout cardsContainer, contentView;
-    private TextView successfulView;
+    private TextView successfulView, emptyView;
     private CustomBottomSheet bottomSheet;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -79,17 +73,30 @@ public class CardsActivity extends AppCompatActivity {
 //        animFadeOut = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_out);
 
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(this::fetchAllCards);
+        swipeRefreshLayout.setOnRefreshListener(() -> this.fetchAllCards(true));
 
+        emptyView = findViewById(R.id.empty_view);
         cardsContainer = findViewById(R.id.cards_container);
-        listCards();
+
+        if (cards.size() > 0) listCards();
+        else fetchAllCards();
     }
 
     private void listCards() {
         cardsContainer.removeAllViews();
-        for (int i = cards.size(); i > 0; i--) {
-            cardsContainer.addView(getCardView(cards.get(i - 1)));
+        if (cards.size() <= 0) {
+            isContentEmpty(true);
+            return;
         }
+        isContentEmpty(false);
+        for (com.quidvis.moneydrop.model.Card card: cards) {
+            cardsContainer.addView(getCardView(card));
+        }
+    }
+
+    private void isContentEmpty(boolean status) {
+        emptyView.setVisibility(status ? View.VISIBLE : View.GONE);
+        cardsContainer.setVisibility(status ? View.GONE : View.VISIBLE);
     }
 
     private View getCardView(com.quidvis.moneydrop.model.Card card) {
@@ -128,7 +135,12 @@ public class CardsActivity extends AppCompatActivity {
             popup.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() != R.id.remove) popup.dismiss();
                 else {
-                    removeCard(cardView, (String) v.getTag());
+                    CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(CardsActivity.this);
+                    alertDialog.setIcon(R.drawable.ic_problem);
+                    alertDialog.setMessage("Are you sure you want to remove this card?");
+                    alertDialog.setNegativeButton("No, cancel");
+                    alertDialog.setPositiveButton("Yes, proceed", vw -> removeCard(cardView, (String) v.getTag()));
+                    alertDialog.display();
                 }
                 return false;
             });
@@ -284,7 +296,12 @@ public class CardsActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
             }
 
             @Override
@@ -327,7 +344,12 @@ public class CardsActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
                 try {
 
                     JSONObject object = new JSONObject(response);
@@ -348,12 +370,13 @@ public class CardsActivity extends AppCompatActivity {
 
                         if (dbHelper.saveCard(card)) {
                             cards.add(0, card);
+                            isContentEmpty(false);
                             cardsContainer.addView(getCardView(card), 0);
                             Utility.toastMessage(CardsActivity.this, object.getString("message"));
                         } else {
                             Utility.alertDialog(CardsActivity.this,
                                     "Sorry we couldn't save this card details locally on " +
-                                            "this phone at this time. But this will be rectified when next you log in.");
+                                            "this device at this time. But this will be rectified when next you log in.");
                         }
 
                     } else {
@@ -382,7 +405,11 @@ public class CardsActivity extends AppCompatActivity {
                     AwesomeAlertDialog dialog = new AwesomeAlertDialog(CardsActivity.this);
 
                     dialog.setTitle(object.getString("title"));
-                    dialog.setMessage(object.getString("message"));
+                    String message;
+                    if (object.has("error") && object.getJSONObject("error").length() > 0) {
+                        message = Utility.serializeObject(object.getJSONObject("error"));
+                    } else message = object.getString("message");
+                    dialog.setMessage(message);
                     dialog.setPositiveButton("Ok", Dialog::dismiss);
 
                     dialog.display();
@@ -390,7 +417,7 @@ public class CardsActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Utility.toastMessage(CardsActivity.this, statusCode == 503 ? error :
-                            e.getMessage() + ": Something unexpected happened. Please try that again...");
+                            e.getMessage() + ": Something unexpected happened. Please try that again.");
                 }
                 addCardBtn.revertAnimation();
             }
@@ -404,6 +431,10 @@ public class CardsActivity extends AppCompatActivity {
     }
 
     private void fetchAllCards() {
+        fetchAllCards(false);
+    }
+
+    private void fetchAllCards(boolean refreshing) {
         HttpRequest httpRequest = new HttpRequest(this, URLContract.CARD_RETRIEVE_ALL_URL,
                 Request.Method.POST, new HttpRequestParams() {
             @Override
@@ -425,12 +456,17 @@ public class CardsActivity extends AppCompatActivity {
         }) {
             @Override
             protected void onRequestStarted() {
-                swipeRefreshLayout.setRefreshing(true);
+                if (refreshing) swipeRefreshLayout.setRefreshing(true);
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
-                swipeRefreshLayout.setRefreshing(false);
+            protected void onRequestCompleted(boolean onError) {
+
+                if (refreshing) swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
                 try {
 
                     JSONObject object = new JSONObject(response);
@@ -455,24 +491,28 @@ public class CardsActivity extends AppCompatActivity {
                     }
 
                     listCards();
-                    Utility.toastMessage(CardsActivity.this, object.getString("message"));
+                    if (refreshing) Utility.toastMessage(CardsActivity.this, object.getString("message"));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(CardsActivity.this, "Something unexpected happened. Please try that again..");
+                    if (refreshing) Utility.toastMessage(CardsActivity.this, "Something unexpected happened. Please try that again.");
                 }
             }
 
             @Override
             protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
-                swipeRefreshLayout.setRefreshing(false);
-                try {
+                if (!refreshing) return;
+                    try {
 
                     JSONObject object = new JSONObject(error);
                     AwesomeAlertDialog dialog = new AwesomeAlertDialog(CardsActivity.this);
 
                     dialog.setTitle(object.getString("title"));
-                    dialog.setMessage(object.getString("message"));
+                    String message;
+                    if (object.has("error") && object.getJSONObject("error").length() > 0) {
+                        message = Utility.serializeObject(object.getJSONObject("error"));
+                    } else message = object.getString("message");
+                    dialog.setMessage(message);
                     dialog.setPositiveButton("Ok", Dialog::dismiss);
 
                     dialog.display();
@@ -480,7 +520,7 @@ public class CardsActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Utility.toastMessage(CardsActivity.this, statusCode == 503 ? error :
-                            e.getMessage() + ": Something unexpected happened. Please try that again...");
+                            e.getMessage() + ": Something unexpected happened. Please try that again.");
                 }
             }
 
@@ -518,7 +558,12 @@ public class CardsActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
                 try {
 
                     JSONObject object = new JSONObject(response);
@@ -533,6 +578,7 @@ public class CardsActivity extends AppCompatActivity {
                             }
                         }
                         cardsContainer.removeView(view);
+                        if (cards.size() <= 0) isContentEmpty(true);
                     }
                     Utility.toastMessage(CardsActivity.this, object.getString("message"));
 
@@ -550,7 +596,11 @@ public class CardsActivity extends AppCompatActivity {
                     AwesomeAlertDialog dialog = new AwesomeAlertDialog(CardsActivity.this);
 
                     dialog.setTitle(object.getString("title"));
-                    dialog.setMessage(object.getString("message"));
+                    String message;
+                    if (object.has("error") && object.getJSONObject("error").length() > 0) {
+                        message = Utility.serializeObject(object.getJSONObject("error"));
+                    } else message = object.getString("message");
+                    dialog.setMessage(message);
                     dialog.setPositiveButton("Ok", Dialog::dismiss);
 
                     dialog.display();
@@ -558,7 +608,7 @@ public class CardsActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Utility.toastMessage(CardsActivity.this, statusCode == 503 ? error :
-                            e.getMessage() + ": Something unexpected happened. Please try that again...");
+                            e.getMessage() + ": Something unexpected happened. Please try that again.");
                 }
             }
 
@@ -570,7 +620,7 @@ public class CardsActivity extends AppCompatActivity {
         httpRequest.send();
     }
 
-    private int getCardIcon(String brand) {
+    public static int getCardIcon(String brand) {
         brand = brand.toLowerCase();
         if (brand.contains("visa")) return R.drawable.ic_visa_card;
         else if (brand.contains("verve")) return R.drawable.ic_verve;

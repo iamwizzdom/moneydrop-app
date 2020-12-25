@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/padding_20"
+    android:paddingStart="@dimen/padding_30"
+    android:paddingEnd="@dimen/padding_30"
+    android:paddingBottom="@dimen/margin_20">
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="@dimen/margin_10">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/text_view_style"
+                android:gravity="start"
+                android:textColor="@color/black"
+                android:text="@string/account_number"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/account_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/enter_account_number"
+                style="@style/edit_text_stroked_style"
+                android:nextFocusDown="@id/card_expiration"
+                android:inputType="number"
+                android:autofillHints="" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="@dimen/margin_10">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/text_view_style"
+                android:gravity="start"
+                android:textColor="@color/black"
+                android:text="@string/bank"
+                android:textStyle="bold"/>
+
+            <Spinner
+                android:id="@+id/banks_list"
+                style="@style/spinner_stroked_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dialog"
+                android:contentDescription="@string/banks" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/successful"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_30"
+        android:layout_marginBottom="@dimen/margin_40"
+        style="@style/text_view_style"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_large"
+        android:text="@string/added_successfully"
+        android:drawablePadding="@dimen/activity_vertical_margin"
+        app:drawableTopCompat="@drawable/ic_success"
+        android:visibility="gone"/>
+
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        android:id="@+id/add_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_20"
+        android:paddingStart="60dp"
+        android:paddingEnd="60dp"
+        android:layout_gravity="center"
+        android:background="@drawable/circular_border_shape"
+        android:text="@string/add_account"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorWhite"
+        android:textAllCaps="false"
+        app:spinning_bar_width="4dp"
+        app:spinning_bar_color="@color/colorWhite"
+        app:spinning_bar_padding="6dp" />
+
+</LinearLayout>

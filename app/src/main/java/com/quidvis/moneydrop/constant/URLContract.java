@@ -12,7 +12,8 @@ public class URLContract {
     private static final String URL_HTTPS_SCHEME = "https://";
     public static final String URL_SCHEME = URL_HTTP_SCHEME;
     public static final String HOST_URL = "192.168.0.109:8000";
-    private static final String API_URL = URL_SCHEME + HOST_URL + "/api/v1";
+    public static final String BASE_URL = URL_SCHEME + HOST_URL;
+    private static final String API_URL = BASE_URL + "/api/v1";
     public static final String LOGIN_URL = API_URL + "/auth/login";
     public static final String REGISTRATION_URL = API_URL + "/auth/register";
     public static final String FORGOT_PASSWORD_URL = API_URL + "/auth/password/forgot";
@@ -28,5 +29,10 @@ public class URLContract {
     public static final String CARD_VERIFICATION_URL = API_URL + "/user/card/add/verify";
     public static final String CARD_RETRIEVE_ALL_URL = API_URL + "/user/card/retrieve/all";
     public static final String CARD_REMOVE_URL = API_URL + "/user/card/remove/";
+    public static final String BANK_ACCOUNT_ADD_URL = API_URL + "/user/bank/add-account";
+    public static final String BANK_ACCOUNT_RETRIEVE_ALL_URL = API_URL + "/user/bank/retrieve/all";
+    public static final String BANK_ACCOUNT_REMOVE_URL = API_URL + "/user/bank/remove/";
+    public static final String WALLET_TOP_UP_URL = API_URL + "/user/wallet/top-up/";
+    public static final String WALLET_CASH_OUT_URL = API_URL + "/user/wallet/cash-out/";
 
 }

@@ -3,6 +3,7 @@ package com.quidvis.moneydrop.fragment;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,7 @@ import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 
 import org.json.JSONArray;
@@ -45,7 +46,8 @@ public class MainFragment extends Fragment {
     private LinearLayout loanRequestView, transactionView;
     private TextView loanRequestEmpty, transactionEmpty;
     ShimmerFrameLayout loanRequestShimmerFrameLayout, transactionShimmerFrameLayout;
-    private JSONObject data;
+    public static JSONObject data;
+    private static boolean started = false;
 
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en","ng"));
 
@@ -58,6 +60,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         activity = requireActivity();
 
         dbHelper = new DbHelper(activity);
@@ -71,6 +74,14 @@ public class MainFragment extends Fragment {
         transactionShimmerFrameLayout = view.findViewById(R.id.transaction_shimmer_view);
 
         ((MainActivity) activity).setCustomSubtitle("Available balance");
+
+        start();
+    }
+
+    private void start() {
+
+        if (started) return;
+        started = true;
 
         Bundle savedState = getState();
 
@@ -109,6 +120,7 @@ public class MainFragment extends Fragment {
     private void setLoanRequest(JSONArray loan) {
 
         int size = loan.length();
+        loanRequestView.removeAllViews();
 
         for (int i = 0; i < size; i++) {
             try {
@@ -127,18 +139,20 @@ public class MainFragment extends Fragment {
         setLoadingLoanRequest(false, size > 0);
     }
 
-    private void setTransactions(JSONArray trans) {
+    public void setTransactions(JSONArray trans) {
 
-        int size = trans.length();
+        int size = Math.min(trans.length(), 2);
+        transactionView.removeAllViews();
 
         for (int i = 0; i < size; i++) {
             try {
 
+
                 View view = getView(trans.getJSONObject(i));
-                if (view != null) {
-                    if ((i == 0 && size > 1) || i > 0 && i < (size - 1)) view.setBackgroundResource(R.drawable.layout_underline);
-                    transactionView.addView(view);
-                }
+                if (view == null) continue;
+                if ((i == 0 && size > 1) || i > 0 && i < (size - 1))
+                    view.setBackgroundResource(R.drawable.layout_underline);
+                transactionView.addView(view);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -241,7 +255,12 @@ public class MainFragment extends Fragment {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
 
                 try {
 
@@ -288,11 +307,11 @@ public class MainFragment extends Fragment {
 
     }
 
-    private Bundle getState() {
+    public Bundle getState() {
         return ((MainActivity) activity).getState(STATE_KEY);
     }
 
-    private Bundle getCurrentState() {
+    public static Bundle getCurrentState() {
         Bundle bundle = new Bundle();
         if (data != null) bundle.putString("data", data.toString());
         return bundle;
@@ -300,13 +319,20 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onPause() {
-        ((MainActivity) activity).saveState(STATE_KEY, getCurrentState());
+        MainActivity.saveState(STATE_KEY, getCurrentState());
+        started = false;
         super.onPause();
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        start();
+    }
+
+    @Override
     public void onDestroyView() {
-        ((MainActivity) activity).saveState(STATE_KEY, getCurrentState());
+        MainActivity.saveState(STATE_KEY, getCurrentState());
         super.onDestroyView();
     }
 }

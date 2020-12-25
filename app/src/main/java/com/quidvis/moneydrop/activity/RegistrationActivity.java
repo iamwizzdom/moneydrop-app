@@ -3,11 +3,8 @@ package com.quidvis.moneydrop.activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.DatePicker;
@@ -27,7 +24,7 @@ import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -221,8 +218,14 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
-                Log.e("response", response);
+            protected void onRequestCompleted(boolean onError) {
+
+                signupBtn.revertAnimation();
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
+
                 try {
 
                     JSONObject object = new JSONObject(response);
@@ -272,7 +275,6 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
                     Log.e("reg-error", Objects.requireNonNull(e.getMessage()));
                     Utility.toastMessage(RegistrationActivity.this, "Something unexpected happened. Please try that again.");
                 }
-                signupBtn.revertAnimation();
             }
 
             @Override
@@ -292,7 +294,6 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
                 Utility.enableEditText(etPhone);
                 Utility.enableEditText(etPassword);
                 Utility.enableEditText(etConfirmPassword);
-                signupBtn.revertAnimation();
             }
 
             @Override

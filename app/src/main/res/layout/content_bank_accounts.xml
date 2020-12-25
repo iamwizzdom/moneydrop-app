@@ -7,8 +7,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".activity.CardsActivity"
-    tools:showIn="@layout/activity_cards">
+    tools:context=".activity.BankAccountsActivity"
+    tools:showIn="@layout/activity_bank_accounts">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -21,7 +21,7 @@
         android:paddingBottom="@dimen/padding_10"
         android:paddingStart="@dimen/activity_vertical_padding"
         android:paddingEnd="@dimen/activity_vertical_padding"
-        android:text="@string/cards_added"
+        android:text="@string/added_accounts"
         android:fontFamily="@font/campton_medium"
         android:textColor="@color/colorAccent"
         android:textSize="20sp"/>
@@ -45,7 +45,7 @@
                 android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/cards_container"
+                    android:id="@+id/accounts_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">

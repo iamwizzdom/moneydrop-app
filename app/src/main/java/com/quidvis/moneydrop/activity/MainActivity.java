@@ -1,30 +1,35 @@
 package com.quidvis.moneydrop.activity;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.TextWatcher;
-import android.util.ArrayMap;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.Request;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
+import com.quidvis.moneydrop.fragment.MainFragment;
+import com.quidvis.moneydrop.interfaces.HttpRequestParams;
+import com.quidvis.moneydrop.model.Card;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
+import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
+import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.model.BottomSheetLayoutModel;
-import com.quidvis.moneydrop.utility.view.EditCard;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
@@ -33,10 +38,17 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.regex.Pattern;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView navView;
     private NavController navController;
     private DbHelper dbHelper;
+    private float topUpAmount = 0;
+    private final int MIN_TOP_UP_AMOUNT = 1000;
+
+    private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en","ng"));
 
     private CircleImageView profilePic;
 
@@ -69,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         subtitleTv = findViewById(R.id.subtitle);
 
         dbHelper = new DbHelper(this);
+        format.setMaximumFractionDigits(2);
 
         setUserPic();
 
@@ -161,16 +178,27 @@ public class MainActivity extends AppCompatActivity {
 
         if (dbHelper == null) dbHelper = new DbHelper(activity);
         if (session == null) session = new Session(activity);
+        Session finalSession = session;
+        DbHelper finalDbHelper = dbHelper;
 
-        session.setLoggedIn(false);
-        dbHelper.deleteUser();
-        dbHelper.deleteAllCards();
+        CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog((AppCompatActivity) activity);
+        alertDialog.setIcon(R.drawable.ic_log_me_out);
+        alertDialog.setMessage("Are you sure you want to logout?");
+        alertDialog.setNegativeButton("No, I am not ready");
+        alertDialog.setPositiveButton("Yes, Log me out", v -> {
 
-        Intent intent = new Intent(activity, LoginActivity.class);
-        if (title != null) intent.putExtra(LoginActivity.TITLE, title);
-        if (message != null) intent.putExtra(LoginActivity.MESSAGE, message);
-        activity.startActivity(intent);
-        activity.finish();
+            finalSession.setLoggedIn(false);
+            finalDbHelper.deleteUser();
+            finalDbHelper.deleteAllCards();
+            finalDbHelper.deleteAllBankAccounts();
+
+            Intent intent = new Intent(activity, LoginActivity.class);
+            if (title != null) intent.putExtra(LoginActivity.TITLE, title);
+            if (message != null) intent.putExtra(LoginActivity.MESSAGE, message);
+            activity.startActivity(intent);
+            activity.finish();
+        });
+        alertDialog.display();
     }
 
     public void viewAllLoanRequest(View view) {
@@ -210,7 +238,17 @@ public class MainActivity extends AppCompatActivity {
         sheetLayoutModel.setText(getResources().getString(R.string.wallet));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             sheet.dismiss();
-//            logout(this);
+            startActivity(new Intent(MainActivity.this, WalletActivity.class));
+        });
+
+        layoutModels.add(sheetLayoutModel);
+
+        sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_bank, null));
+        sheetLayoutModel.setText(getResources().getString(R.string.bank_accounts));
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            sheet.dismiss();
+            startActivity(new Intent(MainActivity.this, BankAccountsActivity.class));
         });
 
         layoutModels.add(sheetLayoutModel);
@@ -268,9 +306,227 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showTopUpAmountDialog() {
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.topup_amount_bottom_sheet_layout, null);
-        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, bottomSheetView);
+        View view = getLayoutInflater().inflate(R.layout.topup_amount_bottom_sheet_layout, null);
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
+        EditText tvAmount = view.findViewById(R.id.amount);
+        Button btnTopUp = view.findViewById(R.id.top_up_btn);
+        btnTopUp.setOnClickListener(v -> {
+            String amount = tvAmount.getText().toString();
+            double dAmount;
+            if (amount.isEmpty() || (dAmount = Double.parseDouble(amount)) < 1000) {
+                Utility.toastMessage(MainActivity.this, "Please enter a valid amount");
+                return;
+            }
+            topUpAmount = (float) dAmount;
+            bottomSheet.dismiss();
+            showTopUpCardsDialog();
+        });
         bottomSheet.show();
+    }
+
+    public void showTopUpCardsDialog() {
+        View view = getLayoutInflater().inflate(R.layout.topup_card_bottom_sheet_layout, null);
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
+        LinearLayout cardsContainer = view.findViewById(R.id.cards_container);
+        ArrayList<Card> cards = dbHelper.getCards();
+        final String[] selectCard = {null};
+        for (Card card: cards) {
+            View view1 = getCardView(card);
+            view1.setOnClickListener(v -> {
+                for (int i = 0; i < cardsContainer.getChildCount(); i++) {
+                    View view2 = cardsContainer.getChildAt(i);
+                    if (view1.getTag().equals(view2.getTag())) {
+                        selectCard[0] = (String) view1.getTag();
+                        view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
+                    } else {
+                        view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
+                    }
+                }
+            });
+            cardsContainer.addView(view1);
+        }
+        CircularProgressButton btnTopUp = view.findViewById(R.id.top_up_btn);
+        btnTopUp.setOnClickListener(v -> {
+
+            if (topUpAmount < MIN_TOP_UP_AMOUNT) {
+                Utility.toastMessage(MainActivity.this, String.format("Top up amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
+                return;
+            }
+
+            if (selectCard[0] == null) {
+                Utility.toastMessage(MainActivity.this, "Please select a card");
+                return;
+            }
+            topUp(selectCard[0], btnTopUp, bottomSheet);
+        });
+        bottomSheet.show();
+    }
+
+    private View getCardView(com.quidvis.moneydrop.model.Card card) {
+
+        View cardView = getLayoutInflater().inflate(R.layout.card_layout, null);
+        ImageView cardIcon = cardView.findViewById(R.id.card_issuer_icon);
+        ImageView selectCheck = cardView.findViewById(R.id.check_mark);
+        selectCheck.setVisibility(View.GONE);
+        TextView cardNum = cardView.findViewById(R.id.card_number);
+        TextView cardExp = cardView.findViewById(R.id.card_expiration);
+        TextView cardName = cardView.findViewById(R.id.card_name);
+
+        int icon = CardsActivity.getCardIcon(card.getBrand());
+        cardIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(), icon, null));
+        if (icon == R.drawable.ic_credit_card) {
+            int padding = Utility.getDip(this, 5);
+            cardIcon.setPadding(padding, padding, padding, padding);
+        }
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.bottomMargin = Utility.getDip(this, 10);
+        cardView.setLayoutParams(params);
+        cardNum.setText(String.format("****  ****  ****  %s", card.getLastFourDigits()));
+        cardExp.setText(String.format("%s/%s", card.getExpMonth(), card.getExpYear()));
+        String cardBrand = Utility.isEmpty(card.getName(), Utility.ucFirst(card.getBrand()));
+        cardBrand = cardBrand.toLowerCase().contains("card") ? cardBrand : String.format("%s card", cardBrand);
+        cardName.setText(cardBrand);
+
+        cardView.setTag(card.getUuid());
+        return cardView;
+    }
+
+    private void topUp(String cardID, CircularProgressButton btnTopUp, CustomBottomSheet bottomSheet) {
+
+        HttpRequest httpRequest = new HttpRequest(this, URLContract.WALLET_TOP_UP_URL + cardID,
+                Request.Method.POST, new HttpRequestParams() {
+            @Override
+            public Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("amount", String.valueOf(topUpAmount));
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                return params;
+            }
+
+            @Override
+            public byte[] getBody() {
+                return null;
+            }
+        }) {
+            @Override
+            protected void onRequestStarted() {
+                btnTopUp.startAnimation();
+            }
+
+            @Override
+            protected void onRequestCompleted(boolean onError) {
+                btnTopUp.revertAnimation();
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
+                try {
+
+                    JSONObject object = new JSONObject(response);
+
+                    if (object.getBoolean("status")) {
+
+                        JSONObject data = object.getJSONObject("response");
+                        JSONObject trans = data.getJSONObject("transaction");
+
+                        int size;
+
+                        if (MainFragment.data != null) {
+                            size = MainFragment.data.getJSONArray("transactions").length();
+                            MainFragment.data.getJSONArray("transactions").remove(size - 1);
+
+                            MainFragment.data.put("transactions", Utility.prependJSONObject(
+                                    MainFragment.data.getJSONArray("transactions"), trans));
+
+                            List<Fragment> fragments = getSupportFragmentManager().getFragments();
+                            for (Fragment fragment: fragments) {
+                                if (fragment instanceof NavHostFragment) {
+                                    fragments = fragment.getChildFragmentManager().getFragments();
+                                    for (Fragment frag: fragments) {
+                                        if (frag instanceof MainFragment) {
+                                            ((MainFragment) frag).setTransactions(
+                                                    MainFragment.data.getJSONArray("transactions")
+                                            );
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (WalletActivity.data != null) {
+                            size = WalletActivity.data.getJSONArray("transactions").length();
+                            WalletActivity.data.getJSONArray("transactions").remove(size - 1);
+
+                            WalletActivity.data.put("transactions", Utility.prependJSONObject(
+                                    WalletActivity.data.getJSONArray("transactions"), trans));
+                        }
+
+                        setBalance(data.getDouble("balance"));
+                    }
+                    bottomSheet.dismiss();
+                    Utility.toastMessage(MainActivity.this, object.getString("message"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(MainActivity.this, "Something unexpected happened. Please try that again.");
+                }
+            }
+
+            @Override
+            protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
+                try {
+
+                    JSONObject object = new JSONObject(error);
+                    AwesomeAlertDialog dialog = new AwesomeAlertDialog(MainActivity.this);
+
+                    dialog.setTitle(object.getString("title"));
+                    String message;
+                    if (object.has("error") && object.getJSONObject("error").length() > 0) {
+                        message = Utility.serializeObject(object.getJSONObject("error"));
+                    } else message = object.getString("message");
+                    dialog.setMessage(message);
+                    dialog.setPositiveButton("Ok", Dialog::dismiss);
+
+                    dialog.display();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(MainActivity.this, statusCode == 503 ? error :
+                            e.getMessage() + ": Something unexpected happened. Please try that again...");
+                }
+            }
+
+            @Override
+            protected void onRequestCancelled() {
+
+            }
+        };
+        httpRequest.send();
+    }
+
+    private void setBalance(double amount) {
+        setCustomTitle(format.format(amount));
+        try {
+            if (MainFragment.data != null) {
+                MainFragment.data.put("balance", amount);
+                saveState(MainFragment.class.getName(), MainFragment.getCurrentState());
+            }
+            if (WalletActivity.data != null) {
+                WalletActivity.data.put("balance", amount);
+                Bundle bundle = WalletActivity.getState();
+                bundle.putString("data", WalletActivity.data.toString());
+                WalletActivity.saveState(bundle);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public Bundle getState(String key) {
@@ -279,7 +535,7 @@ public class MainActivity extends AppCompatActivity {
         return state != null ? state : new Bundle();
     }
 
-    public void saveState(String key, Bundle state) {
+    public static void saveState(String key, Bundle state) {
         Bundle prevState = Utility.getState(STATE_KEY);
         prevState.putBundle(key, state);
         Utility.saveState(STATE_KEY, prevState);

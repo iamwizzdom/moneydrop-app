@@ -1,49 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
-
-    <View
-        android:layout_width="40dp"
-        android:layout_height="3dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/margin_10"
-        android:layout_marginBottom="@dimen/margin_10"
-        android:background="@android:color/darker_gray"/>
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/text_view_style"
-        android:paddingStart="@dimen/padding_20"
-        android:paddingEnd="@dimen/padding_20"
-        android:layout_marginBottom="@dimen/margin_10"
-        android:gravity="start"
-        android:fontFamily="@font/campton_light"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:textColor="@color/titleColorGray"
-        android:text="@string/title"
-        android:visibility="gone"/>
+    app:layout_behavior="@string/bottom_sheet_behavior">
 
     <LinearLayout
-        android:id="@+id/sheet_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/padding_10">
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/tray"
+            android:layout_width="40dp"
+            android:layout_height="3dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/margin_10"
+            android:layout_marginBottom="@dimen/margin_10"
+            android:background="@android:color/darker_gray"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/text_view_style"
+            android:paddingStart="@dimen/padding_20"
+            android:paddingEnd="@dimen/padding_20"
+            android:layout_marginBottom="@dimen/margin_10"
+            android:gravity="start"
+            android:fontFamily="@font/campton_light"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/titleColorGray"
+            android:text="@string/title"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/sheet_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/padding_10">
+
+        </LinearLayout>
+
+        <com.quidvis.moneydrop.utility.view.NonSwipeableViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/margin_10"
+            android:visibility="gone"
+            app:layout_behavior="@string/bottom_sheet_behavior" />
 
     </LinearLayout>
 
-    <com.quidvis.moneydrop.utility.view.NonSwipeableViewPager
-        android:id="@+id/view_pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/margin_10"
-        android:visibility="gone"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

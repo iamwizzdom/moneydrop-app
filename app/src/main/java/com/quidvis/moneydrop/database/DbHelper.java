@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.quidvis.moneydrop.BuildConfig;
 import com.quidvis.moneydrop.constant.DbContract;
+import com.quidvis.moneydrop.model.Bank;
+import com.quidvis.moneydrop.model.BankAccount;
 import com.quidvis.moneydrop.model.Card;
 import com.quidvis.moneydrop.model.User;
 
@@ -27,7 +29,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS "
             + DbContract.USERS_TABLE_NAME + "("
-            + DbContract.USER_UID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + DbContract.USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + DbContract.USER_FIRSTNAME + " CHAR(100) NOT NULL,"
             + DbContract.USER_MIDDLENAME + " CHAR(100) NOT NULL,"
             + DbContract.USER_LASTNAME + " CHAR(100) NOT NULL,"
@@ -48,7 +50,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_CARDS_TABLE = "CREATE TABLE IF NOT EXISTS "
             + DbContract.CARDS_TABLE_NAME + "("
-            + DbContract.USER_UID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + DbContract.CARD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + DbContract.CARD_UUID + " CHAR(36) NOT NULL,"
             + DbContract.CARD_NAME + " CHAR(200),"
             + DbContract.CARD_TYPE + " CHAR(100) NOT NULL,"
@@ -58,8 +60,28 @@ public class DbHelper extends SQLiteOpenHelper {
             + DbContract.CARD_EXP_YEAR + " CHAR(10) NOT NULL"
             +");";
 
+    private static final String CREATE_BANKS_TABLE = "CREATE TABLE IF NOT EXISTS "
+            + DbContract.BANKS_TABLE_NAME + "("
+            + DbContract.BANK_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + DbContract.BANK_UID + " INTEGER NOT NULL,"
+            + DbContract.BANK_NAME + " CHAR(200),"
+            + DbContract.BANK_CODE + " CHAR(20)"
+            +");";
+
+    private static final String CREATE_BANK_ACCOUNTS_TABLE = "CREATE TABLE IF NOT EXISTS "
+            + DbContract.BANK_ACCOUNTS_TABLE_NAME + "("
+            + DbContract.BANK_ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + DbContract.BANK_ACCOUNT_UUID + " CHAR(36) NOT NULL,"
+            + DbContract.BANK_ACCOUNT_NAME + " CHAR(200),"
+            + DbContract.BANK_ACCOUNT_BANK_NAME + " CHAR(200),"
+            + DbContract.BANK_ACCOUNT_NUMBER + " CHAR(100) NOT NULL,"
+            + DbContract.BANK_ACCOUNT_RECIPIENT + " CHAR(200) NOT NULL"
+            +");";
+
     private static final String DROP_USERS_TABLE = "DROP TABLE IF EXISTS " + DbContract.USERS_TABLE_NAME;
     private static final String DROP_CARDS_TABLE = "DROP TABLE IF EXISTS " + DbContract.CARDS_TABLE_NAME;
+    private static final String DROP_BANKS_TABLE = "DROP TABLE IF EXISTS " + DbContract.BANKS_TABLE_NAME;
+    private static final String DROP_BANK_ACCOUNTS_TABLE = "DROP TABLE IF EXISTS " + DbContract.BANK_ACCOUNTS_TABLE_NAME;
 
     public DbHelper(Context context) {
         super(context, DbContract.DATABASE_NAME, null, DATABASE_VERSION);
@@ -80,11 +102,15 @@ public class DbHelper extends SQLiteOpenHelper {
     public void dropTables(SQLiteDatabase db) {
         db.execSQL(DROP_USERS_TABLE);
         db.execSQL(DROP_CARDS_TABLE);
+        db.execSQL(DROP_BANKS_TABLE);
+        db.execSQL(DROP_BANK_ACCOUNTS_TABLE);
     }
 
     public void createTables(SQLiteDatabase db) {
         db.execSQL(CREATE_USERS_TABLE);
         db.execSQL(CREATE_CARDS_TABLE);
+        db.execSQL(CREATE_BANKS_TABLE);
+        db.execSQL(CREATE_BANK_ACCOUNTS_TABLE);
     }
 
     /**
@@ -143,6 +169,48 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Store bank details in SQLite Database
+     * @param bank
+     * @return
+     */
+    public boolean saveBank(Bank bank) {
+
+        if (bankExist(bank.getUid())) return updateBank(bank);
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.BANK_UID, bank.getUid());
+        contentValues.put(DbContract.BANK_NAME, bank.getName());
+        contentValues.put(DbContract.BANK_CODE, bank.getCode());
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        boolean result = database.insert(DbContract.BANKS_TABLE_NAME, null, contentValues) > 0;
+        database.close();
+        return result;
+    }
+
+    /**
+     * Store bank account details in SQLite Database
+     * @param account
+     * @return
+     */
+    public boolean saveBankAccount(BankAccount account) {
+
+        if (bankAccountExist(account.getUuid())) return updateBankAccount(account);
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.BANK_ACCOUNT_UUID, account.getUuid());
+        contentValues.put(DbContract.BANK_ACCOUNT_NAME, account.getAccountName());
+        contentValues.put(DbContract.BANK_ACCOUNT_BANK_NAME, account.getBankName());
+        contentValues.put(DbContract.BANK_ACCOUNT_NUMBER, account.getAccountNumber());
+        contentValues.put(DbContract.BANK_ACCOUNT_RECIPIENT, account.getRecipientCode());
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        boolean result = database.insert(DbContract.BANK_ACCOUNTS_TABLE_NAME, null, contentValues) > 0;
+        database.close();
+        return result;
+    }
+
+    /**
      * Update user info in SQLite Database
      * @param user
      * @return
@@ -173,7 +241,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         if (contentValues.size() <= 0) return false;
 
-        String selection = DbContract.USER_UID + " = ? ";
+        String selection = DbContract.USER_ID + " = ? ";
         String[] args = {String.valueOf(user.getId())};
         int affectedRows = database.update(DbContract.USERS_TABLE_NAME, contentValues, selection, args);
         database.close();
@@ -202,9 +270,61 @@ public class DbHelper extends SQLiteOpenHelper {
 
         if (contentValues.size() <= 0) return false;
 
-        String selection = DbContract.CARD_UID + " = ? ";
+        String selection = DbContract.CARD_ID + " = ? ";
         String[] args = {String.valueOf(card.getId())};
         int affectedRows = database.update(DbContract.CARDS_TABLE_NAME, contentValues, selection, args);
+        database.close();
+        return affectedRows > 0;
+    }
+
+    /**
+     * Update bank info in SQLite Database
+     * @param bank
+     * @return
+     */
+    public boolean updateBank(Bank bank) {
+
+        if (bank.getId() <= 0) return false;
+
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.BANK_UID, bank.getUid());
+        contentValues.put(DbContract.BANK_NAME, bank.getName());
+        contentValues.put(DbContract.BANK_CODE, bank.getCode());
+
+        if (contentValues.size() <= 0) return false;
+
+        String selection = DbContract.BANK_ID + " = ? ";
+        String[] args = {String.valueOf(bank.getId())};
+        int affectedRows = database.update(DbContract.BANKS_TABLE_NAME, contentValues, selection, args);
+        database.close();
+        return affectedRows > 0;
+    }
+
+    /**
+     * Update bank account info in SQLite Database
+     * @param account
+     * @return
+     */
+    public boolean updateBankAccount(BankAccount account) {
+
+        if (account.getId() <= 0) return false;
+
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.BANK_ACCOUNT_UUID, account.getUuid());
+        contentValues.put(DbContract.BANK_ACCOUNT_NAME, account.getAccountName());
+        contentValues.put(DbContract.BANK_ACCOUNT_BANK_NAME, account.getBankName());
+        contentValues.put(DbContract.BANK_ACCOUNT_NUMBER, account.getAccountNumber());
+        contentValues.put(DbContract.BANK_ACCOUNT_RECIPIENT, account.getRecipientCode());
+
+        if (contentValues.size() <= 0) return false;
+
+        String selection = DbContract.BANK_ACCOUNT_ID + " = ? ";
+        String[] args = {String.valueOf(account.getId())};
+        int affectedRows = database.update(DbContract.BANK_ACCOUNTS_TABLE_NAME, contentValues, selection, args);
         database.close();
         return affectedRows > 0;
     }
@@ -216,7 +336,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public User getUser() {
 
         String[] projection = {
-                DbContract.USER_UID,
+                DbContract.USER_ID,
                 DbContract.USER_FIRSTNAME,
                 DbContract.USER_MIDDLENAME,
                 DbContract.USER_LASTNAME,
@@ -242,7 +362,7 @@ public class DbHelper extends SQLiteOpenHelper {
         User user = new User(context);
 
         if (cursor != null && cursor.moveToFirst()) {
-            user.setId(cursor.getInt(cursor.getColumnIndex(DbContract.USER_UID)));
+            user.setId(cursor.getInt(cursor.getColumnIndex(DbContract.USER_ID)));
             user.setFirstname(cursor.getString(cursor.getColumnIndex(DbContract.USER_FIRSTNAME)));
             user.setMiddlename(cursor.getString(cursor.getColumnIndex(DbContract.USER_MIDDLENAME)));
             user.setLastname(cursor.getString(cursor.getColumnIndex(DbContract.USER_LASTNAME)));
@@ -274,7 +394,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public ArrayList<Card> getCards() {
 
         String[] projection = {
-                DbContract.CARD_UID,
+                DbContract.CARD_ID,
                 DbContract.CARD_UUID,
                 DbContract.CARD_NAME,
                 DbContract.CARD_BRAND,
@@ -286,14 +406,14 @@ public class DbHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor = database.query(DbContract.CARDS_TABLE_NAME, projection,
-                null, null, null, null, null);
+                null, null, null, null, DbContract.CARD_ID + " DESC");
 
         ArrayList<Card> cards = new ArrayList<>();
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 Card card = new Card(context);
-                card.setId(cursor.getInt(cursor.getColumnIndex(DbContract.CARD_UID)));
+                card.setId(cursor.getInt(cursor.getColumnIndex(DbContract.CARD_ID)));
                 card.setUuid(cursor.getString(cursor.getColumnIndex(DbContract.CARD_UUID)));
                 card.setName(cursor.getString(cursor.getColumnIndex(DbContract.CARD_NAME)));
                 card.setBrand(cursor.getString(cursor.getColumnIndex(DbContract.CARD_BRAND)));
@@ -310,6 +430,82 @@ public class DbHelper extends SQLiteOpenHelper {
         return cards;
     }
 
+
+    /**
+     * Get banks info from SQLite Database
+     * @return
+     */
+    public ArrayList<Bank> getBanks() {
+
+        String[] projection = {
+                DbContract.BANK_ID,
+                DbContract.BANK_UID,
+                DbContract.BANK_NAME,
+                DbContract.BANK_CODE
+        };
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor = database.query(DbContract.BANKS_TABLE_NAME, projection,
+                null, null, null, null, null);
+
+        ArrayList<Bank> banks = new ArrayList<>();
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                Bank bank = new Bank(context);
+                bank.setId(cursor.getInt(cursor.getColumnIndex(DbContract.BANK_ID)));
+                bank.setUid(cursor.getInt(cursor.getColumnIndex(DbContract.BANK_UID)));
+                bank.setName(cursor.getString(cursor.getColumnIndex(DbContract.BANK_NAME)));
+                bank.setCode(cursor.getString(cursor.getColumnIndex(DbContract.BANK_CODE)));
+                banks.add(bank);
+            }
+            cursor.close();
+        }
+
+        database.close();
+        return banks;
+    }
+
+
+    /**
+     * Get bank accounts info from SQLite Database
+     * @return
+     */
+    public ArrayList<BankAccount> getBankAccounts() {
+
+        String[] projection = {
+                DbContract.BANK_ACCOUNT_ID,
+                DbContract.BANK_ACCOUNT_UUID,
+                DbContract.BANK_ACCOUNT_NAME,
+                DbContract.BANK_ACCOUNT_BANK_NAME,
+                DbContract.BANK_ACCOUNT_NUMBER,
+                DbContract.BANK_ACCOUNT_RECIPIENT,
+        };
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor = database.query(DbContract.BANK_ACCOUNTS_TABLE_NAME, projection,
+                null, null, null, null, DbContract.BANK_ACCOUNT_ID + " DESC");
+
+        ArrayList<BankAccount> accounts = new ArrayList<>();
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                BankAccount account = new BankAccount(context);
+                account.setId(cursor.getInt(cursor.getColumnIndex(DbContract.BANK_ACCOUNT_ID)));
+                account.setUuid(cursor.getString(cursor.getColumnIndex(DbContract.BANK_ACCOUNT_UUID)));
+                account.setAccountName(cursor.getString(cursor.getColumnIndex(DbContract.BANK_ACCOUNT_NAME)));
+                account.setBankName(cursor.getString(cursor.getColumnIndex(DbContract.BANK_ACCOUNT_BANK_NAME)));
+                account.setAccountNumber(cursor.getString(cursor.getColumnIndex(DbContract.BANK_ACCOUNT_NUMBER)));
+                account.setRecipientCode(cursor.getString(cursor.getColumnIndex(DbContract.BANK_ACCOUNT_RECIPIENT)));
+                accounts.add(account);
+            }
+            cursor.close();
+        }
+
+        database.close();
+        return accounts;
+    }
+
     /**
      * check if card exist in SQLite Database
      * @param cardUUID
@@ -319,7 +515,47 @@ public class DbHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getReadableDatabase();
         int count = 0;
         Cursor cursor = database.rawQuery("SELECT * FROM " + DbContract.CARDS_TABLE_NAME + " WHERE "
-                + DbContract.CARD_UUID + " =?", new String[]{String.valueOf(cardUUID)});
+                + DbContract.CARD_UUID + " =?", new String[]{cardUUID});
+
+        if (cursor != null) {
+            count = cursor.getCount();
+            cursor.close();
+            database.close();
+            return count > 0;
+        }
+        return false;
+    }
+
+    /**
+     * check if bank exist in SQLite Database
+     * @param bankID
+     * @return
+     */
+    public boolean bankExist(int bankID) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        int count = 0;
+        Cursor cursor = database.rawQuery("SELECT * FROM " + DbContract.BANKS_TABLE_NAME + " WHERE "
+                + DbContract.BANK_UID + " =?", new String[]{String.valueOf(bankID)});
+
+        if (cursor != null) {
+            count = cursor.getCount();
+            cursor.close();
+            database.close();
+            return count > 0;
+        }
+        return false;
+    }
+
+    /**
+     * check if bank account exist in SQLite Database
+     * @param accountUUID
+     * @return
+     */
+    public boolean bankAccountExist(String accountUUID) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        int count = 0;
+        Cursor cursor = database.rawQuery("SELECT * FROM " + DbContract.BANK_ACCOUNTS_TABLE_NAME + " WHERE "
+                + DbContract.BANK_ACCOUNT_UUID + " =?", new String[]{accountUUID});
 
         if (cursor != null) {
             count = cursor.getCount();
@@ -344,12 +580,24 @@ public class DbHelper extends SQLiteOpenHelper {
 
 
     /**
-     * Delete user from SQLite Database
+     * Delete cards from SQLite Database
      * @return
      */
     public boolean deleteAllCards() {
         SQLiteDatabase db = this.getWritableDatabase();
         int affectedRows = db.delete(DbContract.CARDS_TABLE_NAME, null, null);
+        db.close();
+        return affectedRows > 0;
+    }
+
+
+    /**
+     * Delete bank accounts from SQLite Database
+     * @return
+     */
+    public boolean deleteAllBankAccounts() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int affectedRows = db.delete(DbContract.BANK_ACCOUNTS_TABLE_NAME, null, null);
         db.close();
         return affectedRows > 0;
     }
@@ -363,6 +611,19 @@ public class DbHelper extends SQLiteOpenHelper {
     public boolean deleteCard(String cardUUID) {
         SQLiteDatabase db = this.getWritableDatabase();
         int affectedRows = db.delete(DbContract.CARDS_TABLE_NAME, DbContract.CARD_UUID + " = ?", new String[]{cardUUID});
+        db.close();
+        return affectedRows > 0;
+    }
+
+
+    /**
+     * Delete bank account info from SQLite Database
+     * @param accountUUID
+     * @return
+     */
+    public boolean deleteBankAccount(String accountUUID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int affectedRows = db.delete(DbContract.BANK_ACCOUNTS_TABLE_NAME, DbContract.BANK_ACCOUNT_UUID + " = ?", new String[]{accountUUID});
         db.close();
         return affectedRows > 0;
     }

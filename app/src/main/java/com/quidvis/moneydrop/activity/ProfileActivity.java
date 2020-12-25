@@ -37,7 +37,7 @@ import com.quidvis.moneydrop.fragment.ProfileOptionFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 
 import org.json.JSONException;
@@ -303,7 +303,14 @@ public class ProfileActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+                progressToggle(false);
+                imagePicker.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
 
                 try {
 
@@ -332,8 +339,6 @@ public class ProfileActivity extends AppCompatActivity {
                     Utility.toastMessage(ProfileActivity.this, "Something unexpected happened. Please try that again.");
                 }
 
-                progressToggle(false);
-                imagePicker.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -355,9 +360,6 @@ public class ProfileActivity extends AppCompatActivity {
                     Utility.toastMessage(ProfileActivity.this, statusCode == 503 ? error :
                                     "Something unexpected happened. Please try that again.");
                 }
-
-                progressToggle(false);
-                imagePicker.setVisibility(View.VISIBLE);
             }
 
             @Override

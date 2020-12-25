@@ -6,8 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.loader.content.AsyncTaskLoader;
 
-import com.quidvis.moneydrop.utility.HttpRequest;
-
 public class NetService extends AsyncTaskLoader<String> {
 
     private final HttpRequest request;

@@ -1,7 +1,6 @@
 package com.quidvis.moneydrop.adapter;
 
 import android.app.Activity;
-import android.os.Handler;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
-import com.quidvis.moneydrop.model.Loan;
+import com.quidvis.moneydrop.model.Transaction;
 import com.quidvis.moneydrop.utility.Utility;
 
 import java.text.NumberFormat;
@@ -47,15 +46,15 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en", "ng"));
     private final Activity activity;
-    private final List<Loan> loanList;
+    private final List<Transaction> transactions;
 
     //Constructor
-    public TransactionAdapter(RecyclerView recyclerView, Activity activity, List<Loan> loanList) {
+    public TransactionAdapter(RecyclerView recyclerView, Activity activity, List<Transaction> transactions) {
 
         this.activity = activity;
-        this.loanList = loanList;
+        this.transactions = transactions;
         this.recyclerView = recyclerView;
-        format.setMaximumFractionDigits(0);
+        format.setMaximumFractionDigits(2);
 
         final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
@@ -68,8 +67,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 totalItemCount = Objects.requireNonNull(linearLayoutManager).getItemCount();
                 lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
 
-                if (isPermitLoadMore() && !isLoading() && totalItemCount >= DEFAULT_RECORD_PER_VIEW
-                        && lastVisibleItem >= (totalItemCount - visibleThreshold))
+                if (isPermitLoadMore() && !isLoading() && lastVisibleItem >= (totalItemCount - visibleThreshold))
                     if (mOnLoadMoreListener != null) mOnLoadMoreListener.onLoadMore();
 
             }
@@ -85,7 +83,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public int getItemViewType(int position) {
         int VIEW_TYPE_NO_MORE_RECORD = 2;
-        return loanList.get(position) == null ? (isLoading() ? VIEW_TYPE_LOADING : VIEW_TYPE_NO_MORE_RECORD) : VIEW_TYPE_ITEM;
+        return transactions.get(position) == null ? (isLoading() ? VIEW_TYPE_LOADING : VIEW_TYPE_NO_MORE_RECORD) : VIEW_TYPE_ITEM;
     }
 
     @NonNull
@@ -116,7 +114,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (holder instanceof ParentViewHolder) {
 
-            Loan loan = this.loanList.get(position);
+            Transaction loan = this.transactions.get(position);
             ParentViewHolder parentViewHolder = (ParentViewHolder) holder;
 
             parentViewHolder.tvType.setText(loan.getType());
@@ -147,7 +145,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemCount() {
-        return loanList != null ? loanList.size() : 0;
+        return transactions != null ? transactions.size() : 0;
     }
 
     public boolean isPermitLoadMore() {
@@ -167,14 +165,14 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (loaded) {
 
             recyclerView.clearOnScrollListeners();
-            loanList.add(null);
+            transactions.add(null);
             this.notifyItemInserted((getItemCount() - 1));
 
         } else if (isLoading()) {
 
             int currentSize = getItemCount();
             if (currentSize > 0) {
-                loanList.remove((currentSize - 1));
+                transactions.remove((currentSize - 1));
                 this.notifyItemRemoved(currentSize);
             }
             recyclerView.addOnScrollListener(mOnScrollListener);

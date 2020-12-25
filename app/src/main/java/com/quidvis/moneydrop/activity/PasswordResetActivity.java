@@ -7,12 +7,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.quidvis.moneydrop.R;
@@ -20,7 +17,7 @@ import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.interfaces.OnAwesomeDialogClickListener;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -56,12 +53,7 @@ public class PasswordResetActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         ImageView backBtn = toolbar.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        backBtn.setOnClickListener(v -> onBackPressed());
 
         etOTP = findViewById(R.id.etOTP);
         etPassword = findViewById(R.id.etPassword);
@@ -69,31 +61,17 @@ public class PasswordResetActivity extends AppCompatActivity {
         resetBtn = findViewById(R.id.resetBtn);
 
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
+        new Handler().postDelayed(() -> Utility.requestFocus(etOTP, PasswordResetActivity.this), 1000);
 
-                Utility.requestFocus(etOTP, PasswordResetActivity.this);
-            }
-        }, 1000);
-
-        etConfirmPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    resetPassword();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        resetBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        etConfirmPassword.setOnEditorActionListener((textView, id, keyEvent) -> {
+            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 resetPassword();
+                return true;
             }
+            return false;
         });
+
+        resetBtn.setOnClickListener(v -> resetPassword());
     }
 
 
@@ -174,7 +152,13 @@ public class PasswordResetActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+                resetBtn.revertAnimation();
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
                 try {
 
                     JSONObject object = new JSONObject(response);
@@ -201,7 +185,6 @@ public class PasswordResetActivity extends AppCompatActivity {
                     Utility.enableEditText(etConfirmPassword);
                     Utility.toastMessage(PasswordResetActivity.this, "Something unexpected happened. Please try that again.");
                 }
-                resetBtn.revertAnimation();
             }
 
             @Override
@@ -252,7 +235,6 @@ public class PasswordResetActivity extends AppCompatActivity {
                 Utility.enableEditText(etOTP);
                 Utility.enableEditText(etPassword);
                 Utility.enableEditText(etConfirmPassword);
-                resetBtn.revertAnimation();
             }
 
             @Override

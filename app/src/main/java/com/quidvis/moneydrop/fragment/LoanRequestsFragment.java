@@ -27,7 +27,7 @@ import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.Loan;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 
 import org.json.JSONArray;
@@ -103,7 +103,7 @@ public class LoanRequestsFragment extends CustomFragment {
         if (activity instanceof MainActivity) state = ((MainActivity) activity).getState(STATE_KEY);
         else if (activity instanceof UserLoanActivity) state = ((UserLoanActivity) activity).getState(STATE_KEY);
 
-        if (viewPagerAdapter != null) viewPagerAdapter.notifyDataSetChanged(getPosition());
+//        if (viewPagerAdapter != null) viewPagerAdapter.notifyDataSetChanged(getPosition());
 
         tvNoContent = view.findViewById(R.id.no_content);
         shimmerFrameLayout = view.findViewById(R.id.shimmer_view);
@@ -243,7 +243,12 @@ public class LoanRequestsFragment extends CustomFragment {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
 
                 try {
 
@@ -309,7 +314,7 @@ public class LoanRequestsFragment extends CustomFragment {
 
     @Override
     public void saveState() {
-        if (isAdded()) ((MainActivity) activity).saveState(STATE_KEY, getCurrentState());
+        if (isAdded()) MainActivity.saveState(STATE_KEY, getCurrentState());
     }
 
     @Override

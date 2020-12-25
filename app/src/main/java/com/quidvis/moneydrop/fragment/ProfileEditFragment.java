@@ -27,7 +27,7 @@ import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 
 import org.json.JSONException;
@@ -37,7 +37,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -229,7 +228,13 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+                submitBtn.revertAnimation();
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
 
                 try {
 
@@ -277,7 +282,6 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                     Utility.toastMessage(activity, "Something unexpected happened. Please try that again.");
                 }
 
-                submitBtn.revertAnimation();
             }
 
             @Override
@@ -318,7 +322,6 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                     EditText editText = entry.getValue();
                     Utility.enableEditText(editText);
                 }
-                submitBtn.revertAnimation();
             }
 
             @Override

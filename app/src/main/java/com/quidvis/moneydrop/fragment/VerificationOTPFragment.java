@@ -12,8 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +25,7 @@ import com.quidvis.moneydrop.activity.RegistrationActivity;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -187,7 +185,12 @@ public class VerificationOTPFragment extends Fragment {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
                 try {
 
                     JSONObject object = new JSONObject(response);
@@ -269,13 +272,20 @@ public class VerificationOTPFragment extends Fragment {
         }) {
             @Override
             protected void onRequestStarted() {
-                Utility.disableEditText(pvOTP);
                 Utility.clearFocus(pvOTP, activity);
+                Utility.disableEditText(pvOTP);
                 verifyBtn.startAnimation();
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+                verifyBtn.revertAnimation();
+                Utility.enableEditText(pvOTP);
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
                 try {
 
                     JSONObject object = new JSONObject(response);
@@ -293,8 +303,6 @@ public class VerificationOTPFragment extends Fragment {
                     e.printStackTrace();
                     Utility.toastMessage(activity, "Something unexpected happened. Please try that again.");
                 }
-                verifyBtn.revertAnimation();
-                Utility.enableEditText(pvOTP);
             }
 
             @Override
@@ -330,9 +338,6 @@ public class VerificationOTPFragment extends Fragment {
                     Utility.toastMessage(activity, statusCode == 503 ? error :
                                     "Something unexpected happened. Please try that again.");
                 }
-
-                verifyBtn.revertAnimation();
-                Utility.enableEditText(pvOTP);
             }
 
             @Override

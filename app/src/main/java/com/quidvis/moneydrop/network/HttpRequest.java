@@ -1,4 +1,4 @@
-package com.quidvis.moneydrop.utility;
+package com.quidvis.moneydrop.network;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,7 +17,7 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.toolbox.StringRequest;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.network.NetService;
+import com.quidvis.moneydrop.utility.Validator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,29 +49,29 @@ public abstract class HttpRequest {
     private static int requestID = 0;
 
     public HttpRequest(AppCompatActivity activity, String url, int method) {
+        requestID++;
         this.url = url;
         this.method = method;
         this.activity = activity;
         loaderManager = LoaderManager.getInstance(this.activity);
-        requestID++;
     }
 
     public HttpRequest(AppCompatActivity activity, String url, int method, HttpRequestParams httpRequestParams) {
+        requestID++;
         this.url = url;
         this.method = method;
         this.activity = activity;
         this.httpRequestParams = httpRequestParams;
         loaderManager = LoaderManager.getInstance(this.activity);
-        requestID++;
     }
 
     public HttpRequest(AppCompatActivity activity, String url, HttpRequestParams httpRequestParams) {
+        requestID++;
         this.url = url;
         this.method = Method.POST;
         this.activity = activity;
         this.httpRequestParams = httpRequestParams;
         loaderManager = LoaderManager.getInstance(this.activity);
-        requestID++;
     }
 
     public StringRequest getStringRequest() {
@@ -79,14 +79,16 @@ public abstract class HttpRequest {
     }
 
     protected abstract void onRequestStarted();
-
-    protected abstract void onRequestCompleted(String response, int statusCode, Map<String, String> headers);
-
+    protected abstract void onRequestCancelled();
+    protected abstract void onRequestCompleted(boolean onError);
+    protected abstract void onRequestSuccess(String response, int statusCode, Map<String, String> headers);
     protected abstract void onRequestError(String error, int statusCode, Map<String, String> headers);
 
-    protected abstract void onRequestCancelled();
-
     public final void send() {
+        send(RETRY_IN_30_SEC);
+    }
+
+    public final void send(int timeout) {
 
         if (!Validator.isNetworkConnected(activity)) {
             onRequestError("No network connection, check your connection and try again.", 503, null);
@@ -118,7 +120,9 @@ public abstract class HttpRequest {
                 MainActivity.logout(activity, title, message);
                 return;
             }
-            onRequestCompleted(response, statusCode, headers);
+            onRequestCompleted(false);
+            onRequestSuccess(response, statusCode, headers);
+            stringRequest.cancel();
         };
 
         Response.ErrorListener errorListener = error -> {
@@ -142,6 +146,7 @@ public abstract class HttpRequest {
                 MainActivity.logout(activity, title, message);
                 return;
             }
+            onRequestCompleted(true);
             onRequestError(responseData, statusCode, headers);
             error.printStackTrace();
         };
@@ -270,7 +275,7 @@ public abstract class HttpRequest {
 
 
         // Add the request to the RequestQueue.// Add the request to the RequestQueue.
-        RetryPolicy policy = new DefaultRetryPolicy(RETRY_IN_30_SEC, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        RetryPolicy policy = new DefaultRetryPolicy(timeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         stringRequest.setRetryPolicy(policy);
         // Add the request to the RequestQueue.
         loaderManager.initLoader(requestID, null, new LoaderCallback(activity, this, new RequestCallback() {

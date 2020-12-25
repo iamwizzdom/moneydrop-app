@@ -20,7 +20,7 @@ import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.interfaces.OnAwesomeDialogClickListener;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
-import com.quidvis.moneydrop.utility.HttpRequest;
+import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -125,7 +125,13 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onRequestCompleted(String response, int statusCode, Map<String, String> headers) {
+            protected void onRequestCompleted(boolean onError) {
+
+                sendOTPBtn.revertAnimation();
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
                 try {
 
                     JSONObject object = new JSONObject(response);
@@ -139,7 +145,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     Utility.enableEditText(etEmail);
                     Utility.toastMessage(ForgotPasswordActivity.this, "Something unexpected happened. Please try that again.");
                 }
-                sendOTPBtn.revertAnimation();
             }
 
             @Override
@@ -188,7 +193,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                     "Something unexpected happened. Please try that again.");
                 }
                 Utility.enableEditText(etEmail);
-                sendOTPBtn.revertAnimation();
             }
 
             @Override
