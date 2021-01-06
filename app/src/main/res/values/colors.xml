@@ -8,11 +8,15 @@
     <color name="colorPrimaryShadow">#52E04805</color>
     <color name="colorTabTint">#e9c5b5</color>
     <color name="colorWhite">#ffffff</color>
+    <color name="colorWhiteDark">#f4f3f3</color>
+    <color name="colorWhiteDarkExtra">#b8b1ad</color>
     <color name="colorBlack">#0b1c2a</color>
+    <color name="colorBlackLight">#6a5c54</color>
     <color name="colorButton">#e04805</color>
     <color name="colorFragment">#eef5f9</color>
     <color name="colorBackground">#f7f7f7</color>
     <color name="colorGray">#808080</color>
+    <color name="colorGrayExtraDark">#67686c</color>
     <color name="colorGrayLight">#D3D3D3</color>
     <color name="colorGrayLightExtra">#DDDDDD</color>
     <color name="colorGrayExtraLight">#e9e8e8</color>

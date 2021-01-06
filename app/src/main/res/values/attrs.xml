@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DialogSpinner">
+        <attr name="dialogTitle" format="string" />
+        <attr name="dialogMessage" format="string" />
+        <attr name="spinnerPlaceholder" format="string" />
+        <attr name="spinnerIcon" format="reference" />
+        <attr name="entries" format="reference" />
+    </declare-styleable>
+</resources>

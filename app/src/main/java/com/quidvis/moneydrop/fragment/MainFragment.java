@@ -1,9 +1,9 @@
 package com.quidvis.moneydrop.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +21,7 @@ import com.android.volley.Request;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
+import com.quidvis.moneydrop.activity.TransactionReceiptActivity;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
@@ -40,13 +41,14 @@ import static com.quidvis.moneydrop.utility.Utility.getTheme;
 
 public class MainFragment extends Fragment {
 
-    private final static String STATE_KEY = MainFragment.class.getName();
+    public final static String STATE_KEY = MainFragment.class.getName();
     private Activity activity;
     private DbHelper dbHelper;
-    private LinearLayout loanRequestView, transactionView;
-    private TextView loanRequestEmpty, transactionEmpty;
-    ShimmerFrameLayout loanRequestShimmerFrameLayout, transactionShimmerFrameLayout;
-    public static JSONObject data;
+    private static Bundle state;
+    private LinearLayout loanView, transactionView;
+    private TextView loanEmpty, transactionEmpty;
+    ShimmerFrameLayout loanShimmerFrameLayout, transactionShimmerFrameLayout;
+    public JSONObject data;
     private static boolean started = false;
 
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en","ng"));
@@ -65,12 +67,12 @@ public class MainFragment extends Fragment {
 
         dbHelper = new DbHelper(activity);
 
-        loanRequestView = view.findViewById(R.id.loan_request_list);
+        loanView = view.findViewById(R.id.loan_list);
         transactionView = view.findViewById(R.id.transaction_list);
-        loanRequestEmpty = view.findViewById(R.id.loan_request_empty);
+        loanEmpty = view.findViewById(R.id.loan_request_empty);
         transactionEmpty = view.findViewById(R.id.transaction_empty);
 
-        loanRequestShimmerFrameLayout = view.findViewById(R.id.loan_request_shimmer_view);
+        loanShimmerFrameLayout = view.findViewById(R.id.loan_request_shimmer_view);
         transactionShimmerFrameLayout = view.findViewById(R.id.transaction_shimmer_view);
 
         ((MainActivity) activity).setCustomSubtitle("Available balance");
@@ -81,13 +83,14 @@ public class MainFragment extends Fragment {
     private void start() {
 
         if (started) return;
+
         started = true;
 
-        Bundle savedState = getState();
+        state = getState();
 
-        if(savedState != null && savedState.size() > 0) {
+        if(state.size() > 0) {
             try {
-                data = new JSONObject(Objects.requireNonNull(savedState.getString("data")));
+                data = new JSONObject(Objects.requireNonNull(state.getString("data")));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -97,7 +100,7 @@ public class MainFragment extends Fragment {
 
             try {
                 setBalance(data.getDouble("balance"));
-                setLoanRequest(data.getJSONArray("loan_requests"));
+                setLoans(data.getJSONArray("loans"));
                 setTransactions(data.getJSONArray("transactions"));
             } catch (JSONException e) {
                 setBalance(0);
@@ -111,32 +114,32 @@ public class MainFragment extends Fragment {
         }
     }
 
-    private void setBalance(double amount) {
+    public void setBalance(double amount) {
         format.setMaximumFractionDigits(2);
         ((MainActivity) activity).setCustomTitle(format.format(amount));
         format.setMaximumFractionDigits(0);
     }
 
-    private void setLoanRequest(JSONArray loan) {
+    private void setLoans(JSONArray loan) {
 
         int size = loan.length();
-        loanRequestView.removeAllViews();
+        loanView.removeAllViews();
 
         for (int i = 0; i < size; i++) {
             try {
 
-                View view = getView(loan.getJSONObject(i));
+                View view = getView(loan.getJSONObject(i), false);
                 if (view == null) continue;
                 if ((i == 0 && size > 1) || i > 0 && i < (size - 1))
                     view.setBackgroundResource(R.drawable.layout_underline);
-                loanRequestView.addView(view);
+                loanView.addView(view);
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        setLoadingLoanRequest(false, size > 0);
+        setLoadingLoans(false, size > 0);
     }
 
     public void setTransactions(JSONArray trans) {
@@ -148,7 +151,7 @@ public class MainFragment extends Fragment {
             try {
 
 
-                View view = getView(trans.getJSONObject(i));
+                View view = getView(trans.getJSONObject(i), true);
                 if (view == null) continue;
                 if ((i == 0 && size > 1) || i > 0 && i < (size - 1))
                     view.setBackgroundResource(R.drawable.layout_underline);
@@ -162,12 +165,13 @@ public class MainFragment extends Fragment {
         setLoadingTransactions(false, size > 0);
     }
 
-    private View getView(JSONObject transaction) throws JSONException {
+    private View getView(JSONObject transaction, boolean isTransaction) throws JSONException {
 
         if (!this.isAdded()) return null;
 
         View view = getLayoutInflater().inflate(R.layout.transaction_layout, null);
 
+        LinearLayout container = view.findViewById(R.id.container);
         ImageView mvIcon = view.findViewById(R.id.transaction_icon);
         TextView tvType = view.findViewById(R.id.transaction_type);
         TextView tvDate = view.findViewById(R.id.transaction_date);
@@ -186,25 +190,33 @@ public class MainFragment extends Fragment {
         tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
+        if (isTransaction) {
+            container.setOnClickListener(v -> {
+                Intent intent = new Intent(activity, TransactionReceiptActivity.class);
+                intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, transaction.toString());
+                activity.startActivity(intent);
+            });
+        }
+
         return view;
     }
 
-    public void setLoadingLoanRequest(boolean status) {
-        setLoadingLoanRequest(status, false);
+    public void setLoadingLoans(boolean status) {
+        setLoadingLoans(status, false);
     }
 
-    public void setLoadingLoanRequest(boolean status, boolean hasContent) {
+    public void setLoadingLoans(boolean status, boolean hasContent) {
         if (status) {
 
-            loanRequestEmpty.setVisibility(View.GONE);
-            loanRequestShimmerFrameLayout.setVisibility(View.VISIBLE);
-            loanRequestShimmerFrameLayout.startShimmer();
+            loanEmpty.setVisibility(View.GONE);
+            loanShimmerFrameLayout.setVisibility(View.VISIBLE);
+            loanShimmerFrameLayout.startShimmer();
 
         } else {
 
-            loanRequestShimmerFrameLayout.stopShimmer();
-            loanRequestShimmerFrameLayout.setVisibility(View.GONE);
-            loanRequestEmpty.setVisibility(hasContent ? View.GONE : View.VISIBLE);
+            loanShimmerFrameLayout.stopShimmer();
+            loanShimmerFrameLayout.setVisibility(View.GONE);
+            loanEmpty.setVisibility(hasContent ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -250,7 +262,7 @@ public class MainFragment extends Fragment {
             @Override
             protected void onRequestStarted() {
 
-                setLoadingLoanRequest(true);
+                setLoadingLoans(true);
                 setLoadingTransactions(true);
             }
 
@@ -267,12 +279,12 @@ public class MainFragment extends Fragment {
                     data = new JSONObject(response);
 
                     setBalance(data.getDouble("balance"));
-                    setLoanRequest(data.getJSONArray("loan_requests"));
+                    setLoans(data.getJSONArray("loans"));
                     setTransactions(data.getJSONArray("transactions"));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    setLoadingLoanRequest(false);
+                    setLoadingLoans(false);
                     setLoadingTransactions(false);
                     Utility.toastMessage(activity, "Something unexpected happened. Please try that again.");
                 }
@@ -294,7 +306,7 @@ public class MainFragment extends Fragment {
                                     "Something unexpected happened. Please try that again.");
                 }
 
-                setLoadingLoanRequest(false);
+                setLoadingLoans(false);
                 setLoadingTransactions(false);
             }
 
@@ -307,21 +319,27 @@ public class MainFragment extends Fragment {
 
     }
 
-    public Bundle getState() {
-        return ((MainActivity) activity).getState(STATE_KEY);
+    public JSONObject getData() {
+        return data;
     }
 
-    public static Bundle getCurrentState() {
-        Bundle bundle = new Bundle();
-        if (data != null) bundle.putString("data", data.toString());
-        return bundle;
+    public Bundle getState() {
+        return Utility.getState(STATE_KEY);
+    }
+
+    public Bundle getCurrentState() {
+        if (data != null) state.putString("data", data.toString());
+        return state;
+    }
+
+    public void saveState() {
+        Utility.saveState(STATE_KEY, getCurrentState());
     }
 
     @Override
     public void onPause() {
-        MainActivity.saveState(STATE_KEY, getCurrentState());
-        started = false;
         super.onPause();
+        started = false;
     }
 
     @Override
@@ -332,7 +350,7 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        MainActivity.saveState(STATE_KEY, getCurrentState());
+        Utility.saveState(STATE_KEY, getCurrentState());
         super.onDestroyView();
     }
 }

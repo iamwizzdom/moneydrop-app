@@ -58,12 +58,15 @@
                 android:text="@string/bank"
                 android:textStyle="bold"/>
 
-            <Spinner
+            <com.quidvis.moneydrop.utility.view.DialogSpinner
                 android:id="@+id/banks_list"
-                style="@style/spinner_stroked_style"
+                style="@style/edit_text_stroked_style"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:spinnerMode="dialog"
+                app:dialogTitle="@string/banks"
+                app:dialogMessage="@string/select_a_bank"
+                app:spinnerIcon="@drawable/ic_arrows"
+                app:spinnerPlaceholder="@string/select_bank"
                 android:contentDescription="@string/banks" />
 
         </LinearLayout>

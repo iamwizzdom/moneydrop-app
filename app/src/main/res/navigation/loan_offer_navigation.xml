@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/offer_loan_navigation"
+    app:startDestination="@+id/nav_offer_loan">
+
+    <fragment
+        android:id="@+id/nav_offer_loan"
+        android:name="com.quidvis.moneydrop.fragment.OfferLoanFragment"
+        tools:layout="@layout/fragment_offer_loan" />
+
+    <fragment
+        android:id="@+id/nav_offer_loan_success"
+        android:name="com.quidvis.moneydrop.fragment.OfferLoanSuccessFragment"
+        tools:layout="@layout/fragment_offer_loan_success" />
+
+</navigation>

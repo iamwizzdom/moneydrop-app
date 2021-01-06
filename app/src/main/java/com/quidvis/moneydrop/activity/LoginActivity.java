@@ -68,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
         session = new Session(this);
         dbHelper = new DbHelper(this);
 
-        TextView appName = findViewById(R.id.appName);
+        TextView appName = findViewById(R.id.tv_app_name);
         TextView forgotPassword = findViewById(R.id.forgotPassword);
         TextView signUpBtn = findViewById(R.id.signUpBtn);
         etEmail = findViewById(R.id.etEmail);
@@ -79,9 +79,10 @@ public class LoginActivity extends AppCompatActivity {
             etEmail.setText(email);
         }
 
-        SpannableStringBuilder string = new SpannableStringBuilder(getResources().getString(R.string.app_name));
-        string.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), 5, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        appName.setText(string);
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(getResources().getString(R.string.app_name));
+        spannableStringBuilder.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), 5, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableStringBuilder.setSpan(new android.text.style.RelativeSizeSpan(1.1f), 5, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        appName.setText(spannableStringBuilder);
 
         etPassword.setOnEditorActionListener((textView, id, keyEvent) -> {
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -162,28 +163,10 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject object = new JSONObject(response);
 
                     JSONObject userData = object.getJSONObject("response");
-                    JSONObject userObject = userData.getJSONObject("user");
                     JSONArray cards = userData.getJSONArray("cards");
                     JSONObject banks = userData.getJSONObject("banks");
 
-                    User user = new User(LoginActivity.this);
-                    user.setFirstname(userObject.getString("firstname"));
-                    user.setMiddlename(userObject.getString("middlename"));
-                    user.setLastname(userObject.getString("lastname"));
-                    user.setPhone(userObject.getString("phone"));
-                    user.setEmail(userObject.getString("email"));
-                    user.setBvn(userObject.getString("bvn"));
-                    user.setPicture(userObject.getString("picture"));
-                    user.setDob(userObject.getString("dob"));
-                    user.setGender(Integer.parseInt(Utility.isNull(userObject.getString("gender"), "0")));
-                    user.setAddress(userObject.getString("address"));
-                    user.setCountry(userObject.getString("country"));
-                    user.setState(userObject.getString("state"));
-                    user.setStatus(userObject.getInt("status"));
-                    JSONObject verified = userObject.getJSONObject("verified");
-                    user.setVerifiedEmail(verified.getBoolean("email"));
-                    user.setVerifiedPhone(verified.getBoolean("phone"));
-                    user.setToken(userData.getString("token"));
+                    User user = new User(LoginActivity.this, userData.getJSONObject("user"));
 
                     if (dbHelper.saveUser(user)) {
 

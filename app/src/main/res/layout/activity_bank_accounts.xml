@@ -57,7 +57,9 @@
                     android:text="@string/add_new_account"
                     android:fontFamily="@font/campton_medium"
                     android:textColor="@color/colorAccent"
-                    android:onClick="addAccount"/>
+                    android:onClick="addAccount"
+                    app:drawableEndCompat="@drawable/ic_add_sign"
+                    android:drawablePadding="@dimen/padding_5" />
 
             </LinearLayout>
 

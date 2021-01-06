@@ -1,6 +1,7 @@
 package com.quidvis.moneydrop.adapter;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.TransactionReceiptActivity;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
 import com.quidvis.moneydrop.model.Transaction;
 import com.quidvis.moneydrop.utility.Utility;
@@ -114,15 +116,15 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (holder instanceof ParentViewHolder) {
 
-            Transaction loan = this.transactions.get(position);
+            Transaction transaction = this.transactions.get(position);
             ParentViewHolder parentViewHolder = (ParentViewHolder) holder;
 
-            parentViewHolder.tvType.setText(loan.getType());
-            parentViewHolder.tvDate.setText(loan.getDate());
-            parentViewHolder.tvAmount.setText(format.format(loan.getAmount()));
-            parentViewHolder.tvStatus.setText(Utility.ucFirst(loan.getStatus()));
+            parentViewHolder.tvType.setText(transaction.getType());
+            parentViewHolder.tvDate.setText(transaction.getDate());
+            parentViewHolder.tvAmount.setText(format.format(transaction.getAmount()));
+            parentViewHolder.tvStatus.setText(Utility.ucFirst(transaction.getStatus()));
 
-            ArrayMap<String, Integer> theme = getTheme(loan.getStatus());
+            ArrayMap<String, Integer> theme = getTheme(transaction.getStatus());
 
             parentViewHolder.mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
             parentViewHolder.tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
@@ -133,6 +135,12 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             if ((position == 0 && size > 1) || position > 0 && position < (size - 1))
                 parentViewHolder.container.setBackgroundResource(R.drawable.layout_underline);
+
+            parentViewHolder.container.setOnClickListener(v -> {
+                Intent intent = new Intent(activity, TransactionReceiptActivity.class);
+                intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, transaction.getTransObject().toString());
+                activity.startActivity(intent);
+            });
 
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;

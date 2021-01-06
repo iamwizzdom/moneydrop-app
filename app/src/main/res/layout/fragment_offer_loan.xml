@@ -17,7 +17,7 @@
         android:layout_height="0dp"
         android:scrollbars="none"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/button_container">
+        app:layout_constraintBottom_toTopOf="@+id/submit">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -130,130 +130,51 @@
 
             </HorizontalScrollView>
 
-            <LinearLayout
+            <com.quidvis.moneydrop.utility.view.DialogSpinner
+                android:id="@+id/loan_tenor"
+                style="@style/edit_text_stroked_style"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="@dimen/margin_20">
+                android:layout_marginTop="@dimen/margin_20"
+                app:dialogTitle="@string/loan_tenor"
+                app:spinnerIcon="@drawable/ic_arrows"
+                app:spinnerPlaceholder="@string/loan_tenor"
+                android:contentDescription="@string/loan_tenor" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1.5"
-                        style="@style/text_view_style"
-                        android:gravity="start"
-                        android:text="@string/previous_offers"
-                        android:textColor="@color/colorAccent"
-                        android:textSize="23sp"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight=".5"
-                        style="@style/text_view_style"
-                        android:gravity="center|end"
-                        android:text="@string/view_all"
-                        android:textColor="@color/colorAccent"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/loan_offer_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:background="@drawable/layout_background_rounded"
-                    android:paddingStart="3dp"
-                    android:paddingEnd="3dp"
-                    android:paddingTop="@dimen/padding_5"
-                    android:paddingBottom="@dimen/padding_5">
-
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/shimmer_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:duration="800">
-
-                        <!-- Adding 7 rows of placeholders -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <include layout="@layout/list_placeholder" />
-                            <include layout="@layout/list_placeholder" />
-                        </LinearLayout>
-
-                    </com.facebook.shimmer.ShimmerFrameLayout>
-
-                    <TextView
-                        android:id="@+id/no_content"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_gravity="center"
-                        android:padding="@dimen/activity_vertical_margin"
-                        android:textColor="@color/colorGray"
-                        android:text="@string/no_content"
-                        style="@style/text_view_style"
-                        android:visibility="gone"
-                        android:drawablePadding="@dimen/padding_15"
-                        app:drawableTopCompat="@drawable/ic_no_content" />
-
-                </LinearLayout>
-
-            </LinearLayout>
+            <com.quidvis.moneydrop.utility.view.DialogSpinner
+                android:id="@+id/interest_type"
+                style="@style/edit_text_stroked_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_20"
+                app:dialogTitle="@string/interest_type"
+                app:spinnerIcon="@drawable/ic_arrows"
+                app:spinnerPlaceholder="@string/interest_type"
+                android:contentDescription="@string/interest_type" />
 
         </LinearLayout>
 
     </ScrollView>
 
-    <LinearLayout
-        android:id="@+id/button_container"
-        android:layout_width="match_parent"
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        android:id="@+id/submit"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/padding_20"
-        android:orientation="horizontal"
-        android:weightSum="2"
+        android:paddingStart="@dimen/padding_20"
+        android:paddingEnd="@dimen/padding_20"
+        android:layout_marginTop="@dimen/margin_20"
         app:layout_constraintTop_toBottomOf="@+id/content"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="@dimen/margin_10"
-            style="@style/button_style_white"
-            android:text="@string/cancel"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:textColor="@color/colorGrayButton"/>
-
-        <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
-            android:id="@+id/submit"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="@dimen/margin_10"
-            android:layout_marginEnd="0dp"
-            style="@style/button_style"
-            android:text="@string/make_offer"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            app:spinning_bar_width="4dp"
-            app:spinning_bar_color="@color/colorWhite"
-            app:spinning_bar_padding="6dp" />
-
-    </LinearLayout>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:gravity="center"
+        style="@style/button_style"
+        android:text="@string/make_offer"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        app:spinning_bar_width="4dp"
+        app:spinning_bar_color="@color/colorWhite"
+        app:spinning_bar_padding="6dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

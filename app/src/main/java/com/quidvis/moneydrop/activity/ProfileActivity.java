@@ -9,8 +9,6 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
@@ -49,7 +47,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -103,9 +100,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         Glide.with(ProfileActivity.this)
                 .load(user.getPictureUrl())
-                .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(user.getDefaultPicture())
+                .error(user.getDefaultPicture())
                 .into(profilePic);
 
         tvName.setText(String.format("%s %s", user.getFirstname(), user.getLastname()));
@@ -229,11 +225,13 @@ public class ProfileActivity extends AppCompatActivity {
         return ((NavHostFragment) fragment).getNavController();
     }
 
-    protected NavOptions getNavOptions(boolean fromRight) {
+    protected NavOptions getNavOptions() {
 
         return new NavOptions.Builder()
-                .setEnterAnim(fromRight ? R.anim.from_right : R.anim.from_left)
-                .setExitAnim(fromRight ? R.anim.to_left : R.anim.to_right)
+                .setEnterAnim(R.anim.from_right)
+                .setExitAnim(R.anim.to_left)
+                .setPopEnterAnim(R.anim.from_left)
+                .setPopExitAnim(R.anim.to_right)
                 .build();
     }
 
@@ -261,11 +259,9 @@ public class ProfileActivity extends AppCompatActivity {
         } else if (id == R.id.backBtn) {
             setUser(null);
             navController.popBackStack();
-            navController.navigate(R.id.nav_profile_option, null, getNavOptions(false));
-            new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> navController.popBackStack(), 500);
             return;
         }
-        navController.navigate(R.id.nav_profile_edit, bundle, getNavOptions(true));
+        navController.navigate(R.id.nav_profile_edit, bundle, getNavOptions());
     }
 
     private void updatePhoto(String imageString) {
@@ -322,7 +318,6 @@ public class ProfileActivity extends AppCompatActivity {
 
                         JSONObject userObject = userData.getJSONObject("user");
 
-                        User user = dbHelper.getUser();
                         user.setPicture(userObject.getString("picture"));
 
                         if (user.update()) {

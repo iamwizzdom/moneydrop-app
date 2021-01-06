@@ -23,8 +23,9 @@ import java.util.Objects;
 
 public class UserLoanActivity extends AppCompatActivity {
 
-    private final static String STATE_KEY = UserLoanActivity.class.getName();
+    public final static String STATE_KEY = UserLoanActivity.class.getName();
     private final ArrayList<CustomFragment> fragments = new ArrayList<>();
+    private TextView itemCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,8 @@ public class UserLoanActivity extends AppCompatActivity {
             fragments.add(loanOffersFragment);
             fragments.add(loanRequestsFragment);
         }
+
+        itemCount = findViewById(R.id.item_count);
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, fragments);
         ViewPager viewPager = findViewById(R.id.view_pager);
@@ -78,6 +81,7 @@ public class UserLoanActivity extends AppCompatActivity {
         });
         tabs.selectTab(tabs.getTabAt(0), true);
         selectView(Objects.requireNonNull(Objects.requireNonNull(tabs.getTabAt(0)).getCustomView()));
+        setItemCount(getResources().getString(R.string.no_record));
     }
 
     private TextView getTextView() {
@@ -95,6 +99,10 @@ public class UserLoanActivity extends AppCompatActivity {
         tv.setTextSize(16);
 
         return tv;
+    }
+
+    public void setItemCount(String count) {
+        itemCount.setText(count);
     }
 
     private void selectView(View view) {
@@ -121,6 +129,10 @@ public class UserLoanActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        for (CustomFragment fragment : fragments) {
+            fragment.saveState();
+            fragment.onDestroyView();
+        }
         super.onDestroy();
     }
 

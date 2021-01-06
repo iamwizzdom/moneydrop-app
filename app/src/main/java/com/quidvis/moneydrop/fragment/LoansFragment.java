@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 import com.quidvis.moneydrop.utility.Utility;
@@ -42,11 +43,8 @@ public class LoansFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
         if (view != null) return view;
-
         view = inflater.inflate(R.layout.loans_fragment, container, false);
-
         return view;
     }
 
@@ -103,6 +101,8 @@ public class LoansFragment extends Fragment {
         });
         tabs.selectTab(tabs.getTabAt(0), true);
         selectView(Objects.requireNonNull(Objects.requireNonNull(tabs.getTabAt(0)).getCustomView()));
+        ((MainActivity) activity).setCustomTitle(activity.getResources().getString(R.string.loan_offers));
+        ((MainActivity) activity).setCustomSubtitle(activity.getResources().getString(R.string.no_record));
     }
 
     private TextView getTextView() {

@@ -1,16 +1,13 @@
 package com.quidvis.moneydrop.activity;
 
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +28,7 @@ import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
 import com.quidvis.moneydrop.utility.Utility;
+import com.quidvis.moneydrop.utility.view.DialogSpinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -120,7 +118,7 @@ public class BankAccountsActivity extends AppCompatActivity {
                 if (item.getItemId() != R.id.remove) popup.dismiss();
                 else {
                     CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(BankAccountsActivity.this);
-                    alertDialog.setIcon(R.drawable.ic_problem);
+                    alertDialog.setIcon(R.drawable.ic_remove);
                     alertDialog.setMessage("Are you sure you want to remove this bank account?");
                     alertDialog.setNegativeButton("No, cancel");
                     alertDialog.setPositiveButton("Yes, proceed", vw -> removeBankAccount(accountView, (String) v.getTag()));
@@ -141,7 +139,7 @@ public class BankAccountsActivity extends AppCompatActivity {
         successfulView = bottomSheetView.findViewById(R.id.successful);
 
         EditText etAcctNum = bottomSheetView.findViewById(R.id.account_number);
-        Spinner spBankList = bottomSheetView.findViewById(R.id.banks_list);
+        DialogSpinner dialogSpinner = bottomSheetView.findViewById(R.id.banks_list);
 
         int size = this.banks.size();
         String[] banks = new String[size];
@@ -149,15 +147,13 @@ public class BankAccountsActivity extends AppCompatActivity {
             Bank bank = this.banks.get(i);
             banks[i] = bank.getName();
         }
-        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, banks);
-        listAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spBankList.setAdapter(listAdapter);
+        dialogSpinner.setEntries(banks);
 
         addBankBtn = bottomSheetView.findViewById(R.id.add_account);
 
         addBankBtn.setOnClickListener(v -> {
             String accountNumber = etAcctNum.getText().toString();
-            String bankCode = this.banks.get(spBankList.getSelectedItemPosition()).getCode();
+            String bankCode = this.banks.get(dialogSpinner.getSelectedItemPosition()).getCode();
             if (!accountNumber.isEmpty() && accountNumber.length() >= 6) {
                 addBankAccount(accountNumber, bankCode);
             } else {

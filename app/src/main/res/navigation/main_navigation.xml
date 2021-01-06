@@ -16,8 +16,18 @@
         tools:layout="@layout/loans_fragment" />
 
     <fragment
+        android:id="@+id/nav_wallet"
+        android:name="com.quidvis.moneydrop.fragment.WalletFragment"
+        tools:layout="@layout/fragment_wallet" />
+
+    <fragment
         android:id="@+id/nav_offer_loan"
-        android:name="com.quidvis.moneydrop.fragment.OfferLoanFragment"
-        tools:layout="@layout/fragment_offer_loan" />
+        android:name="com.quidvis.moneydrop.fragment.OfferLoanCentralFragment"
+        tools:layout="@layout/fragment_offer_loan_central" />
+
+    <fragment
+        android:id="@+id/nav_request_loan"
+        android:name="com.quidvis.moneydrop.fragment.RequestLoanCentralFragment"
+        tools:layout="@layout/fragment_request_loan_central" />
 
 </navigation>

@@ -46,10 +46,12 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/nav_request_loan"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
+            android:onClick="loadFragment"
             tools:ignore="UseCompoundDrawables">
 
             <ImageView
@@ -167,7 +169,7 @@
                         android:layout_weight="1.5"
                         style="@style/text_view_style"
                         android:gravity="start"
-                        android:text="@string/loan_request"
+                        android:text="@string/title_loans"
                         android:textColor="@color/colorAccent"
                         android:textSize="23sp"
                         android:textStyle="bold"/>
@@ -185,7 +187,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/loan_request_list"
+                    android:id="@+id/loan_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"

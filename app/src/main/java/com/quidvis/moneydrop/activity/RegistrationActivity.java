@@ -234,26 +234,8 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
                         Utility.toastMessage(RegistrationActivity.this, object.getString("message"));
 
                         JSONObject userData = object.getJSONObject("response");
-                        JSONObject userObject = userData.getJSONObject("user");
 
-                        User user = new User(RegistrationActivity.this);
-                        user.setFirstname(userObject.getString("firstname"));
-                        user.setMiddlename(userObject.getString("middlename"));
-                        user.setLastname(userObject.getString("lastname"));
-                        user.setPhone(userObject.getString("phone"));
-                        user.setEmail(userObject.getString("email"));
-                        user.setBvn(userObject.getString("bvn"));
-                        user.setPicture(userObject.getString("picture"));
-                        user.setDob(userObject.getString("dob"));
-                        user.setGender(Integer.parseInt(Utility.isNull(userObject.getString("gender"), "0")));
-                        user.setAddress(userObject.getString("address"));
-                        user.setCountry(userObject.getString("country"));
-                        user.setState(userObject.getString("state"));
-                        user.setStatus(userObject.getInt("status"));
-                        JSONObject verified = userObject.getJSONObject("verified");
-                        user.setVerifiedEmail(verified.getBoolean("email"));
-                        user.setVerifiedPhone(verified.getBoolean("phone"));
-                        user.setToken(userData.getString("token"));
+                        User user = new User(RegistrationActivity.this, userData.getJSONObject("user"));
 
                         Intent intent = new Intent(RegistrationActivity.this, RegistrationSuccessfulActivity.class);
 
@@ -272,7 +254,6 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
                     Utility.enableEditText(etPhone);
                     Utility.enableEditText(etPassword);
                     Utility.enableEditText(etConfirmPassword);
-                    Log.e("reg-error", Objects.requireNonNull(e.getMessage()));
                     Utility.toastMessage(RegistrationActivity.this, "Something unexpected happened. Please try that again.");
                 }
             }

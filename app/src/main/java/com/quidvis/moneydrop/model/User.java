@@ -5,6 +5,13 @@ import android.content.Context;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
+import com.quidvis.moneydrop.utility.Utility;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import static com.quidvis.moneydrop.constant.Constant.FEMALE;
+import static com.quidvis.moneydrop.constant.Constant.MALE;
 
 /**
  * Created by Wisdom Emenike.
@@ -14,8 +21,6 @@ import com.quidvis.moneydrop.database.DbHelper;
 public class User {
 
     private final DbHelper dbHelper;
-
-    public final static int GENDER_MALE = 1, GENDER_FEMALE = 2;
     
     private int id, gender, status;
     private boolean verifiedEmail, verifiedPhone;
@@ -24,6 +29,27 @@ public class User {
     
     public User(Context context) {
         this.dbHelper = new DbHelper(context);
+    }
+
+    public User(Context context, JSONObject userObject) throws JSONException {
+        this.dbHelper = new DbHelper(context);
+        this.setFirstname(userObject.getString("firstname"));
+        this.setMiddlename(userObject.getString("middlename"));
+        this.setLastname(userObject.getString("lastname"));
+        this.setPhone(userObject.getString("phone"));
+        this.setEmail(userObject.getString("email"));
+        this.setBvn(userObject.getString("bvn"));
+        this.setPicture(userObject.getString("picture"));
+        this.setDob(userObject.getString("dob"));
+        this.setGender(Integer.parseInt(Utility.isNull(userObject.getString("gender"), "0")));
+        this.setAddress(userObject.getString("address"));
+        this.setCountry(userObject.getString("country_name"));
+        this.setState(userObject.getString("state_name"));
+        this.setStatus(userObject.getInt("status"));
+        JSONObject verified = userObject.getJSONObject("verified");
+        this.setVerifiedEmail(verified.getBoolean("email"));
+        this.setVerifiedPhone(verified.getBoolean("phone"));
+        this.setToken(userObject.getString("token"));
     }
 
     public int getId() {
@@ -131,7 +157,7 @@ public class User {
     }
 
     public int getDefaultPicture() {
-        return getGender() == User.GENDER_MALE ? R.drawable.male : R.drawable.female;
+        return getGender() == MALE ? R.drawable.male : (getGender() == FEMALE ? R.drawable.female : R.drawable.unisex);
     }
 
     public void setPicture(String picture) {

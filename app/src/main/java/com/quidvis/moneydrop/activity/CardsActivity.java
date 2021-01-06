@@ -136,7 +136,7 @@ public class CardsActivity extends AppCompatActivity {
                 if (item.getItemId() != R.id.remove) popup.dismiss();
                 else {
                     CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(CardsActivity.this);
-                    alertDialog.setIcon(R.drawable.ic_problem);
+                    alertDialog.setIcon(R.drawable.ic_remove);
                     alertDialog.setMessage("Are you sure you want to remove this card?");
                     alertDialog.setNegativeButton("No, cancel");
                     alertDialog.setPositiveButton("Yes, proceed", vw -> removeCard(cardView, (String) v.getTag()));

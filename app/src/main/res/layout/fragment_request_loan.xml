@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/layout_background_top_rounded"
+    android:paddingTop="@dimen/padding_10"
+    android:paddingBottom="@dimen/padding_10"
+    android:paddingStart="@dimen/padding_20"
+    android:paddingEnd="@dimen/padding_20"
+    tools:context=".fragment.MainFragment">
+
+    <ScrollView
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/submit">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.2"
+                    style="@style/text_view_style"
+                    android:gravity="start"
+                    android:text="@string/request_amount"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="23sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvInterestRate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".8"
+                    android:padding="@dimen/padding_15"
+                    style="@style/text_view_style"
+                    android:background="@drawable/layout_background_rounded"
+                    android:backgroundTint="@color/colorGrayExtraLight"
+                    android:gravity="center"
+                    android:text="@string/_5_in_return"
+                    android:textColor="@color/successColor"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/margin_20"
+                android:weightSum="3">
+
+                <ImageView
+                    android:id="@+id/ivDecrement"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_minus"
+                    android:layout_weight="0.3"
+                    android:contentDescription="@string/decrement"/>
+
+                <com.cottacush.android.currencyedittext.CurrencyEditText
+                    android:id="@+id/amount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.4"
+                    style="@style/edit_text_style"
+                    android:gravity="center|center_vertical"
+                    android:fontFamily="@font/campton_medium"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="30sp"
+                    android:inputType="number"
+                    app:currencySymbol="₦"
+                    app:useCurrencySymbolAsHint="true"
+                    android:autofillHints="@string/offer_amount"
+                    tools:ignore="LabelFor" />
+
+                <ImageView
+                    android:id="@+id/ivIncrement"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_plus"
+                    android:layout_weight="0.3"
+                    android:contentDescription="@string/decrement"/>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="8dp"
+                android:layout_marginTop="@dimen/margin_20"
+                android:indeterminate="false"
+                android:max="20"
+                android:progress="5"
+                android:progressDrawable="@drawable/seekbar_progress_style"
+                android:thumb="@drawable/seekbar_thumb"
+                android:thumbOffset="0dp" />
+
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_20"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/amount_list"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <com.quidvis.moneydrop.utility.view.DialogSpinner
+                android:id="@+id/loan_tenor"
+                style="@style/edit_text_stroked_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_20"
+                app:dialogTitle="@string/loan_tenor"
+                app:spinnerIcon="@drawable/ic_arrows"
+                app:spinnerPlaceholder="@string/loan_tenor"
+                android:contentDescription="@string/loan_tenor" />
+
+            <com.quidvis.moneydrop.utility.view.DialogSpinner
+                android:id="@+id/interest_type"
+                style="@style/edit_text_stroked_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_20"
+                app:dialogTitle="@string/interest_type"
+                app:spinnerIcon="@drawable/ic_arrows"
+                app:spinnerPlaceholder="@string/interest_type"
+                app:entries="@array/interestType"
+                android:contentDescription="@string/interest_type" />
+
+            <com.quidvis.moneydrop.utility.view.DialogSpinner
+                android:id="@+id/loan_purpose"
+                style="@style/edit_text_stroked_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_20"
+                app:dialogTitle="@string/loan_purpose"
+                app:spinnerIcon="@drawable/ic_arrows"
+                app:spinnerPlaceholder="@string/loan_purpose"
+                app:entries="@array/loanPurpose"
+                android:contentDescription="@string/loan_purpose" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/margin_10">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/text_view_style"
+                    android:gravity="start"
+                    android:textColor="@color/black"
+                    android:text="@string/note_optional"
+                    android:textStyle="bold"/>
+
+                <EditText
+                    android:id="@+id/note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/edit_text_stroked_style"
+                    android:paddingTop="@dimen/padding_10"
+                    android:paddingBottom="@dimen/padding_10"
+                    android:inputType="text|textMultiLine"
+                    android:hint="@string/note"
+                    android:lines="8"
+                    android:gravity="top"
+                    android:importantForAutofill="no"
+                    android:scrollbars="none"
+                    tools:ignore="LabelFor" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        android:id="@+id/submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/padding_20"
+        android:paddingEnd="@dimen/padding_20"
+        android:layout_marginTop="@dimen/margin_20"
+        app:layout_constraintTop_toBottomOf="@+id/content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:gravity="center"
+        style="@style/button_style"
+        android:text="@string/make_request"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        app:spinning_bar_width="4dp"
+        app:spinning_bar_color="@color/colorWhite"
+        app:spinning_bar_padding="6dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

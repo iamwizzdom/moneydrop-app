@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.ProfileActivity;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
@@ -132,14 +133,11 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ArrayMap<String, Integer> theme = getTheme(loan.getStatus());
 
             Glide.with(activity)
-                    .load(loan.getPicture())
-                    .centerCrop()
+                    .load(loan.getPictureUrl())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(
-                            loan.getUserGender() == User.GENDER_MALE ? R.drawable.male : (
-                                    loan.getUserGender() == User.GENDER_FEMALE ? R.drawable.female : R.drawable.unisex
-                            )
-                    ).into(parentViewHolder.mvPic);
+                    .error(loan.getDefaultPicture())
+                    .apply(new RequestOptions().override(150, 150))
+                    .into(parentViewHolder.mvPic);
 
             parentViewHolder.tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
             parentViewHolder.tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));

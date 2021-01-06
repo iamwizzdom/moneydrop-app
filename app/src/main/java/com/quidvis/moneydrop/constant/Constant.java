@@ -1,5 +1,7 @@
 package com.quidvis.moneydrop.constant;
 
+import android.os.Environment;
+
 /**
  * Created by Wisdom Emenike.
  * Date: 2/19/2018
@@ -12,6 +14,8 @@ public class Constant {
      * Apache server credential
      */
     public static final String SERVER_CREDENTIAL = "WizzdomWasHere:SuperSonicBrain@91";
+
+    public static final String FILE_PATH = String.format("%s/MoneyDrop", Environment.getExternalStorageDirectory().getPath());
 
     /**
      * HTTP Request code

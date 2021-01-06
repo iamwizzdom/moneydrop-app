@@ -64,7 +64,7 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_loans">Loans</string>
-    <string name="title_wallets">Wallets</string>
+    <string name="title_wallet">Wallet</string>
     <string name="title">Title</string>
     <string name="subtitle">Subtitle</string>
     <string name="offer_loan">Offer Loan</string>
@@ -79,6 +79,7 @@
     <string name="transaction_date">01/11/20</string>
     <string name="transaction_amount">#12,000</string>
     <string name="transaction_status">Pending</string>
+    <string name="status">Status</string>
     <string name="transactions">Transactions</string>
     <string name="background_bubble">Background bubble</string>
     <string name="user_name">John Doe</string>
@@ -123,17 +124,24 @@
     <string name="_5_in_return">5% in return</string>
     <string name="decrement">Decrement</string>
     <string name="offer_amount">Offer amount</string>
+    <string name="request_amount">Request amount</string>
     <string name="previous_offers">Previous offers</string>
     <string name="cancel">Cancel</string>
     <string name="make_offer">Make offer</string>
+    <string name="make_request">Make request</string>
     <string name="offers">Offers</string>
     <string name="requests">Requests</string>
     <string name="loan_offers">Loan Offers</string>
     <string name="loan_requests">Loan Requests</string>
+    <string name="interest_type">Interest Type</string>
     <string name="loan_type">Loan Type</string>
+    <string name="loan_purpose">Loan Purpose</string>
+    <string name="note_optional">Note (optional)</string>
+    <string name="note">Enter note</string>
     <string name="loan_icon">Loan Icon</string>
     <string name="date">11/20</string>
     <string name="amount">#12,000</string>
+    <string name="amount_text">Amount</string>
     <string name="loan_status">Pending</string>
     <string name="my_loans">My Loans</string>
     <string name="enter_amount">Enter Amount</string>
@@ -160,7 +168,7 @@
     <string name="select_card">Select Card</string>
     <string name="available_balance">Available balance</string>
     <string name="cash_out">Cash Out</string>
-    <string name="add_new_account">Add new +</string>
+    <string name="add_new_account">Add new</string>
     <string name="added_accounts">Added Accounts</string>
     <string name="accounts">Accounts</string>
     <string name="account_number">Account Number</string>
@@ -172,5 +180,46 @@
     <string name="banks">Banks</string>
     <string name="remove_account">Remove account</string>
     <string name="select_bank_account">Select Bank Account</string>
+    <string name="close_button">Close button</string>
+    <string name="item">Item</string>
+    <string name="select_a_bank">Please select a bank</string>
+    <string name="select_bank">Select bank</string>
+    <string name="loan_tenor">Loan Tenor</string>
+    <string name="receipt">Receipt</string>
+    <string name="transaction_direction">Transaction Direction</string>
+    <string name="transaction_reference">Transaction Reference</string>
+    <string name="charges">Charges</string>
+    <string name="narration">Narration</string>
+    <string name="date_time"><![CDATA[Date & Time]]></string>
+    <string name="transaction_instrument">Transaction Instrument</string>
+    <string name="currency">Currency</string>
+    <string name="save">Save</string>
+    <string name="loan_notice">Loans may take a day to be approved</string>
+    <string name="view_requests">View Requests</string>
+    <string name="select">Select</string>
+
+
+    <string-array name="interestType">
+        <item>Static interest</item>
+        <item>Non-Static interest</item>
+    </string-array>
+
+    <string-array name="loanType">
+        <item>Fund raiser loan</item>
+        <item>Non-Fund loan</item>
+    </string-array>
+
+    <string-array name="loanPurpose">
+        <item>Household purchase</item>
+        <item>Pay Rent</item>
+        <item>Purchase Gadgets</item>
+        <item>Purchase Car</item>
+        <item>Purchase Building</item>
+        <item>Pay School fees</item>
+        <item>Start business</item>
+        <item>Health care</item>
+        <item>Travel</item>
+        <item>Others</item>
+    </string-array>
 
 </resources>

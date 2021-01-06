@@ -20,7 +20,9 @@ import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.fragment.MainFragment;
+import com.quidvis.moneydrop.fragment.WalletFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
+import com.quidvis.moneydrop.model.BankAccount;
 import com.quidvis.moneydrop.model.Card;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
@@ -38,6 +40,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,12 +56,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String STATE_KEY = MainActivity.class.getName();
+    public final static String STATE_KEY = MainActivity.class.getName();
     private TextView titleTv, subtitleTv;
     private BottomNavigationView navView;
     private NavController navController;
     private DbHelper dbHelper;
-    private float topUpAmount = 0;
+    private float topUpAmount = 0, cashOutAmount = 0;
     private final int MIN_TOP_UP_AMOUNT = 1000;
 
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en","ng"));
@@ -120,9 +123,8 @@ public class MainActivity extends AppCompatActivity {
 
         Glide.with(MainActivity.this)
                 .load(user.getPictureUrl())
-                .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(user.getDefaultPicture())
+                .error(user.getDefaultPicture())
                 .into(profilePic);
 
         profilePic.setOnClickListener(view -> showBottomSheetDialog());
@@ -149,8 +151,8 @@ public class MainActivity extends AppCompatActivity {
         return new NavOptions.Builder()
                 .setEnterAnim(R.anim.slide_up)
                 .setExitAnim(R.anim.slide_down)
-//                .setPopEnterAnim(R.anim.slide_up)
-//                .setPopExitAnim(R.anim.slide_down)
+                .setPopEnterAnim(R.anim.slide_up)
+                .setPopExitAnim(R.anim.slide_down)
                 .build();
     }
 
@@ -187,10 +189,10 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setNegativeButton("No, I am not ready");
         alertDialog.setPositiveButton("Yes, Log me out", v -> {
 
-            finalSession.setLoggedIn(false);
             finalDbHelper.deleteUser();
             finalDbHelper.deleteAllCards();
             finalDbHelper.deleteAllBankAccounts();
+            finalSession.clearAll();
 
             Intent intent = new Intent(activity, LoginActivity.class);
             if (title != null) intent.putExtra(LoginActivity.TITLE, title);
@@ -233,15 +235,15 @@ public class MainActivity extends AppCompatActivity {
 
         layoutModels.add(sheetLayoutModel);
 
-        sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_wallet, null));
-        sheetLayoutModel.setText(getResources().getString(R.string.wallet));
-        sheetLayoutModel.setOnClickListener((sheet, v) -> {
-            sheet.dismiss();
-            startActivity(new Intent(MainActivity.this, WalletActivity.class));
-        });
-
-        layoutModels.add(sheetLayoutModel);
+//        sheetLayoutModel = new BottomSheetLayoutModel();
+//        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_wallet, null));
+//        sheetLayoutModel.setText(getResources().getString(R.string.wallet));
+//        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+//            sheet.dismiss();
+//            startActivity(new Intent(MainActivity.this, WalletActivity.class));
+//        });
+//
+//        layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
         sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_bank, null));
@@ -433,42 +435,396 @@ public class MainActivity extends AppCompatActivity {
 
                     if (object.getBoolean("status")) {
 
-                        JSONObject data = object.getJSONObject("response");
-                        JSONObject trans = data.getJSONObject("transaction");
+                        JSONObject responseObject = object.getJSONObject("response");
 
-                        int size;
+                        double balance = responseObject.getDouble("balance");
+                        JSONObject transaction = responseObject.getJSONObject("transaction");
 
-                        if (MainFragment.data != null) {
-                            size = MainFragment.data.getJSONArray("transactions").length();
-                            MainFragment.data.getJSONArray("transactions").remove(size - 1);
+                        int size; JSONArray transactions;
 
-                            MainFragment.data.put("transactions", Utility.prependJSONObject(
-                                    MainFragment.data.getJSONArray("transactions"), trans));
+                        MainFragment mainFragment = null;
+                        WalletFragment walletFragment = null;
 
-                            List<Fragment> fragments = getSupportFragmentManager().getFragments();
-                            for (Fragment fragment: fragments) {
-                                if (fragment instanceof NavHostFragment) {
-                                    fragments = fragment.getChildFragmentManager().getFragments();
-                                    for (Fragment frag: fragments) {
-                                        if (frag instanceof MainFragment) {
-                                            ((MainFragment) frag).setTransactions(
-                                                    MainFragment.data.getJSONArray("transactions")
-                                            );
-                                        }
-                                    }
+                        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+                        for (Fragment fragment: fragments) {
+                            if (fragment instanceof NavHostFragment) {
+                                fragments = fragment.getChildFragmentManager().getFragments();
+                                for (Fragment frag: fragments) {
+                                    if (frag instanceof MainFragment) mainFragment = (MainFragment) frag;
+                                    else if (frag instanceof WalletFragment) walletFragment = (WalletFragment) frag;
                                 }
                             }
                         }
 
-                        if (WalletActivity.data != null) {
-                            size = WalletActivity.data.getJSONArray("transactions").length();
-                            WalletActivity.data.getJSONArray("transactions").remove(size - 1);
+                        if (mainFragment != null && walletFragment != null) {
 
-                            WalletActivity.data.put("transactions", Utility.prependJSONObject(
-                                    WalletActivity.data.getJSONArray("transactions"), trans));
+                            JSONObject mainFragmentData = mainFragment.getData();
+
+                            if (mainFragmentData != null) {
+
+                                transactions = mainFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
+                                mainFragment.setTransactions(transactions);
+                                mainFragment.saveState();
+                                mainFragment.setBalance(balance);
+                            }
+
+                            JSONObject walletFragmentData = walletFragment.getData();
+
+                            if (walletFragmentData != null) {
+
+                                transactions = walletFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
+                                walletFragment.setTransactions(transactions);
+                                walletFragment.saveState();
+                                walletFragment.setBalance(balance);
+                            }
+
+                        } else if (mainFragment != null) {
+
+                            JSONObject mainFragmentData = mainFragment.getData();
+
+                            if (mainFragmentData != null) {
+
+                                transactions = mainFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
+                                mainFragment.setTransactions(transactions);
+                                mainFragment.saveState();
+                                mainFragment.setBalance(balance);
+                            }
+
+                            Bundle walletFragmentState = Utility.getState(WalletFragment.STATE_KEY);
+                            String walletFragmentStringData = walletFragmentState.getString("data");
+
+                            if (walletFragmentStringData != null) {
+
+                                JSONObject walletFragmentData = new JSONObject(walletFragmentStringData);
+
+                                transactions = walletFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
+
+                                walletFragmentState.putString("data", walletFragmentData.toString());
+                                Utility.saveState(WalletFragment.STATE_KEY, walletFragmentState);
+                            }
+
+                        } else if (walletFragment != null) {
+
+                            JSONObject walletFragmentData = walletFragment.getData();
+
+                            if (walletFragmentData != null) {
+
+                                transactions = walletFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
+                                walletFragment.setTransactions(transactions);
+                                walletFragment.saveState();
+                                walletFragment.setBalance(balance);
+                            }
+
+                            Bundle mainFragmentState = Utility.getState(MainFragment.STATE_KEY);
+                            String mainFragmentStringData = mainFragmentState.getString("data");
+
+                            if (mainFragmentStringData != null) {
+
+                                JSONObject mainFragmentData = new JSONObject(mainFragmentStringData);
+
+                                transactions = mainFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
+
+                                mainFragmentState.putString("data", mainFragmentData.toString());
+                                Utility.saveState(MainFragment.STATE_KEY, mainFragmentState);
+                            }
+
+                        }
+                    }
+
+                    bottomSheet.dismiss();
+                    Utility.toastMessage(MainActivity.this, object.getString("message"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(MainActivity.this, "Something unexpected happened. Please try that again.");
+                }
+            }
+
+            @Override
+            protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
+                try {
+
+                    JSONObject object = new JSONObject(error);
+                    AwesomeAlertDialog dialog = new AwesomeAlertDialog(MainActivity.this);
+
+                    dialog.setTitle(object.getString("title"));
+                    String message;
+                    if (object.has("error") && object.getJSONObject("error").length() > 0) {
+                        message = Utility.serializeObject(object.getJSONObject("error"));
+                    } else message = object.getString("message");
+                    dialog.setMessage(message);
+                    dialog.setPositiveButton("Ok", Dialog::dismiss);
+
+                    dialog.display();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(MainActivity.this, statusCode == 503 ? error :
+                            e.getMessage() + ": Something unexpected happened. Please try that again.");
+                }
+            }
+
+            @Override
+            protected void onRequestCancelled() {
+
+            }
+        };
+        httpRequest.send();
+    }
+
+    public void showCashoutAmountDialog(View vw) {
+        View view = getLayoutInflater().inflate(R.layout.cashout_amount_bottom_sheet_layout, null);
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
+        EditText tvAmount = view.findViewById(R.id.amount);
+        Button btnCashout = view.findViewById(R.id.cash_out_btn);
+        btnCashout.setOnClickListener(v -> {
+            String amount = tvAmount.getText().toString();
+            double mAmount;
+            if (amount.isEmpty() || (mAmount = Double.parseDouble(amount)) < 1000) {
+                Utility.toastMessage(MainActivity.this, "Please enter a valid amount");
+                return;
+            }
+            cashOutAmount = (float) mAmount;
+            bottomSheet.dismiss();
+            showCashOutAccountsDialog();
+        });
+        bottomSheet.show();
+    }
+
+    public void showCashOutAccountsDialog() {
+        View view = getLayoutInflater().inflate(R.layout.cashout_bank_accounts_bottom_sheet_layout, null);
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
+        LinearLayout accountsContainer = view.findViewById(R.id.accounts_container);
+        ArrayList<BankAccount> accounts = dbHelper.getBankAccounts();
+        final String[] selectAccount = {null};
+        for (BankAccount account: accounts) {
+            View view1 = getAccountView(account);
+            view1.setOnClickListener(v -> {
+                for (int i = 0; i < accountsContainer.getChildCount(); i++) {
+                    View view2 = accountsContainer.getChildAt(i);
+                    if (view1.getTag().equals(view2.getTag())) {
+                        selectAccount[0] = (String) view1.getTag();
+                        view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
+                    } else {
+                        view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
+                    }
+                }
+            });
+            accountsContainer.addView(view1);
+        }
+        CircularProgressButton btnCashOut = view.findViewById(R.id.cash_out_btn);
+        btnCashOut.setOnClickListener(v -> {
+
+            if (cashOutAmount < MIN_TOP_UP_AMOUNT) {
+                Utility.toastMessage(MainActivity.this, String.format("Cash out amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
+                return;
+            }
+
+            if (selectAccount[0] == null) {
+                Utility.toastMessage(MainActivity.this, "Please select a bank account");
+                return;
+            }
+            cashOut(selectAccount[0], btnCashOut, bottomSheet);
+        });
+        bottomSheet.show();
+    }
+
+    private void cashOut(String recipientCode, CircularProgressButton btnCashout, CustomBottomSheet bottomSheet) {
+
+        HttpRequest httpRequest = new HttpRequest(this, URLContract.WALLET_CASH_OUT_URL + recipientCode,
+                Request.Method.POST, new HttpRequestParams() {
+            @Override
+            public Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("amount", String.valueOf(cashOutAmount));
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                return params;
+            }
+
+            @Override
+            public byte[] getBody() {
+                return null;
+            }
+        }) {
+            @Override
+            protected void onRequestStarted() {
+                btnCashout.startAnimation();
+            }
+
+            @Override
+            protected void onRequestCompleted(boolean onError) {
+                btnCashout.revertAnimation();
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
+                try {
+
+                    JSONObject object = new JSONObject(response);
+
+                    if (object.getBoolean("status")) {
+
+                        JSONObject responseObject = object.getJSONObject("response");
+
+                        double balance = responseObject.getDouble("balance");
+                        JSONObject transaction = responseObject.getJSONObject("transaction");
+
+                        int size; JSONArray transactions;
+
+                        MainFragment mainFragment = null;
+                        WalletFragment walletFragment = null;
+
+                        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+                        for (Fragment fragment: fragments) {
+                            if (fragment instanceof NavHostFragment) {
+                                fragments = fragment.getChildFragmentManager().getFragments();
+                                for (Fragment frag: fragments) {
+                                    if (frag instanceof MainFragment) mainFragment = (MainFragment) frag;
+                                    else if (frag instanceof WalletFragment) walletFragment = (WalletFragment) frag;
+                                }
+                            }
                         }
 
-                        setBalance(data.getDouble("balance"));
+                        if (mainFragment != null && walletFragment != null) {
+
+                            JSONObject mainFragmentData = mainFragment.getData();
+
+                            if (mainFragmentData != null) {
+
+                                transactions = mainFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
+                                mainFragment.setTransactions(transactions);
+                                mainFragment.saveState();
+                                mainFragment.setBalance(balance);
+                            }
+
+                            JSONObject walletFragmentData = walletFragment.getData();
+
+                            if (walletFragmentData != null) {
+
+                                transactions = walletFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
+                                walletFragment.setTransactions(transactions);
+                                walletFragment.saveState();
+                                walletFragment.setBalance(balance);
+                            }
+
+                        } else if (mainFragment != null) {
+
+                            JSONObject mainFragmentData = mainFragment.getData();
+
+                            if (mainFragmentData != null) {
+
+                                transactions = mainFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
+                                mainFragment.setTransactions(transactions);
+                                mainFragment.saveState();
+                                mainFragment.setBalance(balance);
+                            }
+
+                            Bundle walletFragmentState = Utility.getState(WalletFragment.STATE_KEY);
+                            String walletFragmentStringData = walletFragmentState.getString("data");
+
+                            if (walletFragmentStringData != null) {
+
+                                JSONObject walletFragmentData = new JSONObject(walletFragmentStringData);
+
+                                transactions = walletFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
+
+                                walletFragmentState.putString("data", walletFragmentData.toString());
+                                Utility.saveState(WalletFragment.STATE_KEY, walletFragmentState);
+                            }
+
+                        } else if (walletFragment != null) {
+
+                            JSONObject walletFragmentData = walletFragment.getData();
+
+                            if (walletFragmentData != null) {
+
+                                transactions = walletFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
+                                walletFragment.setTransactions(transactions);
+                                walletFragment.saveState();
+                                walletFragment.setBalance(balance);
+                            }
+
+                            Bundle mainFragmentState = Utility.getState(MainFragment.STATE_KEY);
+                            String mainFragmentStringData = mainFragmentState.getString("data");
+
+                            if (mainFragmentStringData != null) {
+
+                                JSONObject mainFragmentData = new JSONObject(mainFragmentStringData);
+
+                                transactions = mainFragmentData.getJSONArray("transactions");
+                                size = transactions.length();
+                                transactions.remove(size - 1);
+
+                                mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
+
+                                mainFragmentState.putString("data", mainFragmentData.toString());
+                                Utility.saveState(MainFragment.STATE_KEY, mainFragmentState);
+                            }
+
+                        }
+
                     }
                     bottomSheet.dismiss();
                     Utility.toastMessage(MainActivity.this, object.getString("message"));
@@ -511,40 +867,30 @@ public class MainActivity extends AppCompatActivity {
         httpRequest.send();
     }
 
-    private void setBalance(double amount) {
-        setCustomTitle(format.format(amount));
-        try {
-            if (MainFragment.data != null) {
-                MainFragment.data.put("balance", amount);
-                saveState(MainFragment.class.getName(), MainFragment.getCurrentState());
-            }
-            if (WalletActivity.data != null) {
-                WalletActivity.data.put("balance", amount);
-                Bundle bundle = WalletActivity.getState();
-                bundle.putString("data", WalletActivity.data.toString());
-                WalletActivity.saveState(bundle);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
+    private View getAccountView(BankAccount account) {
 
-    public Bundle getState(String key) {
-        Bundle state = Utility.getState(STATE_KEY);
-        state = state.getBundle(key);
-        return state != null ? state : new Bundle();
-    }
+        View accountView = getLayoutInflater().inflate(R.layout.bank_acount_layout, null);
+        ImageView selectCheck = accountView.findViewById(R.id.check_mark);
+        TextView acctNum = accountView.findViewById(R.id.account_number);
+        TextView acctName = accountView.findViewById(R.id.account_name);
+        TextView bankName = accountView.findViewById(R.id.bank_name);
 
-    public static void saveState(String key, Bundle state) {
-        Bundle prevState = Utility.getState(STATE_KEY);
-        prevState.putBundle(key, state);
-        Utility.saveState(STATE_KEY, prevState);
+        selectCheck.setVisibility(View.GONE);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.bottomMargin = Utility.getDip(this, 10);
+        accountView.setLayoutParams(params);
+        acctNum.setText(account.getAccountNumber());
+        acctName.setText(account.getAccountName());
+        bankName.setText(Utility.isEmpty(account.getBankName(), "Unknown Bank"));
+
+        accountView.setTag(account.getRecipientCode());
+        return accountView;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Utility.clearState(STATE_KEY);
     }
 
     @Override

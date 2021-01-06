@@ -35,6 +35,8 @@ import static com.quidvis.moneydrop.constant.Constant.RETRY_IN_30_SEC;
  */
 public abstract class HttpRequest {
 
+    private static int centralRequestID = 0;
+    private final int requestID;
     private static boolean ongoingTask = false;
     private final String url;
     private final int method;
@@ -46,10 +48,9 @@ public abstract class HttpRequest {
     private Runnable runnable;
     private final Handler handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
     private final LoaderManager loaderManager;
-    private static int requestID = 0;
 
     public HttpRequest(AppCompatActivity activity, String url, int method) {
-        requestID++;
+        requestID = (centralRequestID = (centralRequestID + 1));
         this.url = url;
         this.method = method;
         this.activity = activity;
@@ -57,7 +58,7 @@ public abstract class HttpRequest {
     }
 
     public HttpRequest(AppCompatActivity activity, String url, int method, HttpRequestParams httpRequestParams) {
-        requestID++;
+        requestID = (centralRequestID = (centralRequestID + 1));
         this.url = url;
         this.method = method;
         this.activity = activity;
@@ -66,7 +67,7 @@ public abstract class HttpRequest {
     }
 
     public HttpRequest(AppCompatActivity activity, String url, HttpRequestParams httpRequestParams) {
-        requestID++;
+        requestID = (centralRequestID = (centralRequestID + 1));
         this.url = url;
         this.method = Method.POST;
         this.activity = activity;
@@ -91,6 +92,7 @@ public abstract class HttpRequest {
     public final void send(int timeout) {
 
         if (!Validator.isNetworkConnected(activity)) {
+            onRequestCompleted(true);
             onRequestError("No network connection, check your connection and try again.", 503, null);
             return;
         }
@@ -148,6 +150,7 @@ public abstract class HttpRequest {
             }
             onRequestCompleted(true);
             onRequestError(responseData, statusCode, headers);
+            stringRequest.cancel();
             error.printStackTrace();
         };
 
@@ -303,6 +306,10 @@ public abstract class HttpRequest {
         loaderManager.destroyLoader(requestID);
         if (stringRequest != null) stringRequest.cancel();
         onRequestCancelled();
+    }
+
+    public final int getRequestID() {
+        return requestID;
     }
 
     private static boolean isOngoingTask() {

@@ -4,8 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.quidvis.moneydrop.model.User;
-
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,5 +34,37 @@ public class Session {
 
     public boolean isLoggedIn() {
         return prefs.getBoolean("loggedIn", false);
+    }
+
+    public void setJSONObject(String key, JSONObject data) {
+        this.editor.putString(key, data.toString());
+        this.editor.commit();
+    }
+
+    public void setJSONArray(String key, JSONArray data) {
+        this.editor.putString(key, data.toString());
+        this.editor.commit();
+    }
+
+    public JSONObject getJSONObject(String key) {
+        try {
+            return new JSONObject(Objects.requireNonNull(prefs.getString(key, "")));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public JSONArray getJSONArray(String key) {
+        try {
+            return new JSONArray(Objects.requireNonNull(prefs.getString(key, "")));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean clearAll() {
+        return editor.clear().commit();
     }
 }

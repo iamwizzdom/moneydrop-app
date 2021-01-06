@@ -1,5 +1,11 @@
 package com.quidvis.moneydrop.model;
 
+import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.constant.URLContract;
+
+import static com.quidvis.moneydrop.constant.Constant.FEMALE;
+import static com.quidvis.moneydrop.constant.Constant.MALE;
+
 public class Loan {
 
     private int id, userGender;
@@ -56,6 +62,14 @@ public class Loan {
 
     public String getPicture() {
         return picture;
+    }
+
+    public String getPictureUrl() {
+        return (URLContract.URL_SCHEME + URLContract.HOST_URL + "/" + picture);
+    }
+
+    public int getDefaultPicture() {
+        return getUserGender() == MALE ? R.drawable.male : (getUserGender() == FEMALE ? R.drawable.female : R.drawable.unisex);
     }
 
     public void setPicture(String picture) {

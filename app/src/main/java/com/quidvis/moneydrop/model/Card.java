@@ -4,6 +4,9 @@ import android.content.Context;
 
 import com.quidvis.moneydrop.database.DbHelper;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Card {
 
     private final DbHelper dbHelper;
@@ -13,6 +16,17 @@ public class Card {
 
     public Card(Context context) {
         this.dbHelper = new DbHelper(context);
+    }
+
+    public Card(Context context, JSONObject cardObject) throws JSONException {
+        this.dbHelper = new DbHelper(context);
+        this.setUuid(cardObject.getString("uuid"));
+        this.setName(cardObject.getString("name"));
+        this.setCardType(cardObject.getString("card_type"));
+        this.setLastFourDigits(cardObject.getString("last4"));
+        this.setBrand(cardObject.getString("brand"));
+        this.setExpMonth(cardObject.getString("exp_month"));
+        this.setExpYear(cardObject.getString("exp_year"));
     }
 
     public int getId() {

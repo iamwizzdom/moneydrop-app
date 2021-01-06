@@ -74,7 +74,7 @@ public class DashboardLoanListAdapter extends BaseAdapter {
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        mainFragment.setLoadingLoanRequest(false);
+        mainFragment.setLoadingLoans(false);
         mainFragment.setLoadingTransactions(false);
     }
 }

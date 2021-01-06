@@ -10,6 +10,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +57,7 @@ public class LoanOffersFragment extends CustomFragment {
     private final ArrayList<Loan> loans = new ArrayList<>();
 
     private final static String STATE_KEY = LoanOffersFragment.class.getName();
-    private Bundle state = null;
+    private static Bundle state = null;
     private JSONObject data;
 
     private boolean refreshing = false;
@@ -101,9 +103,6 @@ public class LoanOffersFragment extends CustomFragment {
         dbHelper = new DbHelper(activity);
         viewPagerAdapter = getViewPagerAdapter();
 
-        if (activity instanceof MainActivity) state = ((MainActivity) activity).getState(STATE_KEY);
-        else if (activity instanceof UserLoanActivity) state = ((UserLoanActivity) activity).getState(STATE_KEY);
-
 //        if (viewPagerAdapter != null) viewPagerAdapter.notifyDataSetChanged(getPosition());
 
         tvNoContent = view.findViewById(R.id.no_content);
@@ -111,7 +110,7 @@ public class LoanOffersFragment extends CustomFragment {
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             setRefreshing(true);
-            getLoanOffers(1);
+            getLoanOffers(null);
         });
 
         recyclerView = view.findViewById(R.id.loan_offers_list);
@@ -120,8 +119,10 @@ public class LoanOffersFragment extends CustomFragment {
         recyclerView.setAdapter(loanAdapter);
         loanAdapter.setOnLoadMoreListener(() -> {
             loanAdapter.setLoading(true);
-            getLoanOffers(state.getInt("page", 1));
+            getLoanOffers(state.getString("nextPage"));
         });
+
+        state = getState();
 
         if (state != null && state.size() > 0) {
             try {
@@ -134,14 +135,14 @@ public class LoanOffersFragment extends CustomFragment {
         if (data != null) {
 
             try {
-                setLoanOffers(data.getJSONArray("loan_offers"), false);
+                setLoanOffers(data.getJSONArray("loans"), false);
             } catch (JSONException e) {
-                getLoanOffers(Objects.requireNonNull(state).getInt("page", 1));
+                getLoanOffers(Objects.requireNonNull(state).getString("nextPage"));
                 e.printStackTrace();
             }
 
         } else {
-            getLoanOffers(Objects.requireNonNull(state).getInt("page", 1));
+            getLoanOffers(Objects.requireNonNull(state).getString("nextPage"));
         }
     }
 
@@ -164,13 +165,11 @@ public class LoanOffersFragment extends CustomFragment {
             tvNoContent.setVisibility(hasContent ? View.GONE : View.VISIBLE);
             recyclerView.setVisibility(hasContent ? View.VISIBLE : View.GONE);
         }
-
-        if (isRefreshing()) setRefreshing(false);
     }
 
-    private void setLoanOffers(JSONArray loanRequests, boolean addUp) {
+    private void setLoanOffers(JSONArray loanOffers, boolean addUp) {
 
-        int size = loanRequests.length();
+        int size = loanOffers.length();
 
         if (addUp && size <= 0) {
 
@@ -191,16 +190,19 @@ public class LoanOffersFragment extends CustomFragment {
         for (int i = 0; i < size; i++) {
             try {
 
-                JSONObject loanRequest = loanRequests.getJSONObject(i);
+                JSONObject loanOffer = loanOffers.getJSONObject(i);
                 Loan loan = new Loan();
-                loan.setId(loanRequest.getInt("id"));
-                loan.setType(loanRequest.getString("type"));
-                loan.setAmount(loanRequest.getDouble("amount"));
-                loan.setStatus(loanRequest.getString("status"));
-                loan.setDate(loanRequest.getString("date"));
+                loan.setId(loanOffer.getInt("id"));
+                loan.setType(loanOffer.getString("type"));
+                loan.setAmount(loanOffer.getDouble("amount"));
+                loan.setStatus(loanOffer.getString("status"));
+                loan.setDate(loanOffer.getString("date"));
+                JSONObject user = loanOffer.getJSONObject("user");
+                loan.setPicture(user.getString("picture"));
+                loan.setUserGender(Integer.parseInt(Utility.isEmpty(user.getString("gender"), "0")));
                 loans.add(loan);
                 if (!addUp) continue;
-                data.getJSONArray("loan_offers").put(loanRequest);
+                data.getJSONArray("loans").put(loanOffer);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -214,10 +216,20 @@ public class LoanOffersFragment extends CustomFragment {
         if (viewPagerAdapter != null) viewPagerAdapter.notifyDataSetChanged(getPosition());
     }
 
-    private void getLoanOffers(int page) {
+    private void getLoanOffers(String nextPage) {
+
+        if (nextPage != null && nextPage.equals("#")) {
+            setLoading(false, true);
+            loanAdapter.setLoading(false);
+            loanAdapter.setPermitLoadMore(false);
+            loans.add(null);
+            loanAdapter.notifyItemInserted(loans.size() - 1);
+            return;
+        }
 
         HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
-                String.format("%s?page=%s", URLContract.LOAN_OFFERS_LIST_URL, page),
+                nextPage != null ? URLContract.BASE_URL + nextPage : (activity instanceof UserLoanActivity ?
+                        URLContract.USER_LOAN_OFFERS_LIST_URL : URLContract.LOAN_OFFERS_LIST_URL),
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override
@@ -246,6 +258,7 @@ public class LoanOffersFragment extends CustomFragment {
             @Override
             protected void onRequestCompleted(boolean onError) {
 
+                if (isRefreshing()) setRefreshing(false);
             }
 
             @Override
@@ -254,8 +267,8 @@ public class LoanOffersFragment extends CustomFragment {
                 try {
 
                     JSONObject object = new JSONObject(response);
-                    setLoanOffers(object.getJSONArray("loan_offers"), data != null);
-                    state.putInt("page", object.getInt("page"));
+                    setLoanOffers(object.getJSONArray("loans"), data != null);
+                    state.putString("nextPage", object.getJSONObject("pagination").getString("nextPage"));
                     if (data == null) data = object;
 
                 } catch (JSONException e) {
@@ -288,6 +301,7 @@ public class LoanOffersFragment extends CustomFragment {
 
             }
         };
+
         httpRequest.send();
 
     }
@@ -302,24 +316,32 @@ public class LoanOffersFragment extends CustomFragment {
         if (refreshing) {
             data = null;
             state.putBundle("data", null);
-            state.putInt("page", 1);
+            state.putString("nextPage", null);
             loans.clear();
             if (!loanAdapter.isPermitLoadMore()) loanAdapter.setPermitLoadMore(true);
         }
     }
 
+    public Bundle getState() {
+        String stateKey = activity instanceof MainActivity ? MainActivity.STATE_KEY : UserLoanActivity.STATE_KEY;
+        stateKey += ("-" + STATE_KEY);
+        return Utility.getState(stateKey);
+    }
+
     public Bundle getCurrentState() {
+        if (state == null) state = getState();
         if (data != null) state.putString("data", data.toString());
         return state;
     }
 
-    @Override
     public void saveState() {
-        if (isAdded()) MainActivity.saveState(STATE_KEY, getCurrentState());
+        String stateKey = activity instanceof MainActivity ? MainActivity.STATE_KEY : UserLoanActivity.STATE_KEY;
+        stateKey += ("-" + STATE_KEY);
+        Utility.saveState(stateKey, getCurrentState());
     }
 
     @Override
     public void refresh() {
-        if (data == null) getLoanOffers(Objects.requireNonNull(state).getInt("page", 1));
+        if (data == null) getLoanOffers(Objects.requireNonNull(state).getString("nextPage"));
     }
 }

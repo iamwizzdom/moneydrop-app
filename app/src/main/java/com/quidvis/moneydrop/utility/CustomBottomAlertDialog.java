@@ -1,15 +1,6 @@
 package com.quidvis.moneydrop.utility;
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
 
 /**
  * Created by Wisdom Emenike.
@@ -85,7 +75,7 @@ public class CustomBottomAlertDialog {
 
         View.OnClickListener onClickListener = v -> {
             if (listener != null) listener.onClick(v);
-            else detach();
+            detach();
         };
 
         dialogBtnPositive.setOnClickListener(onClickListener);
@@ -101,7 +91,7 @@ public class CustomBottomAlertDialog {
 
         View.OnClickListener onClickListener = v -> {
             if (listener != null) listener.onClick(v);
-            else detach();
+            detach();
         };
 
         dialogBtnNegative.setOnClickListener(onClickListener);

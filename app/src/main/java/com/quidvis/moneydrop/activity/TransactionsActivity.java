@@ -1,7 +1,6 @@
 package com.quidvis.moneydrop.activity;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -31,11 +30,11 @@ import java.util.Objects;
 
 public class TransactionsActivity extends AppCompatActivity {
 
-    private final static String STATE_KEY = TransactionsActivity.class.getName();
+    public final static String STATE_KEY = TransactionsActivity.class.getName();
     private DbHelper dbHelper;
     private TransactionAdapter transactionAdapter;
     private final ArrayList<Transaction> transactions = new ArrayList<>();
-    private Bundle savedState;
+    private Bundle state;
     private JSONObject data;
 
     private boolean refreshing = false;
@@ -63,15 +62,15 @@ public class TransactionsActivity extends AppCompatActivity {
 
         dbHelper = new DbHelper(this);
 
-        savedState = getState();
-
         transactionAdapter = new TransactionAdapter(recyclerView, this, transactions);
         recyclerView.setAdapter(transactionAdapter);
-        transactionAdapter.setOnLoadMoreListener(() -> getTransactions(savedState.getString("nextPage")));
+        transactionAdapter.setOnLoadMoreListener(() -> getTransactions(state.getString("nextPage")));
 
-        if (savedState != null && savedState.size() > 0) {
+        state = getState();
+
+        if (state != null && state.size() > 0) {
             try {
-                data = new JSONObject(Objects.requireNonNull(savedState.getString("data")));
+                data = new JSONObject(Objects.requireNonNull(state.getString("data")));
             } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
@@ -82,12 +81,12 @@ public class TransactionsActivity extends AppCompatActivity {
             try {
                 setTransaction(data.getJSONArray("transactions"), false);
             } catch (JSONException e) {
-                getTransactions(Objects.requireNonNull(savedState).getString("nextPage"));
+                getTransactions(null);
                 e.printStackTrace();
             }
 
         } else {
-            getTransactions(Objects.requireNonNull(savedState).getString("nextPage"));
+            getTransactions(null);
         }
     }
 
@@ -114,23 +113,18 @@ public class TransactionsActivity extends AppCompatActivity {
         if (isRefreshing()) setRefreshing(false);
     }
 
-    private void setTransaction(JSONArray loanRequests, boolean addUp) {
+    private void setTransaction(JSONArray transactions, boolean addUp) {
 
-        int size = loanRequests.length();
+        int size = transactions.length();
 
         for (int i = 0; i < size; i++) {
             try {
 
-                JSONObject loanRequest = loanRequests.getJSONObject(i);
-                Transaction transaction = new Transaction();
-                transaction.setId(loanRequest.getInt("id"));
-                transaction.setType(loanRequest.getString("type"));
-                transaction.setAmount(loanRequest.getDouble("amount"));
-                transaction.setStatus(loanRequest.getString("status"));
-                transaction.setDate(loanRequest.getString("date"));
-                transactions.add(transaction);
+                JSONObject transObject = transactions.getJSONObject(i);
+                Transaction transaction = new Transaction(this, transObject);
+                this.transactions.add(transaction);
                 if (!addUp) continue;
-                data.getJSONArray("transactions").put(loanRequest);
+                data.getJSONArray("transactions").put(transObject);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -138,7 +132,7 @@ public class TransactionsActivity extends AppCompatActivity {
         }
 
         setLoading(false, size > 0);
-        size = transactions.size();
+        size = this.transactions.size();
         tvItemCount.setText((size > 0) ? String.format("%s %s", size, (size > 1 ? "records" : "record")) : getResources().getText(R.string.no_record));
         transactionAdapter.notifyDataSetChanged();
     }
@@ -198,7 +192,7 @@ public class TransactionsActivity extends AppCompatActivity {
 
                     JSONObject object = new JSONObject(response);
                     setTransaction(object.getJSONArray("transactions"), data != null);
-                    savedState.putString("nextPage", object.getJSONObject("pagination").getString("nextPage"));
+                    state.putString("nextPage", object.getJSONObject("pagination").getString("nextPage"));
                     if (data == null) data = object;
 
                 } catch (JSONException e) {
@@ -242,8 +236,8 @@ public class TransactionsActivity extends AppCompatActivity {
         swipeRefreshLayout.setRefreshing(refreshing);
         if (refreshing) {
             data = null;
-            savedState.putBundle("data", null);
-            savedState.putString("nextPage", null);
+            state.putBundle("data", null);
+            state.putString("nextPage", null);
             transactions.clear();
             if (!transactionAdapter.isPermitLoadMore()) transactionAdapter.setPermitLoadMore(true);
         }
@@ -253,17 +247,19 @@ public class TransactionsActivity extends AppCompatActivity {
         return Utility.getState(STATE_KEY);
     }
 
-    public void saveState(Bundle state) {
-        Utility.saveState(STATE_KEY, state);
+    public Bundle getCurrentState() {
+        if (state == null) state = getState();
+        if (data != null) state.putString("data", data.toString());
+        return state;
+    }
+
+    public void saveState() {
+        Utility.saveState(STATE_KEY, getCurrentState());
     }
 
     @Override
     protected void onDestroy() {
-        if (savedState != null) {
-            if (data != null) savedState.putString("data", data.toString());
-            savedState.putString("nextPage", savedState.getString("nextPage"));
-            saveState(savedState);
-        }
+        saveState();
         super.onDestroy();
     }
 

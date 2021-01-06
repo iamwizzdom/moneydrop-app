@@ -1,5 +1,6 @@
 package com.quidvis.moneydrop.adapter;
 
+import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -9,10 +10,10 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.google.android.material.tabs.TabLayout;
 import com.quidvis.moneydrop.activity.MainActivity;
+import com.quidvis.moneydrop.activity.UserLoanActivity;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -59,6 +60,9 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             String subtitle = this.getItem(position).getSubtitle();
             ((MainActivity) mActivity).setCustomTitle(title);
             ((MainActivity) mActivity).setCustomSubtitle(subtitle);
+        } else if (mActivity != null && mActivity instanceof UserLoanActivity) {
+
+            ((UserLoanActivity) mActivity).setItemCount(this.getItem(position).getSubtitle());
         }
     }
 
@@ -68,5 +72,14 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     public void setTabLayout(TabLayout tabLayout) {
         mTabLayout = tabLayout;
+    }
+
+    @Override
+    public void restoreState(final Parcelable state, final ClassLoader loader) {
+        try {
+            super.restoreState(state, loader);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
