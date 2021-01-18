@@ -16,15 +16,22 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.LoanDetailsActivity;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.TransactionReceiptActivity;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
+import com.quidvis.moneydrop.model.Loan;
+import com.quidvis.moneydrop.model.Transaction;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 
@@ -44,9 +51,10 @@ public class MainFragment extends Fragment {
     public final static String STATE_KEY = MainFragment.class.getName();
     private Activity activity;
     private DbHelper dbHelper;
-    private static Bundle state;
+    private Bundle state;
     private LinearLayout loanView, transactionView;
     private TextView loanEmpty, transactionEmpty;
+    private SwipeRefreshLayout swipeRefreshLayout;
     ShimmerFrameLayout loanShimmerFrameLayout, transactionShimmerFrameLayout;
     public JSONObject data;
     private static boolean started = false;
@@ -75,6 +83,12 @@ public class MainFragment extends Fragment {
         loanShimmerFrameLayout = view.findViewById(R.id.loan_request_shimmer_view);
         transactionShimmerFrameLayout = view.findViewById(R.id.transaction_shimmer_view);
 
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            swipeRefreshLayout.setRefreshing(true);
+            getDashboardData();
+        });
+
         ((MainActivity) activity).setCustomSubtitle("Available balance");
 
         start();
@@ -99,7 +113,7 @@ public class MainFragment extends Fragment {
         if (data != null) {
 
             try {
-                setBalance(data.getDouble("balance"));
+                setBalance(data.getDouble("available_balance"));
                 setLoans(data.getJSONArray("loans"));
                 setTransactions(data.getJSONArray("transactions"));
             } catch (JSONException e) {
@@ -128,7 +142,7 @@ public class MainFragment extends Fragment {
         for (int i = 0; i < size; i++) {
             try {
 
-                View view = getView(loan.getJSONObject(i), false);
+                View view = getLoanView(loan.getJSONObject(i));
                 if (view == null) continue;
                 if ((i == 0 && size > 1) || i > 0 && i < (size - 1))
                     view.setBackgroundResource(R.drawable.layout_underline);
@@ -150,8 +164,7 @@ public class MainFragment extends Fragment {
         for (int i = 0; i < size; i++) {
             try {
 
-
-                View view = getView(trans.getJSONObject(i), true);
+                View view = getTransactionView(trans.getJSONObject(i));
                 if (view == null) continue;
                 if ((i == 0 && size > 1) || i > 0 && i < (size - 1))
                     view.setBackgroundResource(R.drawable.layout_underline);
@@ -165,11 +178,55 @@ public class MainFragment extends Fragment {
         setLoadingTransactions(false, size > 0);
     }
 
-    private View getView(JSONObject transaction, boolean isTransaction) throws JSONException {
+    private View getLoanView(JSONObject object) throws JSONException {
+
+        if (!this.isAdded()) return null;
+
+        View view = getLayoutInflater().inflate(R.layout.loan_layout, null);
+
+        Loan loan = new Loan(activity, object);
+
+        LinearLayout container = view.findViewById(R.id.container);
+        ImageView mvIcon = view.findViewById(R.id.profile_pic);
+        TextView tvType = view.findViewById(R.id.loan_type);
+        TextView tvDate = view.findViewById(R.id.loan_date);
+        TextView tvAmount = view.findViewById(R.id.loan_amount);
+        TextView tvStatus = view.findViewById(R.id.loan_status);
+
+        tvType.setText(String.format("Loan %s (Me)", loan.getType()));
+        tvDate.setText(loan.getDate());
+        tvAmount.setText(format.format(loan.getAmount()));
+        tvStatus.setText(Utility.ucFirst(loan.getStatus()));
+
+        Glide.with(activity)
+                .load(loan.getUser().getPictureUrl())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .error(loan.getUser().getDefaultPicture())
+                .apply(new RequestOptions().override(150, 150))
+                .into(mvIcon);
+
+        ArrayMap<String, Integer> theme = getTheme(loan.getStatus());
+
+        tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
+        tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
+        tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
+
+        container.setOnClickListener(v -> {
+            Intent intent = new Intent(activity, LoanDetailsActivity.class);
+            intent.putExtra(LoanDetailsActivity.LOAN_KEY, object.toString());
+            activity.startActivity(intent);
+        });
+
+        return view;
+    }
+
+    private View getTransactionView(JSONObject object) throws JSONException {
 
         if (!this.isAdded()) return null;
 
         View view = getLayoutInflater().inflate(R.layout.transaction_layout, null);
+
+        Transaction transaction = new Transaction(activity, object);
 
         LinearLayout container = view.findViewById(R.id.container);
         ImageView mvIcon = view.findViewById(R.id.transaction_icon);
@@ -178,25 +235,29 @@ public class MainFragment extends Fragment {
         TextView tvAmount = view.findViewById(R.id.transaction_amount);
         TextView tvStatus = view.findViewById(R.id.transaction_status);
 
-        ArrayMap<String, Integer> theme = getTheme(transaction.getString("status"));
+        String type = transaction.getType();
 
-        tvType.setText(transaction.getString("type"));
-        tvDate.setText(transaction.getString("date"));
-        tvAmount.setText(format.format(transaction.getDouble("amount")));
-        tvStatus.setText(Utility.ucFirst(transaction.getString("status")));
+        if (type.equals("offer") || type.equals("request")) {
+            type = String.format("Loan %s (Me)", type);
+        }
+
+        tvType.setText(type);
+        tvDate.setText(transaction.getDate());
+        tvAmount.setText(format.format(transaction.getAmount()));
+        tvStatus.setText(Utility.ucFirst(transaction.getStatus()));
+
+        ArrayMap<String, Integer> theme = getTheme(transaction.getStatus());
 
         mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
         tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
         tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
-        if (isTransaction) {
-            container.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, TransactionReceiptActivity.class);
-                intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, transaction.toString());
-                activity.startActivity(intent);
-            });
-        }
+        container.setOnClickListener(v -> {
+            Intent intent = new Intent(activity, TransactionReceiptActivity.class);
+            intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, object.toString());
+            activity.startActivity(intent);
+        });
 
         return view;
     }
@@ -209,14 +270,15 @@ public class MainFragment extends Fragment {
         if (status) {
 
             loanEmpty.setVisibility(View.GONE);
+            loanView.setVisibility(View.GONE);
             loanShimmerFrameLayout.setVisibility(View.VISIBLE);
             loanShimmerFrameLayout.startShimmer();
-
         } else {
 
             loanShimmerFrameLayout.stopShimmer();
             loanShimmerFrameLayout.setVisibility(View.GONE);
             loanEmpty.setVisibility(hasContent ? View.GONE : View.VISIBLE);
+            loanView.setVisibility(hasContent ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -228,6 +290,7 @@ public class MainFragment extends Fragment {
         if (status) {
 
             transactionEmpty.setVisibility(View.GONE);
+            transactionView.setVisibility(View.GONE);
             transactionShimmerFrameLayout.setVisibility(View.VISIBLE);
             transactionShimmerFrameLayout.startShimmer();
 
@@ -236,12 +299,14 @@ public class MainFragment extends Fragment {
             transactionShimmerFrameLayout.stopShimmer();
             transactionShimmerFrameLayout.setVisibility(View.GONE);
             transactionEmpty.setVisibility(hasContent ? View.GONE : View.VISIBLE);
+            transactionView.setVisibility(hasContent ? View.VISIBLE : View.GONE);
         }
     }
 
     private void getDashboardData() {
 
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity, URLContract.DASHBOARD_REQUEST_URL, Request.Method.GET, new HttpRequestParams() {
+        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity, URLContract.DASHBOARD_REQUEST_URL,
+                Request.Method.GET, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 return null;
@@ -269,6 +334,7 @@ public class MainFragment extends Fragment {
             @Override
             protected void onRequestCompleted(boolean onError) {
 
+                if (swipeRefreshLayout.isRefreshing()) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -278,7 +344,7 @@ public class MainFragment extends Fragment {
 
                     data = new JSONObject(response);
 
-                    setBalance(data.getDouble("balance"));
+                    setBalance(data.getDouble("available_balance"));
                     setLoans(data.getJSONArray("loans"));
                     setTransactions(data.getJSONArray("transactions"));
 

@@ -91,7 +91,7 @@ public class TransactionReceiptActivity extends AppCompatActivity {
         tvStatus.setText(transaction.getStatus());
         tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
-        tvNarration.setText(Utility.isEmpty(transaction.getComment(), "No narrative"));
+        tvNarration.setText(Utility.castEmpty(transaction.getNarration(), "No narrative"));
 
     }
 

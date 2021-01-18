@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
+import com.hbb20.CountryCodePicker;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.ProfileActivity;
 import com.quidvis.moneydrop.constant.URLContract;
@@ -48,10 +49,11 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
     private Activity activity;
     private String editOption, editTitle;
-    private final ArrayMap<String, EditText> editTexts = new ArrayMap<>();
+    private final ArrayMap<String, Object> editTexts = new ArrayMap<>();
     private TextView tvDobError = null;
     private CircularProgressButton submitBtn;
     private DbHelper dbHelper;
+    private User user;
     private ImageView backBtn;
     private final Calendar calendar = Calendar.getInstance();
     private final DateFormat formatter = new SimpleDateFormat(
@@ -93,6 +95,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
         backBtn.setOnClickListener(view12 -> ((ProfileActivity) activity).loadEditFragment(view12));
 
         dbHelper = new DbHelper(activity);
+        user = dbHelper.getUser();
 
         switch (editOption) {
             case ProfileOptionFragment.EDIT_NAME:
@@ -100,32 +103,34 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                 EditText etFirstname = contentView.findViewById(R.id.etFirstname);
                 EditText etMiddlename = contentView.findViewById(R.id.etMiddlename);
                 EditText etLastname = contentView.findViewById(R.id.etLastname);
-                etFirstname.setText(dbHelper.getUser().getFirstname());
-                etMiddlename.setText(Utility.isEmpty(dbHelper.getUser().getMiddlename()));
-                etLastname.setText(dbHelper.getUser().getLastname());
+                etFirstname.setText(user.getFirstname());
+                etMiddlename.setText(Utility.castEmpty(user.getMiddlename()));
+                etLastname.setText(user.getLastname());
                 editTexts.put("firstname", etFirstname);
                 editTexts.put("middlename", etMiddlename);
                 editTexts.put("lastname", etLastname);
                 break;
             case ProfileOptionFragment.EDIT_PHONE:
                 contentView = inflater.inflate(R.layout.fragment_profile_edit_phone, container, false);
+                CountryCodePicker ccp = contentView.findViewById(R.id.ccp);
                 EditText etPhone = contentView.findViewById(R.id.etPhone);
-                etPhone.setText(dbHelper.getUser().getPhone());
-                editTexts.put("phone", etPhone);
+                ccp.registerCarrierNumberEditText(etPhone);
+                ccp.setFullNumber(user.getPhone());
+                editTexts.put("phone", ccp);
                 break;
             case ProfileOptionFragment.EDIT_EMAIL:
                 contentView = inflater.inflate(R.layout.fragment_profile_edit_email, container, false);
                 EditText etEmail = contentView.findViewById(R.id.etEmail);
-                etEmail.setText(dbHelper.getUser().getEmail());
+                etEmail.setText(user.getEmail());
                 editTexts.put("email", etEmail);
                 break;
             case ProfileOptionFragment.EDIT_DOB:
                 contentView = inflater.inflate(R.layout.fragment_profile_edit_dob, container, false);
                 EditText etDOB = contentView.findViewById(R.id.etDOB);
                 tvDobError = contentView.findViewById(R.id.tvDobError);
-                etDOB.setText(dbHelper.getUser().getDob());
+                etDOB.setText(user.getDob());
                 try {
-                    calendar.setTime(Objects.requireNonNull(formatter.parse(dbHelper.getUser().getDob())));
+                    calendar.setTime(Objects.requireNonNull(formatter.parse(user.getDob())));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -135,7 +140,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
             case ProfileOptionFragment.EDIT_BVN:
                 contentView = inflater.inflate(R.layout.fragment_profile_edit_bvn, container, false);
                 EditText etBVN = contentView.findViewById(R.id.etBVN);
-                etBVN.setText(Utility.isEmpty(dbHelper.getUser().getBvn()));
+                etBVN.setText(Utility.castEmpty(user.getBvn()));
                 editTexts.put("bvn", etBVN);
                 break;
             case ProfileOptionFragment.EDIT_PASSWORD:
@@ -183,12 +188,15 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
         return type;
     }
 
-    private Map<String, String> getUpdateData() {
+    private Map<String, String> getUpdateParams() {
         Map<String, String> params = new HashMap<>();
-        for (Map.Entry<String, EditText> entry : editTexts.entrySet()) {
+        for (Map.Entry<String, Object> entry : editTexts.entrySet()) {
             String key = entry.getKey();
-            EditText editText = entry.getValue();
-            params.put(key, editText.getText().toString());
+            Object editText = entry.getValue();
+            if (editText instanceof EditText)
+                params.put(key, ((EditText) editText).getText().toString());
+            else if (editText instanceof CountryCodePicker)
+                params.put(key, ((CountryCodePicker) editText).getFullNumberWithPlus());
         }
         return params;
     }
@@ -199,13 +207,13 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                 getUpdateUriType()), Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
-                return getUpdateData();
+                return getUpdateParams();
             }
 
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("Authorization", String.format("Bearer %s", user.getToken()));
                 return params;
             }
 
@@ -217,10 +225,12 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
             @Override
             protected void onRequestStarted() {
 
-                for (Map.Entry<String, EditText> entry : editTexts.entrySet()) {
-                    EditText editText = entry.getValue();
-                    Utility.disableEditText(editText);
-                    Utility.clearFocus(editText, activity);
+                for (Map.Entry<String, Object> entry : editTexts.entrySet()) {
+                    EditText editText = getEditText(entry.getValue());
+                    if (editText != null) {
+                        Utility.disableEditText(editText);
+                        Utility.clearFocus(editText, activity);
+                    }
                 }
 
                 if (tvDobError != null) tvDobError.setVisibility(View.GONE);
@@ -246,7 +256,6 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
                         JSONObject userObject = userData.getJSONObject("user");
 
-                        User user = dbHelper.getUser();
                         user.setFirstname(userObject.getString("firstname"));
                         user.setMiddlename(userObject.getString("middlename"));
                         user.setLastname(userObject.getString("lastname"));
@@ -255,7 +264,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                         user.setBvn(userObject.getString("bvn"));
                         user.setPicture(userObject.getString("picture"));
                         user.setDob(userObject.getString("dob"));
-                        user.setGender(Integer.parseInt(Utility.isNull(userObject.getString("gender"), "0")));
+                        user.setGender(Integer.parseInt(Utility.castNull(userObject.getString("gender"), "0")));
                         user.setAddress(userObject.getString("address"));
                         user.setCountry(userObject.getString("country"));
                         user.setState(userObject.getString("state"));
@@ -275,9 +284,9 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    for (Map.Entry<String, EditText> entry : editTexts.entrySet()) {
-                        EditText editText = entry.getValue();
-                        Utility.enableEditText(editText);
+                    for (Map.Entry<String, Object> entry : editTexts.entrySet()) {
+                        EditText editText = getEditText(entry.getValue());
+                        if (editText != null) Utility.enableEditText(editText);
                     }
                     Utility.toastMessage(activity, "Something unexpected happened. Please try that again.");
                 }
@@ -304,7 +313,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                             String key = it.next();
                             String value = errors.getString(key);
                             if (TextUtils.isEmpty(value)) continue;
-                            EditText editText = editTexts.get(key);
+                            EditText editText = getEditText(editTexts.get(key));
                             if (tvDobError != null && key.equals("dob")) {
                                 tvDobError.setText(value);
                                 tvDobError.setVisibility(View.VISIBLE);
@@ -318,9 +327,9 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                                     "Something unexpected happened. Please try that again.");
                 }
 
-                for (Map.Entry<String, EditText> entry : editTexts.entrySet()) {
-                    EditText editText = entry.getValue();
-                    Utility.enableEditText(editText);
+                for (Map.Entry<String, Object> entry : editTexts.entrySet()) {
+                    EditText editText = getEditText(entry.getValue());
+                    if (editText != null) Utility.enableEditText(editText);
                 }
             }
 
@@ -342,7 +351,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         calendar.set(year, month, dayOfMonth);
-        Objects.requireNonNull(editTexts.get("dob")).setText(formatter.format(calendar.getTime()));
+        Objects.requireNonNull(getEditText(editTexts.get("dob"))).setText(formatter.format(calendar.getTime()));
     }
 
     @Override
@@ -358,9 +367,15 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
     }
 
     private void clearFocus() {
-        for (Map.Entry<String, EditText> entry : editTexts.entrySet()) {
-            EditText editText = entry.getValue();
-            if (editText.hasFocus()) Utility.clearFocus(editText, activity);
+        for (Map.Entry<String, Object> entry : editTexts.entrySet()) {
+            EditText editText = getEditText(entry.getValue());
+            if (editText != null && editText.hasFocus()) Utility.clearFocus(editText, activity);
         }
+    }
+
+    private EditText getEditText(Object object) {
+        if (object instanceof CountryCodePicker) object = Utility.getClassField(object, "editText_registeredCarrierNumber");
+        if (object instanceof EditText) return ((EditText) object);
+        return null;
     }
 }

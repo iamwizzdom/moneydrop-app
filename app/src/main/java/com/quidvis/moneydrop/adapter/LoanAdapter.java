@@ -1,6 +1,7 @@
 package com.quidvis.moneydrop.adapter;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +20,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.LoanApplicantsActivity;
+import com.quidvis.moneydrop.activity.LoanDetailsActivity;
 import com.quidvis.moneydrop.activity.ProfileActivity;
+import com.quidvis.moneydrop.activity.TransactionReceiptActivity;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.model.User;
@@ -74,9 +78,10 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 totalItemCount = Objects.requireNonNull(linearLayoutManager).getItemCount();
                 lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
 
-                if (isPermitLoadMore() && !isLoading() && totalItemCount >= DEFAULT_RECORD_PER_VIEW
-                        && lastVisibleItem >= (totalItemCount - visibleThreshold))
+                if (isPermitLoadMore() && !isLoading() && getItemCount() >= DEFAULT_RECORD_PER_VIEW
+                        && lastVisibleItem >= (totalItemCount - visibleThreshold)) {
                     if (mOnLoadMoreListener != null) mOnLoadMoreListener.onLoadMore();
+                }
 
             }
         };
@@ -125,17 +130,23 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Loan loan = this.loanList.get(position);
             ParentViewHolder parentViewHolder = (ParentViewHolder) holder;
 
-            parentViewHolder.tvType.setText(loan.getType());
+            String type = String.format("Loan %s", loan.getType());;
+
+            if (loan.isMine()) type += " (Me)";
+
+            parentViewHolder.tvType.setText(type);
             parentViewHolder.tvDate.setText(loan.getDate());
             parentViewHolder.tvAmount.setText(format.format(loan.getAmount()));
             parentViewHolder.tvStatus.setText(Utility.ucFirst(loan.getStatus()));
 
             ArrayMap<String, Integer> theme = getTheme(loan.getStatus());
 
+            User user = loan.getUser();
             Glide.with(activity)
-                    .load(loan.getPictureUrl())
+                    .load(user.getPictureUrl())
+                    .placeholder(user.getDefaultPicture())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .error(loan.getDefaultPicture())
+                    .error(user.getDefaultPicture())
                     .apply(new RequestOptions().override(150, 150))
                     .into(parentViewHolder.mvPic);
 
@@ -147,6 +158,12 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             if ((position == 0 && size > 1) || position > 0 && position < (size - 1))
                 parentViewHolder.container.setBackgroundResource(R.drawable.layout_underline);
+
+            parentViewHolder.container.setOnClickListener(v -> {
+                Intent intent = new Intent(activity, LoanDetailsActivity.class);
+                intent.putExtra(LoanDetailsActivity.LOAN_KEY, loan.getLoanObject().toString());
+                activity.startActivity(intent);
+            });
 
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;

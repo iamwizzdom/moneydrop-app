@@ -1,9 +1,11 @@
 package com.quidvis.moneydrop.activity;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,11 +22,13 @@ import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
+import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
 import com.quidvis.moneydrop.model.Bank;
 import com.quidvis.moneydrop.model.BankAccount;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
+import com.quidvis.moneydrop.utility.CustomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
 import com.quidvis.moneydrop.utility.Utility;
@@ -36,6 +40,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -69,8 +74,26 @@ public class BankAccountsActivity extends AppCompatActivity {
         emptyView = findViewById(R.id.empty_view);
         accountsContainer = findViewById(R.id.accounts_container);
 
-        if (accounts.size() > 0) listAccounts();
-        else fetchAllAccounts();
+        if (!user.getBvn().isEmpty()) {
+
+            if (accounts.size() > 0) listAccounts();
+            else fetchAllAccounts();
+
+        } else {
+
+            AwesomeAlertDialog awesomeAlertDialog = new AwesomeAlertDialog(this);
+            awesomeAlertDialog.setTitle("BVN Check");
+            awesomeAlertDialog.setMessage("Sorry, you must set your BVN before performing any bank operation.");
+            awesomeAlertDialog.setPositiveButton("Set BVN", dialog -> {
+                startActivity(new Intent(BankAccountsActivity.this, ProfileActivity.class));
+            });
+            awesomeAlertDialog.setCancelable(false);
+            awesomeAlertDialog.setOnCancelListener(dialogInterface -> {
+                Utility.toastMessage(BankAccountsActivity.this, "You must set BVN to proceed.");
+                finish();
+            });
+            awesomeAlertDialog.show();
+        }
     }
 
     private void listAccounts() {
@@ -104,7 +127,7 @@ public class BankAccountsActivity extends AppCompatActivity {
         accountView.setLayoutParams(params);
         acctNum.setText(account.getAccountNumber());
         acctName.setText(account.getAccountName());
-        bankName.setText(Utility.isEmpty(account.getBankName(), "Unknown Bank"));
+        bankName.setText(Utility.castEmpty(account.getBankName(), "Unknown Bank"));
 
         optionBtn.setTag(account.getUuid());
         optionBtn.setVisibility(View.VISIBLE);
@@ -154,11 +177,15 @@ public class BankAccountsActivity extends AppCompatActivity {
         addBankBtn.setOnClickListener(v -> {
             String accountNumber = etAcctNum.getText().toString();
             String bankCode = this.banks.get(dialogSpinner.getSelectedItemPosition()).getCode();
-            if (!accountNumber.isEmpty() && accountNumber.length() >= 6) {
-                addBankAccount(accountNumber, bankCode);
-            } else {
+            if (accountNumber.isEmpty() || accountNumber.length() < 6) {
                 Utility.toastMessage(BankAccountsActivity.this, "Please enter valid account number");
+                return;
             }
+            if (bankCode.isEmpty()) {
+                Utility.toastMessage(BankAccountsActivity.this, "Please select a bank");
+                return;
+            }
+            addBankAccount(accountNumber, bankCode);
         });
 
         bottomSheet = CustomBottomSheet.newInstance(this, bottomSheetView);
@@ -318,7 +345,9 @@ public class BankAccountsActivity extends AppCompatActivity {
                 try {
 
                     JSONObject object = new JSONObject(response);
-                    JSONArray accountList = object.getJSONArray("response");
+                    JSONObject responseObj = object.getJSONObject("response");
+                    JSONArray accountList = responseObj.getJSONArray("accounts");
+                    JSONObject banks = responseObj.getJSONObject("banks");
 
                     int size = accountList.length();
 
@@ -336,7 +365,22 @@ public class BankAccountsActivity extends AppCompatActivity {
                         dbHelper.saveBankAccount(account);
                     }
 
+                    if (banks.length() > 0 && BankAccountsActivity.this.banks.size() > 0)
+                        BankAccountsActivity.this.banks.clear();
+
+                    for (Iterator<String> it = banks.keys(); it.hasNext();) {
+                        String key = it.next();
+                        JSONObject bankObject = banks.getJSONObject(key);
+                        Bank bank = new Bank(BankAccountsActivity.this);
+                        bank.setUid(bankObject.getInt("id"));
+                        bank.setName(bankObject.getString("name"));
+                        bank.setCode(bankObject.getString("code"));
+                        dbHelper.saveBank(bank);
+                        BankAccountsActivity.this.banks.add(bank);
+                    }
+
                     listAccounts();
+
                     if (refreshing) Utility.toastMessage(BankAccountsActivity.this, object.getString("message"));
 
                 } catch (JSONException e) {

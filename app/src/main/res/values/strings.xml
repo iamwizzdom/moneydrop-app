@@ -137,7 +137,7 @@
     <string name="loan_type">Loan Type</string>
     <string name="loan_purpose">Loan Purpose</string>
     <string name="note_optional">Note (optional)</string>
-    <string name="note">Enter note</string>
+    <string name="enter_note">Enter note</string>
     <string name="loan_icon">Loan Icon</string>
     <string name="date">11/20</string>
     <string name="amount">#12,000</string>
@@ -184,7 +184,7 @@
     <string name="item">Item</string>
     <string name="select_a_bank">Please select a bank</string>
     <string name="select_bank">Select bank</string>
-    <string name="loan_tenor">Loan Tenor</string>
+    <string name="loan_tenure">Loan Tenure</string>
     <string name="receipt">Receipt</string>
     <string name="transaction_direction">Transaction Direction</string>
     <string name="transaction_reference">Transaction Reference</string>
@@ -197,6 +197,31 @@
     <string name="loan_notice">Loans may take a day to be approved</string>
     <string name="view_requests">View Requests</string>
     <string name="select">Select</string>
+    <string name="current_balance">Current Balance</string>
+    <string name="notification">Notification</string>
+    <string name="notification_icon">Notification Icon</string>
+    <string name="notification_text">Here\'s a notification for you</string>
+    <string name="time">3:00pm</string>
+    <string name="loan">Loan</string>
+    <string name="loan_applicants">Loan Applicants</string>
+    <string name="no_applicant">No Applicant</string>
+    <string name="grant">Grant</string>
+    <string name="granted">Granted</string>
+    <string name="name">Name</string>
+    <string name="no_loan">No Loan</string>
+    <string name="no_transaction">No Transaction</string>
+    <string name="no_notification">No Notification</string>
+    <string name="loan_details">Loan Details</string>
+    <string name="loan_owner">Loan owner</string>
+    <string name="loan_reference">Loan Reference</string>
+    <string name="loan_tenure_hint">6 months</string>
+    <string name="interest">Interest</string>
+    <string name="interest_hint">18% interest</string>
+    <string name="fund_raiser">Fund Raiser</string>
+    <string name="yes">Yes</string>
+    <string name="note">Note</string>
+    <string name="apply">Apply</string>
+    <string name="repayment_amount">Repayment Amount</string>
 
 
     <string-array name="interestType">

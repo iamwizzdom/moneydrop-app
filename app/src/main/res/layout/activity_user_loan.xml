@@ -12,26 +12,34 @@
         android:background="@color/colorTransparent"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:paddingStart="@dimen/activity_horizontal_padding"
-            android:paddingEnd="@dimen/activity_horizontal_padding"
-            app:popupTheme="@style/AppTheme.NoActionBar">
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/activity_vertical_padding"
+            android:paddingEnd="@dimen/activity_vertical_padding">
 
-            <ImageView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="50dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_dark_back_arrow"
-                android:contentDescription="@string/back_button"
-                android:onClick="onBackPressed"/>
+                android:orientation="horizontal"
+                android:gravity="center|start"
+                android:onClick="onBackPressed">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_dark_back_arrow"
+                    android:contentDescription="@string/back_button"/>
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:gravity="center">
+                android:gravity="center"
+                android:layout_marginEnd="@dimen/margin_50">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -56,7 +64,7 @@
 
             </LinearLayout>
 
-        </androidx.appcompat.widget.Toolbar>
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 

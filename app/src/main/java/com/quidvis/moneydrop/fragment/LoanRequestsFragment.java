@@ -120,6 +120,10 @@ public class LoanRequestsFragment extends CustomFragment {
             loanAdapter.setLoading(true);
             getLoanRequests(state.getString("nextPage"));
         });
+        setUp();
+    }
+
+    private void setUp() {
 
         state = getState();
 
@@ -170,6 +174,8 @@ public class LoanRequestsFragment extends CustomFragment {
 
         int size = loanRequests.length();
 
+        if (!addUp) this.loans.clear();
+
         if (addUp && size <= 0) {
 
             if (loanAdapter.isLoading()) {
@@ -190,15 +196,7 @@ public class LoanRequestsFragment extends CustomFragment {
             try {
 
                 JSONObject loanRequest = loanRequests.getJSONObject(i);
-                Loan loan = new Loan();
-                loan.setId(loanRequest.getInt("id"));
-                loan.setType(loanRequest.getString("type"));
-                loan.setAmount(loanRequest.getDouble("amount"));
-                loan.setStatus(loanRequest.getString("status"));
-                loan.setDate(loanRequest.getString("date"));
-                JSONObject user = loanRequest.getJSONObject("user");
-                loan.setPicture(user.getString("picture"));
-                loan.setUserGender(Integer.parseInt(Utility.isEmpty(user.getString("gender"), "0")));
+                Loan loan = new Loan(activity, loanRequest);
                 loans.add(loan);
                 if (!addUp) continue;
                 data.getJSONArray("loans").put(loanRequest);
@@ -331,7 +329,7 @@ public class LoanRequestsFragment extends CustomFragment {
 
     @Override
     public void refresh() {
-
-        if (data == null) getLoanRequests(Objects.requireNonNull(state).getString("nextPage"));
+        if (data == null) getLoanRequests(null);
+        else setUp();
     }
 }

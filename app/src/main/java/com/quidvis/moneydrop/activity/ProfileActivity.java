@@ -100,6 +100,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         Glide.with(ProfileActivity.this)
                 .load(user.getPictureUrl())
+                .placeholder(user.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(user.getDefaultPicture())
                 .into(profilePic);

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -123,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
         Glide.with(MainActivity.this)
                 .load(user.getPictureUrl())
+                .placeholder(user.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(user.getDefaultPicture())
                 .into(profilePic);
@@ -226,6 +226,16 @@ public class MainActivity extends AppCompatActivity {
         layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_loan, null));
+        sheetLayoutModel.setText(getResources().getString(R.string.my_loans));
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            sheet.dismiss();
+            startActivity(new Intent(MainActivity.this, UserLoanActivity.class));
+        });
+
+        layoutModels.add(sheetLayoutModel);
+
+        sheetLayoutModel = new BottomSheetLayoutModel();
         sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_transactions, null));
         sheetLayoutModel.setText(getResources().getString(R.string.transactions));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
@@ -234,16 +244,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         layoutModels.add(sheetLayoutModel);
-
-//        sheetLayoutModel = new BottomSheetLayoutModel();
-//        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_wallet, null));
-//        sheetLayoutModel.setText(getResources().getString(R.string.wallet));
-//        sheetLayoutModel.setOnClickListener((sheet, v) -> {
-//            sheet.dismiss();
-//            startActivity(new Intent(MainActivity.this, WalletActivity.class));
-//        });
-//
-//        layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
         sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_bank, null));
@@ -329,38 +329,59 @@ public class MainActivity extends AppCompatActivity {
     public void showTopUpCardsDialog() {
         View view = getLayoutInflater().inflate(R.layout.topup_card_bottom_sheet_layout, null);
         CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
+
         LinearLayout cardsContainer = view.findViewById(R.id.cards_container);
-        ArrayList<Card> cards = dbHelper.getCards();
-        final String[] selectCard = {null};
-        for (Card card: cards) {
-            View view1 = getCardView(card);
-            view1.setOnClickListener(v -> {
-                for (int i = 0; i < cardsContainer.getChildCount(); i++) {
-                    View view2 = cardsContainer.getChildAt(i);
-                    if (view1.getTag().equals(view2.getTag())) {
-                        selectCard[0] = (String) view1.getTag();
-                        view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
-                    } else {
-                        view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
-                    }
-                }
-            });
-            cardsContainer.addView(view1);
-        }
+        TextView cardsEmpty = view.findViewById(R.id.cards_empty);
         CircularProgressButton btnTopUp = view.findViewById(R.id.top_up_btn);
-        btnTopUp.setOnClickListener(v -> {
 
-            if (topUpAmount < MIN_TOP_UP_AMOUNT) {
-                Utility.toastMessage(MainActivity.this, String.format("Top up amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
-                return;
+        ArrayList<Card> cards = dbHelper.getCards();
+        if (cards.size() > 0) {
+
+            cardsEmpty.setVisibility(View.GONE);
+            cardsContainer.setVisibility(View.VISIBLE);
+
+            final String[] selectCard = {null};
+
+            for (Card card: cards) {
+                View cardView = getCardView(card);
+                cardView.setOnClickListener(v -> {
+                    for (int i = 0; i < cardsContainer.getChildCount(); i++) {
+                        View view2 = cardsContainer.getChildAt(i);
+                        if (cardView.getTag().equals(view2.getTag())) {
+                            selectCard[0] = (String) cardView.getTag();
+                            view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
+                        } else {
+                            view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
+                        }
+                    }
+                });
+                cardsContainer.addView(cardView);
             }
 
-            if (selectCard[0] == null) {
-                Utility.toastMessage(MainActivity.this, "Please select a card");
-                return;
-            }
-            topUp(selectCard[0], btnTopUp, bottomSheet);
-        });
+            btnTopUp.setOnClickListener(v -> {
+
+                if (topUpAmount < MIN_TOP_UP_AMOUNT) {
+                    Utility.toastMessage(MainActivity.this, String.format("Top up amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
+                    return;
+                }
+
+                if (selectCard[0] == null) {
+                    Utility.toastMessage(MainActivity.this, "Please select a card");
+                    return;
+                }
+                topUp(selectCard[0], btnTopUp, bottomSheet);
+            });
+
+        } else {
+            cardsEmpty.setVisibility(View.VISIBLE);
+            cardsContainer.setVisibility(View.GONE);
+            btnTopUp.setText(R.string.add_card);
+            btnTopUp.setOnClickListener(v -> {
+                bottomSheet.dismiss();
+                startActivity(new Intent(MainActivity.this, CardsActivity.class));
+            });
+        }
+
         bottomSheet.show();
     }
 
@@ -386,7 +407,7 @@ public class MainActivity extends AppCompatActivity {
         cardView.setLayoutParams(params);
         cardNum.setText(String.format("****  ****  ****  %s", card.getLastFourDigits()));
         cardExp.setText(String.format("%s/%s", card.getExpMonth(), card.getExpYear()));
-        String cardBrand = Utility.isEmpty(card.getName(), Utility.ucFirst(card.getBrand()));
+        String cardBrand = Utility.castEmpty(card.getName(), Utility.ucFirst(card.getBrand()));
         cardBrand = cardBrand.toLowerCase().contains("card") ? cardBrand : String.format("%s card", cardBrand);
         cardName.setText(cardBrand);
 
@@ -438,6 +459,7 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject responseObject = object.getJSONObject("response");
 
                         double balance = responseObject.getDouble("balance");
+                        double availableBalance = responseObject.getDouble("available_balance");
                         JSONObject transaction = responseObject.getJSONObject("transaction");
 
                         int size; JSONArray transactions;
@@ -467,6 +489,7 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("available_balance", availableBalance);
                                 mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 mainFragment.setTransactions(transactions);
                                 mainFragment.saveState();
@@ -482,10 +505,11 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("available_balance", availableBalance);
                                 walletFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 walletFragment.setTransactions(transactions);
                                 walletFragment.saveState();
-                                walletFragment.setBalance(balance);
+                                walletFragment.setBalance(balance, availableBalance);
                             }
 
                         } else if (mainFragment != null) {
@@ -499,6 +523,7 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("available_balance", availableBalance);
                                 mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 mainFragment.setTransactions(transactions);
                                 mainFragment.saveState();
@@ -517,6 +542,7 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("available_balance", availableBalance);
                                 walletFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
 
                                 walletFragmentState.putString("data", walletFragmentData.toString());
@@ -534,10 +560,11 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("available_balance", availableBalance);
                                 walletFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 walletFragment.setTransactions(transactions);
                                 walletFragment.saveState();
-                                walletFragment.setBalance(balance);
+                                walletFragment.setBalance(balance, availableBalance);
                             }
 
                             Bundle mainFragmentState = Utility.getState(MainFragment.STATE_KEY);
@@ -552,6 +579,7 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("available_balance", availableBalance);
                                 mainFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
 
                                 mainFragmentState.putString("data", mainFragmentData.toString());
@@ -624,38 +652,60 @@ public class MainActivity extends AppCompatActivity {
     public void showCashOutAccountsDialog() {
         View view = getLayoutInflater().inflate(R.layout.cashout_bank_accounts_bottom_sheet_layout, null);
         CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
+
         LinearLayout accountsContainer = view.findViewById(R.id.accounts_container);
-        ArrayList<BankAccount> accounts = dbHelper.getBankAccounts();
-        final String[] selectAccount = {null};
-        for (BankAccount account: accounts) {
-            View view1 = getAccountView(account);
-            view1.setOnClickListener(v -> {
-                for (int i = 0; i < accountsContainer.getChildCount(); i++) {
-                    View view2 = accountsContainer.getChildAt(i);
-                    if (view1.getTag().equals(view2.getTag())) {
-                        selectAccount[0] = (String) view1.getTag();
-                        view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
-                    } else {
-                        view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
-                    }
-                }
-            });
-            accountsContainer.addView(view1);
-        }
+        TextView accountsEmpty = view.findViewById(R.id.accounts_empty);
         CircularProgressButton btnCashOut = view.findViewById(R.id.cash_out_btn);
-        btnCashOut.setOnClickListener(v -> {
 
-            if (cashOutAmount < MIN_TOP_UP_AMOUNT) {
-                Utility.toastMessage(MainActivity.this, String.format("Cash out amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
-                return;
+        ArrayList<BankAccount> accounts = dbHelper.getBankAccounts();
+
+        if (accounts.size() > 0) {
+
+            accountsEmpty.setVisibility(View.GONE);
+            accountsContainer.setVisibility(View.VISIBLE);
+
+            final String[] selectAccount = {null};
+            for (BankAccount account: accounts) {
+                View view1 = getAccountView(account);
+                view1.setOnClickListener(v -> {
+                    for (int i = 0; i < accountsContainer.getChildCount(); i++) {
+                        View view2 = accountsContainer.getChildAt(i);
+                        if (view1.getTag().equals(view2.getTag())) {
+                            selectAccount[0] = (String) view1.getTag();
+                            view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
+                        } else {
+                            view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
+                        }
+                    }
+                });
+                accountsContainer.addView(view1);
             }
 
-            if (selectAccount[0] == null) {
-                Utility.toastMessage(MainActivity.this, "Please select a bank account");
-                return;
-            }
-            cashOut(selectAccount[0], btnCashOut, bottomSheet);
-        });
+            btnCashOut.setOnClickListener(v -> {
+
+                if (cashOutAmount < MIN_TOP_UP_AMOUNT) {
+                    Utility.toastMessage(MainActivity.this, String.format("Cash out amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
+                    return;
+                }
+
+                if (selectAccount[0] == null) {
+                    Utility.toastMessage(MainActivity.this, "Please select a bank account");
+                    return;
+                }
+                cashOut(selectAccount[0], btnCashOut, bottomSheet);
+            });
+
+        } else {
+
+            accountsEmpty.setVisibility(View.VISIBLE);
+            accountsContainer.setVisibility(View.GONE);
+            btnCashOut.setText(R.string.add_account);
+            btnCashOut.setOnClickListener(v -> {
+                bottomSheet.dismiss();
+                startActivity(new Intent(MainActivity.this, BankAccountsActivity.class));
+            });
+        }
+
         bottomSheet.show();
     }
 
@@ -703,6 +753,7 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject responseObject = object.getJSONObject("response");
 
                         double balance = responseObject.getDouble("balance");
+                        double availableBalance = responseObject.getDouble("available_balance");
                         JSONObject transaction = responseObject.getJSONObject("transaction");
 
                         int size; JSONArray transactions;
@@ -732,6 +783,7 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("available_balance", availableBalance);
                                 mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 mainFragment.setTransactions(transactions);
                                 mainFragment.saveState();
@@ -747,10 +799,11 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("available_balance", availableBalance);
                                 walletFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 walletFragment.setTransactions(transactions);
                                 walletFragment.saveState();
-                                walletFragment.setBalance(balance);
+                                walletFragment.setBalance(balance, availableBalance);
                             }
 
                         } else if (mainFragment != null) {
@@ -764,6 +817,7 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("available_balance", availableBalance);
                                 mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 mainFragment.setTransactions(transactions);
                                 mainFragment.saveState();
@@ -782,6 +836,7 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("available_balance", availableBalance);
                                 walletFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
 
                                 walletFragmentState.putString("data", walletFragmentData.toString());
@@ -799,10 +854,11 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("available_balance", availableBalance);
                                 walletFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 walletFragment.setTransactions(transactions);
                                 walletFragment.saveState();
-                                walletFragment.setBalance(balance);
+                                walletFragment.setBalance(balance, availableBalance);
                             }
 
                             Bundle mainFragmentState = Utility.getState(MainFragment.STATE_KEY);
@@ -817,6 +873,7 @@ public class MainActivity extends AppCompatActivity {
                                 transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("available_balance", availableBalance);
                                 mainFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
 
                                 mainFragmentState.putString("data", mainFragmentData.toString());
@@ -882,7 +939,7 @@ public class MainActivity extends AppCompatActivity {
         accountView.setLayoutParams(params);
         acctNum.setText(account.getAccountNumber());
         acctName.setText(account.getAccountName());
-        bankName.setText(Utility.isEmpty(account.getBankName(), "Unknown Bank"));
+        bankName.setText(Utility.castEmpty(account.getBankName(), "Unknown Bank"));
 
         accountView.setTag(account.getRecipientCode());
         return accountView;

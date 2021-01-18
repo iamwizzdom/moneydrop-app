@@ -9,29 +9,32 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
-public class Transaction implements Serializable {
+public class Transaction {
 
     private int id;
     private double amount, fees;
-    private String reference, type, direction, currency, comment, status, date, dateTime;
+    private String reference, type, direction, currency, narration, status, date, dateTime;
     private Card card;
+    private User user;
     private final JSONObject transObject;
 
     public Transaction(Context context, JSONObject transObject) throws JSONException {
         this.transObject = transObject;
         this.setId(transObject.getInt("id"));
         this.setReference(transObject.getString("uuid"));
-        this.setType(transObject.getString("type"));
-        this.setDirection(transObject.getString("direction"));
+        this.setType(transObject.getString("type_readable"));
+        this.setDirection(transObject.getString("direction_readable"));
         this.setAmount(transObject.getDouble("amount"));
         this.setFees(transObject.getDouble("fees"));
         this.setCurrency(transObject.getString("currency"));
-        this.setComment(transObject.getString("comment"));
-        this.setStatus(transObject.getString("status"));
+        this.setNarration(transObject.getString("narration"));
+        this.setStatus(transObject.getString("status_readable"));
         this.setDate(transObject.getString("date"));
         this.setDateTime(transObject.getString("date_time"));
-        if (transObject.has("card") && !Utility.isEmpty(transObject.getString("card")).isEmpty())
+        if (transObject.has("card") && !Utility.castEmpty(transObject.getString("card")).isEmpty())
             card = new Card(context, transObject.getJSONObject("card"));
+        if (transObject.has("user") && !Utility.castEmpty(transObject.getString("user")).isEmpty())
+            user = new User(context, transObject.getJSONObject("user"));
     }
 
     public int getId() {
@@ -90,12 +93,12 @@ public class Transaction implements Serializable {
         this.currency = currency;
     }
 
-    public String getComment() {
-        return comment;
+    public String getNarration() {
+        return narration;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setNarration(String narration) {
+        this.narration = narration;
     }
 
     public String getStatus() {
@@ -128,6 +131,14 @@ public class Transaction implements Serializable {
 
     public void setCard(Card card) {
         this.card = card;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public JSONObject getTransObject() {

@@ -7,4 +7,30 @@
         <attr name="spinnerIcon" format="reference" />
         <attr name="entries" format="reference" />
     </declare-styleable>
+    <declare-styleable name="ProgressButton">
+        <attr name="btnWidth" format="dimension">
+            <enum name="fill_parent" value="-1" />
+            <enum name="match_parent" value="-1" />
+            <enum name="wrap_content" value="-2" />
+        </attr>
+        <attr name="btnHeight" format="dimension">
+            <enum name="fill_parent" value="-1" />
+            <enum name="match_parent" value="-1" />
+            <enum name="wrap_content" value="-2" />
+        </attr>
+        <attr name="btnText" format="string" />
+        <attr name="btnTextSize" format="dimension" />
+        <attr name="btnTextColor" format="reference" />
+        <attr name="btnTextStyle">
+            <flag name="normal" value="0" />
+            <flag name="bold" value="1" />
+            <flag name="italic" value="2" />
+        </attr>
+        <attr name="btnTextAllCaps" format="boolean" />
+        <attr name="btnStyle" format="reference" />
+        <attr name="btnPadding" format="dimension" />
+        <attr name="btnBackground" format="reference" />
+        <attr name="btnBackgroundTint" format="reference" />
+        <attr name="progressBarColor" format="reference" />
+    </declare-styleable>
 </resources>

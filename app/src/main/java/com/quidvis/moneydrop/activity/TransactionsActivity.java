@@ -117,6 +117,8 @@ public class TransactionsActivity extends AppCompatActivity {
 
         int size = transactions.length();
 
+        if (!addUp) this.transactions.clear();
+
         for (int i = 0; i < size; i++) {
             try {
 

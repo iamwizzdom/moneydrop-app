@@ -131,194 +131,212 @@
 
     </LinearLayout>
 
-    <ScrollView
-        android:id="@+id/content"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:paddingTop="@dimen/padding_20"
-        android:paddingBottom="@dimen/padding_10"
         app:layout_constraintTop_toBottomOf="@+id/header"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@drawable/layout_background_top_rounded"
-        android:backgroundTint="@color/colorBackground"
-        android:scrollbars="none"
-        android:orientation="vertical">
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <LinearLayout
+        <ScrollView
+            android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/padding_20"
-            android:paddingEnd="@dimen/padding_20"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:paddingTop="@dimen/padding_20"
+            android:paddingBottom="@dimen/padding_10"
+            android:background="@drawable/layout_background_top_rounded"
+            android:backgroundTint="@color/colorBackground"
+            android:scrollbars="none">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="@dimen/padding_20"
+                android:paddingEnd="@dimen/padding_20"
                 android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1.5"
-                        style="@style/text_view_style"
-                        android:gravity="start"
-                        android:text="@string/title_loans"
-                        android:textColor="@color/colorAccent"
-                        android:textSize="23sp"
-                        android:textStyle="bold"/>
+                        android:orientation="horizontal"
+                        android:weightSum="2">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight=".5"
-                        style="@style/text_view_style"
-                        android:gravity="center|end"
-                        android:text="@string/view_all"
-                        android:textColor="@color/colorAccent"
-                        android:onClick="viewAllLoanRequest"/>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            style="@style/text_view_style"
+                            android:gravity="start"
+                            android:text="@string/my_loans"
+                            android:textColor="@color/colorAccent"
+                            android:textSize="23sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight=".5"
+                            style="@style/text_view_style"
+                            android:gravity="center|end"
+                            android:text="@string/view_all"
+                            android:textColor="@color/colorAccent"
+                            android:onClick="viewAllLoanRequest"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:background="@drawable/layout_background_rounded"
+                        android:paddingStart="3dp"
+                        android:paddingEnd="3dp"
+                        android:paddingTop="@dimen/padding_5"
+                        android:paddingBottom="@dimen/padding_5">
+
+                        <LinearLayout
+                            android:id="@+id/loan_list"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone"/>
+
+                        <com.facebook.shimmer.ShimmerFrameLayout
+                            android:id="@+id/loan_request_shimmer_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:duration="800">
+
+                            <!-- Adding 7 rows of placeholders -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                                <include layout="@layout/list_placeholder" />
+                                <include layout="@layout/list_placeholder" />
+                            </LinearLayout>
+
+                        </com.facebook.shimmer.ShimmerFrameLayout>
+
+                        <TextView
+                            android:id="@+id/loan_request_empty"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:padding="@dimen/activity_vertical_margin"
+                            android:textColor="@color/colorGray"
+                            android:text="@string/no_loan"
+                            style="@style/text_view_style"
+                            android:visibility="gone"
+                            android:drawablePadding="@dimen/padding_15"
+                            app:drawableTopCompat="@drawable/ic_no_content" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/loan_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:background="@drawable/layout_background_rounded"
-                    android:paddingStart="3dp"
-                    android:paddingEnd="3dp"
-                    android:paddingTop="@dimen/padding_5"
-                    android:paddingBottom="@dimen/padding_5">
+                    android:orientation="vertical">
 
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/loan_request_shimmer_view"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:duration="800">
+                        android:orientation="horizontal"
+                        android:weightSum="2">
 
-                        <!-- Adding 7 rows of placeholders -->
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            style="@style/text_view_style"
+                            android:gravity="start"
+                            android:text="@string/transactions"
+                            android:textColor="@color/colorAccent"
+                            android:textSize="23sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight=".5"
+                            style="@style/text_view_style"
+                            android:gravity="center|end"
+                            android:text="@string/view_all"
+                            android:textColor="@color/colorAccent"
+                            android:onClick="viewAllTransaction"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:background="@drawable/layout_background_rounded"
+                        android:paddingStart="3dp"
+                        android:paddingEnd="3dp"
+                        android:paddingTop="@dimen/padding_5"
+                        android:paddingBottom="@dimen/padding_5">
+
                         <LinearLayout
+                            android:id="@+id/transaction_list"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <include layout="@layout/list_placeholder" />
-                            <include layout="@layout/list_placeholder" />
-                        </LinearLayout>
+                            android:orientation="vertical"
+                            android:visibility="gone"/>
 
-                    </com.facebook.shimmer.ShimmerFrameLayout>
+                        <com.facebook.shimmer.ShimmerFrameLayout
+                            android:id="@+id/transaction_shimmer_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:duration="800">
 
-                    <TextView
-                        android:id="@+id/loan_request_empty"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_gravity="center"
-                        android:padding="@dimen/activity_vertical_margin"
-                        android:textColor="@color/colorGray"
-                        android:text="@string/no_content"
-                        style="@style/text_view_style"
-                        android:visibility="gone"
-                        android:drawablePadding="@dimen/padding_15"
-                        app:drawableTopCompat="@drawable/ic_no_content" />
+                            <!-- Adding 7 rows of placeholders -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                                <include layout="@layout/list_placeholder" />
+                                <include layout="@layout/list_placeholder" />
+                            </LinearLayout>
+
+                        </com.facebook.shimmer.ShimmerFrameLayout>
+
+                        <TextView
+                            android:id="@+id/transaction_empty"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:padding="@dimen/activity_vertical_margin"
+                            android:textColor="@color/colorGray"
+                            android:text="@string/no_transaction"
+                            style="@style/text_view_style"
+                            android:visibility="gone"
+                            android:drawablePadding="@dimen/padding_15"
+                            app:drawableTopCompat="@drawable/ic_no_content" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
+
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
+        </ScrollView>
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1.5"
-                        style="@style/text_view_style"
-                        android:gravity="start"
-                        android:text="@string/transactions"
-                        android:textColor="@color/colorAccent"
-                        android:textSize="23sp"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight=".5"
-                        style="@style/text_view_style"
-                        android:gravity="center|end"
-                        android:text="@string/view_all"
-                        android:textColor="@color/colorAccent"
-                        android:onClick="viewAllTransaction"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/transaction_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:background="@drawable/layout_background_rounded"
-                    android:paddingStart="3dp"
-                    android:paddingEnd="3dp"
-                    android:paddingTop="@dimen/padding_5"
-                    android:paddingBottom="@dimen/padding_5">
-
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/transaction_shimmer_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:duration="800">
-
-                        <!-- Adding 7 rows of placeholders -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <include layout="@layout/list_placeholder" />
-                            <include layout="@layout/list_placeholder" />
-                        </LinearLayout>
-
-                    </com.facebook.shimmer.ShimmerFrameLayout>
-
-                    <TextView
-                        android:id="@+id/transaction_empty"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_gravity="center"
-                        android:padding="@dimen/activity_vertical_margin"
-                        android:textColor="@color/colorGray"
-                        android:text="@string/no_content"
-                        style="@style/text_view_style"
-                        android:visibility="gone"
-                        android:drawablePadding="@dimen/padding_15"
-                        app:drawableTopCompat="@drawable/ic_no_content" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-
-    </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

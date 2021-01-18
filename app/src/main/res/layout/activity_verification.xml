@@ -21,12 +21,20 @@
             android:paddingEnd="@dimen/activity_vertical_padding"
             app:popupTheme="@style/AppTheme.NoActionBar">
 
-            <ImageView
-                android:id="@+id/backBtn"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="50dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_dark_back_arrow"
-                android:contentDescription="@string/back_button" />
+                android:orientation="horizontal"
+                android:gravity="center|start"
+                android:onClick="onBackPressed">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_dark_back_arrow"
+                    android:contentDescription="@string/back_button"/>
+
+            </LinearLayout>
 
         </androidx.appcompat.widget.Toolbar>
 

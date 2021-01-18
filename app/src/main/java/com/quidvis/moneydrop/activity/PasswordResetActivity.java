@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -52,8 +53,6 @@ public class PasswordResetActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-        ImageView backBtn = toolbar.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(v -> onBackPressed());
 
         etOTP = findViewById(R.id.etOTP);
         etPassword = findViewById(R.id.etPassword);
@@ -72,12 +71,6 @@ public class PasswordResetActivity extends AppCompatActivity {
         });
 
         resetBtn.setOnClickListener(v -> resetPassword());
-    }
-
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 
     private void resetPassword() {
@@ -243,5 +236,9 @@ public class PasswordResetActivity extends AppCompatActivity {
             }
         };
         httpRequest.send();
+    }
+
+    public void onBackPressed(View view) {
+        super.onBackPressed();
     }
 }

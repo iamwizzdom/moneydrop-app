@@ -28,14 +28,7 @@ public class VerificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verification);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-        ImageView backBtn = toolbar.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(v -> {
-            if (Objects.equals(CURRENT_TAG, TAG_VERIFICATION)) onBackPressed();
-            else loadFragment(TAG_VERIFICATION);
-        });
         mHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         loadFragment(TAG_VERIFICATION);
     }
@@ -86,5 +79,10 @@ public class VerificationActivity extends AppCompatActivity {
 
         // If mPendingRunnable is not null, then add to the message queue
         mHandler.postDelayed(mPendingRunnable, 300);
+    }
+
+    public void onBackPressed(View view) {
+        if (Objects.equals(CURRENT_TAG, TAG_VERIFICATION)) onBackPressed();
+        else loadFragment(TAG_VERIFICATION);
     }
 }

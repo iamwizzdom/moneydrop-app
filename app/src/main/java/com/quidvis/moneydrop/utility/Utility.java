@@ -13,18 +13,21 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
@@ -34,11 +37,10 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
-import com.chaos.view.PinView;
 import com.google.android.material.snackbar.Snackbar;
+import com.hbb20.CountryCodePicker;
 import com.quidvis.moneydrop.BuildConfig;
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
 
 import org.json.JSONArray;
@@ -286,6 +288,26 @@ public class Utility {
     public static int getDip(Activity activity, int dip) {
         float scale = activity.getResources().getDisplayMetrics().density;
         return (int) (dip * scale + 0.5f);
+    }
+
+    public static int getViewHeight(View view) {
+        WindowManager wm = (WindowManager) view.getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+        int deviceWidth;
+
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
+            Point size = new Point();
+            display.getSize(size);
+            deviceWidth = size.x;
+        } else {
+            deviceWidth = display.getWidth();
+        }
+
+        int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(deviceWidth, View.MeasureSpec.AT_MOST);
+        int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        view.measure(widthMeasureSpec, heightMeasureSpec);
+        return view.getMeasuredHeight(); //        view.getMeasuredWidth();
     }
 
     public static void saveState(String key, Bundle state) {
@@ -669,6 +691,27 @@ public class Utility {
         return bitmap;
     }
 
+    /**
+     *
+     * @param fieldName
+     * @param className
+     * @return
+     */
+    public static Object getClassField(Object object, String fieldName) {
+        java.lang.reflect.Field[] fields = object.getClass().getDeclaredFields();
+        for (java.lang.reflect.Field field : fields) {
+            if (field.getName().equals(fieldName)) {
+                field.setAccessible(true);
+                try {
+                    return field.get(object);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
 
     /**
      * @param gender
@@ -691,8 +734,8 @@ public class Utility {
      * @param string
      * @return
      */
-    public static String isNull(String string) {
-        return isNull(string, "");
+    public static String castNull(String string) {
+        return castNull(string, "");
     }
 
     /**
@@ -700,7 +743,7 @@ public class Utility {
      * @param defaultValue
      * @return
      */
-    public static String isNull(String value, String defaultValue) {
+    public static String castNull(String value, String defaultValue) {
         return (value == null || value.equalsIgnoreCase("null") ? defaultValue : value);
     }
 
@@ -708,8 +751,8 @@ public class Utility {
      * @param string
      * @return
      */
-    public static String isEmpty(String string) {
-        return isEmpty(string, "");
+    public static String castEmpty(String string) {
+        return castEmpty(string, "");
     }
 
     /**
@@ -717,8 +760,8 @@ public class Utility {
      * @param defaultValue
      * @return
      */
-    public static String isEmpty(String value, String defaultValue) {
-        return (TextUtils.isEmpty(value = isNull(value)) ? defaultValue : value);
+    public static String castEmpty(String value, String defaultValue) {
+        return (TextUtils.isEmpty(value = castNull(value)) ? defaultValue : value);
     }
 
     public static void fadeOut(Activity activity, View view) {

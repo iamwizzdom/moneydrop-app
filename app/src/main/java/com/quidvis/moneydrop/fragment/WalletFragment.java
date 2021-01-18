@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import com.quidvis.moneydrop.activity.TransactionReceiptActivity;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
+import com.quidvis.moneydrop.model.Transaction;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
@@ -39,13 +41,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.quidvis.moneydrop.utility.Utility.getTheme;
+
 public class WalletFragment extends Fragment {
 
     public final static String STATE_KEY = WalletFragment.class.getName();
     private Activity activity;
     private User user;
     private LinearLayout transactionView;
-    private TextView transactionEmpty, walletAmount;
+    private TextView transactionEmpty, walletCurrentBalance, walletAvailableBalance;
     private SwipeRefreshLayout swipeRefreshLayout;
     ShimmerFrameLayout transactionShimmerFrameLayout;
     public JSONObject data;
@@ -71,7 +75,8 @@ public class WalletFragment extends Fragment {
 
         format.setMaximumFractionDigits(2);
 
-        walletAmount = view.findViewById(R.id.wallet_amount);
+        walletCurrentBalance = view.findViewById(R.id.current_balance);
+        walletAvailableBalance = view.findViewById(R.id.available_balance);
         transactionView = view.findViewById(R.id.transaction_list);
         transactionEmpty = view.findViewById(R.id.transaction_empty);
         transactionShimmerFrameLayout = view.findViewById(R.id.transaction_shimmer_view);
@@ -107,16 +112,16 @@ public class WalletFragment extends Fragment {
         if (data != null) {
 
             try {
-                setBalance(data.getDouble("balance"));
+                setBalance(data.getDouble("balance"), data.getDouble("available_balance"));
                 setTransactions(data.getJSONArray("transactions"));
             } catch (JSONException e) {
-                setBalance(0);
+                setBalance(0, 0);
                 getWalletData();
                 e.printStackTrace();
             }
 
         } else {
-            setBalance(0);
+            setBalance(0, 0);
             getWalletData();
         }
     }
@@ -129,6 +134,7 @@ public class WalletFragment extends Fragment {
         if (status) {
 
             transactionEmpty.setVisibility(View.GONE);
+            transactionView.setVisibility(View.GONE);
             transactionShimmerFrameLayout.setVisibility(View.VISIBLE);
             transactionShimmerFrameLayout.startShimmer();
 
@@ -137,6 +143,7 @@ public class WalletFragment extends Fragment {
             transactionShimmerFrameLayout.stopShimmer();
             transactionShimmerFrameLayout.setVisibility(View.GONE);
             transactionEmpty.setVisibility(hasContent ? View.GONE : View.VISIBLE);
+            transactionView.setVisibility(hasContent ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -148,7 +155,7 @@ public class WalletFragment extends Fragment {
         for (int i = 0; i < size; i++) {
             try {
 
-                View view = getView(trans.getJSONObject(i));
+                View view = getTransactionView(trans.getJSONObject(i));
                 if ((i == 0 && size > 1) || i > 0 && i < (size - 1)) view.setBackgroundResource(R.drawable.layout_underline);
                 transactionView.addView(view);
 
@@ -160,9 +167,13 @@ public class WalletFragment extends Fragment {
         setLoadingTransactions(false, size > 0);
     }
 
-    private View getView(JSONObject transaction) throws JSONException {
+    private View getTransactionView(JSONObject object) throws JSONException {
+
+        if (!this.isAdded()) return null;
 
         View view = getLayoutInflater().inflate(R.layout.transaction_layout, null);
+
+        Transaction transaction = new Transaction(activity, object);
 
         LinearLayout container = view.findViewById(R.id.container);
         ImageView mvIcon = view.findViewById(R.id.transaction_icon);
@@ -171,29 +182,30 @@ public class WalletFragment extends Fragment {
         TextView tvAmount = view.findViewById(R.id.transaction_amount);
         TextView tvStatus = view.findViewById(R.id.transaction_status);
 
-        ArrayMap<String, Integer> theme = Utility.getTheme(transaction.getString("status"));
+        tvType.setText(transaction.getType());
+        tvDate.setText(transaction.getDate());
+        tvAmount.setText(format.format(transaction.getAmount()));
+        tvStatus.setText(Utility.ucFirst(transaction.getStatus()));
 
-        tvType.setText(transaction.getString("type"));
-        tvDate.setText(transaction.getString("date"));
-        tvAmount.setText(format.format(transaction.getDouble("amount")));
-        tvStatus.setText(Utility.ucFirst(transaction.getString("status")));
+        ArrayMap<String, Integer> theme = getTheme(transaction.getStatus());
 
         mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
-        tvAmount.setTextColor(getResources().getColor(Objects.requireNonNull(theme.get("color"))));
+        tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
         tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
         container.setOnClickListener(v -> {
             Intent intent = new Intent(activity, TransactionReceiptActivity.class);
-            intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, transaction.toString());
-            startActivity(intent);
+            intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, object.toString());
+            activity.startActivity(intent);
         });
 
         return view;
     }
 
-    public void setBalance(double amount) {
-        walletAmount.setText(format.format(amount));
+    public void setBalance(double currentBalance, double availableBalance) {
+        walletCurrentBalance.setText(format.format(currentBalance));
+        walletAvailableBalance.setText(format.format(availableBalance));
     }
 
     private void getWalletData() {
@@ -235,7 +247,7 @@ public class WalletFragment extends Fragment {
 
                     data = new JSONObject(response);
 
-                    setBalance(data.getDouble("balance"));
+                    setBalance(data.getDouble("balance"), data.getDouble("available_balance"));
                     setTransactions(data.getJSONArray("transactions"));
 
                 } catch (JSONException e) {
@@ -305,6 +317,7 @@ public class WalletFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        started = false;
         saveState();
     }
 }

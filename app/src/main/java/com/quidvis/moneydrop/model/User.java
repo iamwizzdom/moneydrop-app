@@ -41,15 +41,15 @@ public class User {
         this.setBvn(userObject.getString("bvn"));
         this.setPicture(userObject.getString("picture"));
         this.setDob(userObject.getString("dob"));
-        this.setGender(Integer.parseInt(Utility.isNull(userObject.getString("gender"), "0")));
+        this.setGender(userObject.getInt("gender"));
         this.setAddress(userObject.getString("address"));
-        this.setCountry(userObject.getString("country_name"));
-        this.setState(userObject.getString("state_name"));
+        this.setCountry(userObject.getString("country"));
+        this.setState(userObject.getString("state"));
         this.setStatus(userObject.getInt("status"));
         JSONObject verified = userObject.getJSONObject("verified");
         this.setVerifiedEmail(verified.getBoolean("email"));
         this.setVerifiedPhone(verified.getBoolean("phone"));
-        this.setToken(userObject.getString("token"));
+        if (userObject.has("token")) this.setToken(userObject.getString("token"));
     }
 
     public int getId() {

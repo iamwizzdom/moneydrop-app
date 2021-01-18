@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:id="@+id/container"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/activity_vertical_margin"
+    android:weightSum="2">
+
+    <ImageView
+        android:id="@+id/profile_pic"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight=".3"
+        android:src="@drawable/unisex"
+        android:contentDescription="@string/notification_icon" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.7"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/notice"
+            style="@style/text_view_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/notification_text"
+            android:textColor="@color/colorGray"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/notice_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/text_view_style"
+            android:gravity="start"
+            android:textColor="@color/colorGrayDark"
+            android:text="@string/time"/>
+    </LinearLayout>
+
+</LinearLayout>

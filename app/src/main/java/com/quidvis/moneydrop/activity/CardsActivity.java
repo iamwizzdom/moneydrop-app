@@ -120,7 +120,7 @@ public class CardsActivity extends AppCompatActivity {
         cardView.setLayoutParams(params);
         cardNum.setText(String.format("****  ****  ****  %s", card.getLastFourDigits()));
         cardExp.setText(String.format("%s/%s", card.getExpMonth(), card.getExpYear()));
-        String cardBrand = Utility.isEmpty(card.getName(), Utility.ucFirst(card.getBrand()));
+        String cardBrand = Utility.castEmpty(card.getName(), Utility.ucFirst(card.getBrand()));
         cardBrand = cardBrand.toLowerCase().contains("card") ? cardBrand : String.format("%s card", cardBrand);
         cardName.setText(cardBrand);
 

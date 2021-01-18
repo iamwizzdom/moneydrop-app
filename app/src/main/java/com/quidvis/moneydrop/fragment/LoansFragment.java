@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ public class LoansFragment extends Fragment {
     private View view;
     private FragmentActivity activity;
     private final ArrayList<CustomFragment> fragments = new ArrayList<>();
+    private boolean refresh = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -139,5 +141,22 @@ public class LoansFragment extends Fragment {
             fragment.onDestroyView();
         }
         super.onDestroyView();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        refresh = true;
+    }
+
+    @Override
+    public void onResume() {
+        if (refresh) {
+            refresh = false;
+            for (CustomFragment fragment : fragments) {
+                fragment.refresh();
+            }
+        }
+        super.onResume();
     }
 }

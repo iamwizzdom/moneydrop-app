@@ -21,8 +21,8 @@
     <dimen name="text_size_medium_extra">20sp</dimen>
     <dimen name="text_size_large">22sp</dimen>
     <dimen name="text_size_extra_large">26sp</dimen>
-    <dimen name="activity_vertical_padding">35dp</dimen>
-    <dimen name="activity_horizontal_padding">35dp</dimen>
+    <dimen name="activity_vertical_padding">30dp</dimen>
+    <dimen name="activity_horizontal_padding">30dp</dimen>
 
     <dimen name="activity_padding">16dp</dimen>
     <dimen name="placeholder_image">25dp</dimen>

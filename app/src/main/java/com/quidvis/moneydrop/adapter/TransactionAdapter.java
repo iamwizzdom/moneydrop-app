@@ -69,8 +69,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 totalItemCount = Objects.requireNonNull(linearLayoutManager).getItemCount();
                 lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
 
-                if (isPermitLoadMore() && !isLoading() && lastVisibleItem >= (totalItemCount - visibleThreshold))
+                if (isPermitLoadMore() && !isLoading() && getItemCount() >= DEFAULT_RECORD_PER_VIEW
+                        && lastVisibleItem >= (totalItemCount - visibleThreshold)) {
                     if (mOnLoadMoreListener != null) mOnLoadMoreListener.onLoadMore();
+                }
 
             }
         };

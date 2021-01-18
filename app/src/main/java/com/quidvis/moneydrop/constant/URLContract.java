@@ -10,8 +10,8 @@ public class URLContract {
 
     private static final String URL_HTTP_SCHEME = "http://";
     private static final String URL_HTTPS_SCHEME = "https://";
-    public static final String URL_SCHEME = URL_HTTPS_SCHEME;
-    public static final String HOST_URL = "256031ca6ced.ngrok.io";
+    public static final String URL_SCHEME = URL_HTTP_SCHEME;
+    public static final String HOST_URL = "10.101.186.79:8000";
     public static final String BASE_URL = URL_SCHEME + HOST_URL;
     private static final String API_URL = BASE_URL + "/api/v1";
     public static final String LOGIN_URL = API_URL + "/auth/login";
@@ -26,6 +26,9 @@ public class URLContract {
     public static final String USER_LOAN_OFFERS_LIST_URL = API_URL + "/user/loan/offers";
     public static final String LOAN_REQUEST_LIST_URL = API_URL + "/loan/requests";
     public static final String LOAN_OFFERS_LIST_URL = API_URL + "/loan/offers";
+    public static final String LOAN_APPLICANTS_URL = API_URL + "/loan/%s/applicants";
+    public static final String LOAN_APPLICATION_GRANT_URL = API_URL + "/loan/%s/application/%s/grant";
+    public static final String LOAN_APPLY_URL = API_URL + "/loan/%s/apply";
     public static final String TRANSACTION_LIST_URL = API_URL + "/user/transactions";
     public static final String CARD_TRANS_LOG_URL = API_URL + "/user/card/add/reference";
     public static final String CARD_VERIFICATION_URL = API_URL + "/user/card/add/verify";
@@ -39,5 +42,6 @@ public class URLContract {
     public static final String LOAN_REQUEST_URL = API_URL + "/loan/request";
     public static final String LOAN_OFFER_URL = API_URL + "/loan/offer";
     public static final String LOAN_CONSTANTS_URL = API_URL + "/loan/constants";
+    public static final String NOTIFICATIONS_URL = API_URL + "/notifications";
 
 }

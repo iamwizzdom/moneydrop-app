@@ -47,13 +47,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-        ImageView backBtn = toolbar.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
 
         etEmail = findViewById(R.id.etEmail);
         sendOTPBtn = findViewById(R.id.sendOTPBtn);
@@ -77,16 +70,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             }
         });
 
-        sendOTPBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendOTP();
-            }
-        });
+        sendOTPBtn.setOnClickListener(v -> sendOTP());
     }
 
-    @Override
-    public void onBackPressed() {
+    public void onBackPressed(View view) {
         super.onBackPressed();
     }
 

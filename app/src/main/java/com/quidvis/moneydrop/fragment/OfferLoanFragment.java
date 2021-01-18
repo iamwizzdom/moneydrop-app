@@ -55,12 +55,12 @@ public class OfferLoanFragment extends CustomFragment {
     private Session session;
     private TextView tvInterestRate;
     private CurrencyEditText etAmount;
-    private DialogSpinner dsInterestType, dsLoanTenor;
+    private DialogSpinner dsInterestType, dsLoanTenure;
     private CircularProgressButton submitBtn;
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en","ng"));
     private int interestRate;
     private String[] interestTypeKeys;
-    private String[] loanTenorKeys;
+    private String[] loanTenureKeys;
     private final int incrementer = 500;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -81,7 +81,7 @@ public class OfferLoanFragment extends CustomFragment {
 
         LinearLayout amountList = view.findViewById(R.id.amount_list);
         tvInterestRate = view.findViewById(R.id.tvInterestRate);
-        dsLoanTenor = view.findViewById(R.id.loan_tenor);
+        dsLoanTenure = view.findViewById(R.id.loan_tenure);
         dsInterestType = view.findViewById(R.id.interest_type);
         etAmount = view.findViewById(R.id.amount);
         submitBtn = view.findViewById(R.id.submit);
@@ -155,7 +155,7 @@ public class OfferLoanFragment extends CustomFragment {
         if (loanConsts == null) getLoanConst();
         else {
             try {
-                setLoanTenor(loanConsts.getJSONObject("tenor"));
+                setLoanTenure(loanConsts.getJSONObject("tenure"));
                 setInterestType(loanConsts.getJSONObject("interest_type"));
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -180,19 +180,19 @@ public class OfferLoanFragment extends CustomFragment {
         dsInterestType.setEntries(interestTypes);
     }
 
-    private void setLoanTenor(JSONObject loanTenor) {
-        loanTenorKeys = new String[loanTenor.length()];
+    private void setLoanTenure(JSONObject loanTenure) {
+        loanTenureKeys = new String[loanTenure.length()];
         int i = 0;
-        String[] loanTenors = new String[loanTenor.length()];
-        for (Iterator<String> it = loanTenor.keys(); it.hasNext(); i++) {
-            loanTenorKeys[i] = it.next();
+        String[] loanTenures = new String[loanTenure.length()];
+        for (Iterator<String> it = loanTenure.keys(); it.hasNext(); i++) {
+            loanTenureKeys[i] = it.next();
             try {
-                loanTenors[i] = loanTenor.getString(loanTenorKeys[i]);
+                loanTenures[i] = loanTenure.getString(loanTenureKeys[i]);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-        dsLoanTenor.setEntries(loanTenors);
+        dsLoanTenure.setEntries(loanTenures);
     }
 
     private void setInterestRate(int interestRate) {
@@ -212,7 +212,7 @@ public class OfferLoanFragment extends CustomFragment {
                 params.put("amount", String.valueOf(etAmount.getNumericValue()));
                 params.put("interest", String.valueOf(OfferLoanFragment.this.interestRate));
                 if (dsInterestType.isSelected()) params.put("interest_type", interestTypeKeys[dsInterestType.getSelectedItemPosition()]);
-                if (dsLoanTenor.isSelected()) params.put("tenor", loanTenorKeys[dsLoanTenor.getSelectedItemPosition()]);
+                if (dsLoanTenure.isSelected()) params.put("tenure", loanTenureKeys[dsLoanTenure.getSelectedItemPosition()]);
                 return params;
             }
 
@@ -247,11 +247,14 @@ public class OfferLoanFragment extends CustomFragment {
 
                     if (data.getBoolean("status")) {
 
-                        JSONArray transactions; int size;
-                        double balance = data.getJSONObject("response").getDouble("balance");
-                        JSONObject loan = data.getJSONObject("response").getJSONObject("loan");
+                        JSONObject responseObject = data.getJSONObject("response");
 
-                        if (loan.has("transaction") && !Utility.isEmpty(loan.getString("transaction")).isEmpty()) {
+                        JSONArray transactions, loans; int size;
+                        double balance = responseObject.getDouble("balance");
+                        double availableBalance = responseObject.getDouble("available_balance");
+                        JSONObject loan = responseObject.getJSONObject("loan");
+
+                        if (loan.has("transaction") && !Utility.castEmpty(loan.getString("transaction")).isEmpty()) {
 
                             JSONObject transaction = loan.getJSONObject("transaction");
 
@@ -262,11 +265,17 @@ public class OfferLoanFragment extends CustomFragment {
 
                                 JSONObject mainFragmentData = new JSONObject(mainFragmentStringData);
 
+                                mainFragmentData.put("balance", balance);
+                                mainFragmentData.put("available_balance", availableBalance);
+
+                                loans = mainFragmentData.getJSONArray("loans");
+                                size = loans.length();
+                                loans.remove(size - 1);
+                                mainFragmentData.put("loans", Utility.prependJSONObject(loans, loan));
+
                                 transactions = mainFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
                                 transactions.remove(size - 1);
-
-                                mainFragmentData.put("balance", balance);
                                 mainFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
 
                                 mainFragmentState.putString("data", mainFragmentData.toString());
@@ -285,6 +294,7 @@ public class OfferLoanFragment extends CustomFragment {
                                 transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
+                                walletFragmentData.put("available_balance", availableBalance);
                                 walletFragmentData.put("transactions", Utility.prependJSONObject(transactions, transaction));
 
                                 walletFragmentState.putString("data", walletFragmentData.toString());
@@ -390,7 +400,7 @@ public class OfferLoanFragment extends CustomFragment {
 
                     JSONObject data = new JSONObject(response);
                     session.setJSONObject("loan_consts", data);
-                    setLoanTenor(data.getJSONObject("tenor"));
+                    setLoanTenure(data.getJSONObject("tenure"));
                     setInterestType(data.getJSONObject("interest_type"));
 
                 } catch (JSONException e) {

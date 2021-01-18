@@ -131,15 +131,15 @@
             </HorizontalScrollView>
 
             <com.quidvis.moneydrop.utility.view.DialogSpinner
-                android:id="@+id/loan_tenor"
+                android:id="@+id/loan_tenure"
                 style="@style/edit_text_stroked_style"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_20"
-                app:dialogTitle="@string/loan_tenor"
+                app:dialogTitle="@string/loan_tenure"
                 app:spinnerIcon="@drawable/ic_arrows"
-                app:spinnerPlaceholder="@string/loan_tenor"
-                android:contentDescription="@string/loan_tenor" />
+                app:spinnerPlaceholder="@string/loan_tenure"
+                android:contentDescription="@string/loan_tenure" />
 
             <com.quidvis.moneydrop.utility.view.DialogSpinner
                 android:id="@+id/interest_type"

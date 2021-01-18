@@ -66,7 +66,7 @@ public class CustomBottomAlertDialog {
     }
 
     public void setPositiveButton(CharSequence text) {
-        setPositiveButton(text, null);
+        setPositiveButton(text, (View.OnClickListener) null);
     }
 
     public void setPositiveButton(CharSequence text, final View.OnClickListener listener) {
@@ -81,8 +81,20 @@ public class CustomBottomAlertDialog {
         dialogBtnPositive.setOnClickListener(onClickListener);
     }
 
+    public void setPositiveButton(CharSequence text, final OnClickListener listener) {
+        dialogBtnPositive.setVisibility(View.VISIBLE);
+        dialogBtnPositive.setText(text);
+
+        View.OnClickListener onClickListener = v -> {
+            if (listener != null) listener.onClick(v, dialogView);
+            detach();
+        };
+
+        dialogBtnPositive.setOnClickListener(onClickListener);
+    }
+
     public void setNegativeButton(CharSequence text) {
-        setNegativeButton(text, null);
+        setNegativeButton(text, (View.OnClickListener) null);
     }
 
     public void setNegativeButton(CharSequence text, final View.OnClickListener listener) {
@@ -97,7 +109,19 @@ public class CustomBottomAlertDialog {
         dialogBtnNegative.setOnClickListener(onClickListener);
     }
 
-    public void setView(View view) {
+    public void setNegativeButton(CharSequence text, final OnClickListener listener) {
+        dialogBtnNegative.setVisibility(View.VISIBLE);
+        dialogBtnNegative.setText(text);
+
+        View.OnClickListener onClickListener = v -> {
+            if (listener != null) listener.onClick(v, dialogView);
+            detach();
+        };
+
+        dialogBtnNegative.setOnClickListener(onClickListener);
+    }
+
+    public void addView(View view) {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         view.setLayoutParams(params);
@@ -110,5 +134,9 @@ public class CustomBottomAlertDialog {
 
     private void detach() {
         bottomSheet.dismiss();
+    }
+
+    public interface OnClickListener {
+        void onClick(View btnView, View dialogView);
     }
 }

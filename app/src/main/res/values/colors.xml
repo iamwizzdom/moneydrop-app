@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#e04805</color>
     <color name="colorPrimaryTransparent">#85E04805</color>
     <color name="colorAccent">#e04805</color>
+    <color name="colorAccentLight">#DF6530</color>
 
     <color name="colorPrimaryShadow">#52E04805</color>
     <color name="colorTabTint">#e9c5b5</color>

@@ -69,9 +69,6 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_registration);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        ImageView backBtn = toolbar.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(v -> onBackPressed());
 
         session = new Session(this);
         dbHelper = new DbHelper(this);
@@ -118,7 +115,7 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
 
         final String firstname = Objects.requireNonNull(etFirstname.getText()).toString();
         final String lastname = Objects.requireNonNull(etLastname.getText()).toString();
-        final String phone = ccp.getFullNumber();
+        final String phone = ccp.getFullNumberWithPlus();
         final String password = Objects.requireNonNull(etPassword.getText()).toString();
         final String confirmPassword = Objects.requireNonNull(etConfirmPassword.getText()).toString();
         final String dob = Objects.requireNonNull(etDOB.getText()).toString();
@@ -374,5 +371,9 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
         Utility.clearFocus(etPhone, this);
         Utility.clearFocus(etPassword, this);
         Utility.clearFocus(etConfirmPassword, this);
+    }
+
+    public void onBackPressed(View view) {
+        super.onBackPressed();
     }
 }

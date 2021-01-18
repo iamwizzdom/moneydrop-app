@@ -12,57 +12,56 @@
         android:background="@color/colorTransparent"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:paddingStart="@dimen/activity_horizontal_padding"
-            android:paddingEnd="@dimen/padding_10"
-            app:popupTheme="@style/AppTheme.NoActionBar">
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:paddingStart="@dimen/activity_vertical_padding"
+            android:paddingEnd="@dimen/activity_vertical_padding">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight=".5"
                 android:orientation="horizontal"
-                android:weightSum="2">
+                android:gravity="center|start"
+                android:onClick="onBackPressed">
 
                 <ImageView
-                    android:id="@+id/backBtn"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight=".15"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:src="@drawable/ic_dark_back_arrow"
-                    android:contentDescription="@string/back_button"
-                    android:onClick="onBackPressed"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1.45"
-                    style="@style/text_view_style"
-                    android:paddingStart="@dimen/padding_50"
-                    android:paddingEnd="0dp"
-                    android:gravity="center"
-                    android:text="@string/receipt"
-                    android:fontFamily="@font/campton_bold"
-                    android:textColor="@color/titleColorGray"
-                    android:textStyle="bold"
-                    android:textSize="20sp"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight=".4"
-                    style="@style/text_view_style"
-                    android:gravity="end|center"
-                    android:text="@string/save"
-                    android:fontFamily="@font/campton_medium"
-                    android:textColor="@color/colorAccent"
-                    android:onClick="layoutToImage"/>
+                    android:contentDescription="@string/back_button"/>
 
             </LinearLayout>
 
-        </androidx.appcompat.widget.Toolbar>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.7"
+                android:paddingStart="0dp"
+                android:paddingEnd="@dimen/padding_50"
+                style="@style/text_view_style"
+                android:gravity="end|center"
+                android:text="@string/receipt"
+                android:fontFamily="@font/campton_bold"
+                android:textColor="@color/titleColorGray"
+                android:textStyle="bold"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".8"
+                style="@style/text_view_style"
+                android:gravity="end|center"
+                android:text="@string/save"
+                android:fontFamily="@font/campton_medium"
+                android:textColor="@color/colorAccent"
+                android:onClick="layoutToImage" />
+
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 

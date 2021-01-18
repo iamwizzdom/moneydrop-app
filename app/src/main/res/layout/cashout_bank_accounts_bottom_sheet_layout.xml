@@ -27,6 +27,20 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/accounts_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:padding="@dimen/activity_vertical_margin"
+        android:textColor="@color/colorGray"
+        android:text="@string/no_content"
+        style="@style/text_view_style"
+        android:visibility="gone"
+        android:drawablePadding="@dimen/padding_15"
+        app:drawableTopCompat="@drawable/ic_no_content" />
+
     <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
         android:id="@+id/cash_out_btn"
         android:layout_width="wrap_content"

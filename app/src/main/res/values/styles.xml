@@ -147,6 +147,32 @@
         <item name="android:background">@drawable/button_rounded_background</item>
     </style>
 
+    <style name="button_style_default">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/pendingColor</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:fontFamily">@font/campton_light</item>
+        <item name="android:background">@drawable/button_border_default</item>
+    </style>
+
+    <style name="button_style_success">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/successColor</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:fontFamily">@font/campton_light</item>
+        <item name="android:background">@drawable/button_border_success</item>
+    </style>
+
     <style name="button_style_info">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">30dp</item>

@@ -57,7 +57,7 @@ public class LoanOffersFragment extends CustomFragment {
     private final ArrayList<Loan> loans = new ArrayList<>();
 
     private final static String STATE_KEY = LoanOffersFragment.class.getName();
-    private static Bundle state = null;
+    private Bundle state = null;
     private JSONObject data;
 
     private boolean refreshing = false;
@@ -122,6 +122,11 @@ public class LoanOffersFragment extends CustomFragment {
             getLoanOffers(state.getString("nextPage"));
         });
 
+        setUp();
+    }
+
+    private void setUp() {
+
         state = getState();
 
         if (state != null && state.size() > 0) {
@@ -171,6 +176,8 @@ public class LoanOffersFragment extends CustomFragment {
 
         int size = loanOffers.length();
 
+        if (!addUp) this.loans.clear();
+
         if (addUp && size <= 0) {
 
             if (loanAdapter.isLoading()) {
@@ -191,15 +198,7 @@ public class LoanOffersFragment extends CustomFragment {
             try {
 
                 JSONObject loanOffer = loanOffers.getJSONObject(i);
-                Loan loan = new Loan();
-                loan.setId(loanOffer.getInt("id"));
-                loan.setType(loanOffer.getString("type"));
-                loan.setAmount(loanOffer.getDouble("amount"));
-                loan.setStatus(loanOffer.getString("status"));
-                loan.setDate(loanOffer.getString("date"));
-                JSONObject user = loanOffer.getJSONObject("user");
-                loan.setPicture(user.getString("picture"));
-                loan.setUserGender(Integer.parseInt(Utility.isEmpty(user.getString("gender"), "0")));
+                Loan loan = new Loan(activity, loanOffer);
                 loans.add(loan);
                 if (!addUp) continue;
                 data.getJSONArray("loans").put(loanOffer);
@@ -342,6 +341,7 @@ public class LoanOffersFragment extends CustomFragment {
 
     @Override
     public void refresh() {
-        if (data == null) getLoanOffers(Objects.requireNonNull(state).getString("nextPage"));
+        if (data == null) getLoanOffers(null);
+        else setUp();
     }
 }

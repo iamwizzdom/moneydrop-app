@@ -12,12 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.activity.ProfileActivity;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.utility.Utility;
-
-import java.util.Objects;
 
 public class ProfileOptionFragment extends Fragment {
 
@@ -54,6 +51,6 @@ public class ProfileOptionFragment extends Fragment {
         tvPhone.setText(user.getPhone());
         tvEmail.setText(user.getEmail());
         tvDob.setText(user.getDob());
-        tvBvn.setText(Utility.isEmpty(user.getBvn(), "Not set"));
+        tvBvn.setText(Utility.castEmpty(user.getBvn(), "Not set"));
     }
 }
