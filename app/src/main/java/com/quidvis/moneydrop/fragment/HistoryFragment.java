@@ -1,7 +1,10 @@
 package com.quidvis.moneydrop.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,25 +14,15 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
 import com.android.volley.Request;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
-import com.quidvis.moneydrop.activity.UserLoanActivity;
-import com.quidvis.moneydrop.adapter.LoanAdapter;
-import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
+import com.quidvis.moneydrop.adapter.HistoryAdapter;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
-import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.model.Loan;
+import com.quidvis.moneydrop.model.LoanApplication;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 
@@ -42,28 +35,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static android.app.Activity.RESULT_OK;
-import static com.quidvis.moneydrop.activity.LoanDetailsActivity.LOAN_OBJECT_KEY;
-import static com.quidvis.moneydrop.activity.LoanDetailsActivity.LOAN_POSITION_KEY;
-
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link LoanRequestsFragment#newInstance} factory method to
+ * Use the {@link HistoryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LoanRequestsFragment extends CustomFragment {
+public class HistoryFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
 
     private FragmentActivity activity;
     private DbHelper dbHelper;
-    private LoanAdapter loanAdapter;
-    private ViewPagerAdapter viewPagerAdapter;
-    private final ArrayList<Loan> loans = new ArrayList<>();
+    private HistoryAdapter historyAdapter;
+    private final ArrayList<LoanApplication> loanApplications = new ArrayList<>();
 
-    private final static String STATE_KEY = LoanRequestsFragment.class.getName();
+    private final static String STATE_KEY = HistoryFragment.class.getName();
     private Bundle state = null;
     private JSONObject data;
+    private static boolean started = false;
 
     private boolean refreshing = false;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -71,9 +60,7 @@ public class LoanRequestsFragment extends CustomFragment {
     private ShimmerFrameLayout shimmerFrameLayout;
     private RecyclerView recyclerView;
 
-    public static final int LOAN_REQUEST_DETAILS_KEY = 130;
-
-    public LoanRequestsFragment() {
+    public HistoryFragment() {
         // Required empty public constructor
     }
 
@@ -81,24 +68,23 @@ public class LoanRequestsFragment extends CustomFragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment LoanRequestsFragment.
+     * @return A new instance of fragment LoanOffersFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static LoanRequestsFragment newInstance() {
-        return new LoanRequestsFragment();
+    public static HistoryFragment newInstance() {
+        return new HistoryFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(getResources().getString(R.string.loan_requests));
-        setSubtitle(getResources().getString(R.string.no_record));
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_loan_requests, container, false);
+        return inflater.inflate(R.layout.fragment_history, container, false);
     }
 
     @Override
@@ -107,61 +93,35 @@ public class LoanRequestsFragment extends CustomFragment {
 
         activity = requireActivity();
         dbHelper = new DbHelper(activity);
-        viewPagerAdapter = getViewPagerAdapter();
-
-//        if (viewPagerAdapter != null) viewPagerAdapter.notifyDataSetChanged(getPosition());
 
         tvNoContent = view.findViewById(R.id.no_content);
         shimmerFrameLayout = view.findViewById(R.id.shimmer_view);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             setRefreshing(true);
-            getLoanRequests(null);
+            getHistory(null);
         });
 
-        recyclerView = view.findViewById(R.id.loan_requests_list);
+        recyclerView = view.findViewById(R.id.history_list);
 
-        loanAdapter = new LoanAdapter(recyclerView, this, loans);
-        recyclerView.setAdapter(loanAdapter);
-        loanAdapter.setOnLoadMoreListener(() -> {
-            loanAdapter.setLoading(true);
-            getLoanRequests(state.getString("nextPage"));
+        historyAdapter = new HistoryAdapter(recyclerView, activity, loanApplications);
+        recyclerView.setAdapter(historyAdapter);
+        historyAdapter.setOnLoadMoreListener(() -> {
+            historyAdapter.setLoading(true);
+            getHistory(state.getString("nextPage"));
         });
-        setUp();
+
+        ((MainActivity) activity).setCustomTitle(getResources().getString(R.string.history));
+        ((MainActivity) activity).setCustomSubtitle(getResources().getString(R.string.no_record));
+
+        start();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private void start() {
 
-        if (resultCode != RESULT_OK || data == null) {
-            Utility.toastMessage(activity, "Failed to capture new loan data.");
-            return;
-        }
+        if (started) return;
 
-        if (requestCode == LOAN_REQUEST_DETAILS_KEY) {
-
-            int loanKey = data.getIntExtra(LOAN_POSITION_KEY, 0);
-            String loanString = data.getStringExtra(LOAN_OBJECT_KEY);
-
-            if (loanString == null) {
-                Utility.toastMessage(activity, "No loan passed");
-                return;
-            }
-
-            try {
-                JSONObject loanObject = new JSONObject(loanString);
-                Loan loan = new Loan(activity, loanObject);
-                loans.set(loanKey, loan);
-                loanAdapter.notifyDataSetChanged();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Utility.toastMessage(activity, "Invalid loan passed");
-            }
-        }
-    }
-
-    private void setUp() {
+        started = true;
 
         state = getState();
 
@@ -176,14 +136,14 @@ public class LoanRequestsFragment extends CustomFragment {
         if (data != null) {
 
             try {
-                setLoanRequests(data.getJSONArray("loans"), false);
+                setNotifications(data.getJSONArray("applications"), false);
             } catch (JSONException e) {
-                getLoanRequests(Objects.requireNonNull(state).getString("nextPage"));
+                getHistory(Objects.requireNonNull(state).getString("nextPage"));
                 e.printStackTrace();
             }
 
         } else {
-            getLoanRequests(Objects.requireNonNull(state).getString("nextPage"));
+            getHistory(Objects.requireNonNull(state).getString("nextPage"));
         }
     }
 
@@ -208,36 +168,35 @@ public class LoanRequestsFragment extends CustomFragment {
         }
     }
 
-    private void setLoanRequests(JSONArray loanRequests, boolean addUp) {
+    private void setNotifications(JSONArray applications, boolean addUp) {
 
-        int size = loanRequests.length();
+        int size = applications.length();
 
-        if (!addUp) this.loans.clear();
+        if (!addUp) this.loanApplications.clear();
 
         if (addUp && size <= 0) {
 
-            if (loanAdapter.isLoading()) {
+            if (historyAdapter.isLoading()) {
                 setLoading(false, true);
-                loanAdapter.setLoading(false);
-                loanAdapter.setPermitLoadMore(false);
-                loans.add(null);
-                loanAdapter.notifyItemInserted(loans.size() - 1);
+                historyAdapter.setLoading(false);
+                historyAdapter.setPermitLoadMore(false);
+                this.loanApplications.add(null);
+                historyAdapter.notifyItemInserted(this.loanApplications.size() - 1);
             }
 
             return;
         }
 
-        if (loanAdapter.isLoading()) loanAdapter.setLoading(false);
-        loanAdapter.setPermitLoadMore(true);
+        if (historyAdapter.isLoading()) historyAdapter.setLoading(false);
+        historyAdapter.setPermitLoadMore(true);
 
         for (int i = 0; i < size; i++) {
             try {
 
-                JSONObject loanRequest = loanRequests.getJSONObject(i);
-                Loan loan = new Loan(activity, loanRequest);
-                loans.add(loan);
+                LoanApplication application = new LoanApplication(activity, applications.getJSONObject(i));
+                this.loanApplications.add(application);
                 if (!addUp) continue;
-                data.getJSONArray("loans").put(loanRequest);
+                data.getJSONArray("applications").put(application.getApplicationObject());
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -245,17 +204,24 @@ public class LoanRequestsFragment extends CustomFragment {
         }
 
         setLoading(false, size > 0);
-        size = loans.size();
-        setSubtitle((size > 0) ? String.format("%s %s", size, (size > 1 ? "records" : "record")) : activity.getResources().getString(R.string.no_record));
-        loanAdapter.notifyDataSetChanged();
-        if (viewPagerAdapter != null) viewPagerAdapter.notifyDataSetChanged(getPosition());
+        size = this.loanApplications.size();
+        ((MainActivity) activity).setCustomSubtitle((size > 0) ? String.format("%s %s", size, (size > 1 ? "records" : "record")) : activity.getResources().getString(R.string.no_record));
+        historyAdapter.notifyDataSetChanged();
     }
 
-    private void getLoanRequests(String nextPage) {
+    private void getHistory(String nextPage) {
+
+        if (nextPage != null && nextPage.equals("#")) {
+            setLoading(false, true);
+            historyAdapter.setLoading(false);
+            historyAdapter.setPermitLoadMore(false);
+            loanApplications.add(null);
+            historyAdapter.notifyItemInserted(loanApplications.size() - 1);
+            return;
+        }
 
         HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
-                nextPage != null ? URLContract.BASE_URL + nextPage : (activity instanceof UserLoanActivity ?
-                        URLContract.USER_LOAN_REQUEST_LIST_URL : URLContract.LOAN_REQUEST_LIST_URL),
+                nextPage != null ? (URLContract.BASE_URL + nextPage) : URLContract.HISTORY_URL,
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override
@@ -293,7 +259,7 @@ public class LoanRequestsFragment extends CustomFragment {
                 try {
 
                     JSONObject object = new JSONObject(response);
-                    setLoanRequests(object.getJSONArray("loans"), data != null);
+                    setNotifications(object.getJSONArray("applications"), data != null);
                     state.putString("nextPage", object.getJSONObject("pagination").getString("nextPage"));
                     if (data == null) data = object;
 
@@ -329,6 +295,7 @@ public class LoanRequestsFragment extends CustomFragment {
         };
 
         httpRequest.send();
+
     }
 
     public boolean isRefreshing() {
@@ -342,15 +309,13 @@ public class LoanRequestsFragment extends CustomFragment {
             data = null;
             state.putBundle("data", null);
             state.putString("nextPage", null);
-            loans.clear();
-            if (!loanAdapter.isPermitLoadMore()) loanAdapter.setPermitLoadMore(true);
+            loanApplications.clear();
+            if (!historyAdapter.isPermitLoadMore()) historyAdapter.setPermitLoadMore(true);
         }
     }
 
     public Bundle getState() {
-        String stateKey = activity instanceof MainActivity ? MainActivity.STATE_KEY : UserLoanActivity.STATE_KEY;
-        stateKey += ("-" + STATE_KEY);
-        return Utility.getState(stateKey);
+        return Utility.getState(STATE_KEY);
     }
 
     public Bundle getCurrentState() {
@@ -360,14 +325,25 @@ public class LoanRequestsFragment extends CustomFragment {
     }
 
     public void saveState() {
-        String stateKey = activity instanceof MainActivity ? MainActivity.STATE_KEY : UserLoanActivity.STATE_KEY;
-        stateKey += ("-" + STATE_KEY);
-        Utility.saveState(stateKey, getCurrentState());
+        Utility.saveState(STATE_KEY, getCurrentState());
     }
 
     @Override
-    public void refresh() {
-        if (data == null) getLoanRequests(null);
-        else setUp();
+    public void onPause() {
+        super.onPause();
+        started = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        start();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        started = false;
+        saveState();
     }
 }

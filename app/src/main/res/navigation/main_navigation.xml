@@ -31,6 +31,11 @@
         tools:layout="@layout/fragment_request_loan_central" />
 
     <fragment
+        android:id="@+id/nav_history"
+        android:name="com.quidvis.moneydrop.fragment.HistoryFragment"
+        tools:layout="@layout/fragment_history" />
+
+    <fragment
         android:id="@+id/nav_notification"
         android:name="com.quidvis.moneydrop.fragment.NotificationFragment"
         tools:layout="@layout/fragment_notification" />

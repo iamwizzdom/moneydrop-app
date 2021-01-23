@@ -16,7 +16,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -38,7 +37,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.hbb20.CountryCodePicker;
 import com.quidvis.moneydrop.BuildConfig;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
@@ -248,29 +246,33 @@ public class Utility {
     }
 
     public static ArrayMap<String, Integer> getTheme(String status) {
+        return getTheme(status, false);
+    }
+
+    public static ArrayMap<String, Integer> getTheme(String status, boolean isIncoming) {
         ArrayMap<String, Integer> theme = new ArrayMap<>();
         switch (status.toLowerCase()) {
             case "inactive":
             case "pending":
-                theme.put("icon", R.drawable.ic_transaction_outgoing_pending);
+                theme.put("icon", isIncoming ? R.drawable.ic_incoming_pending : R.drawable.ic_outgoing_pending);
                 theme.put("color", R.color.pendingColor);
                 theme.put("badge", R.style.tag_pending);
                 theme.put("background", R.drawable.tag_pending);
                 break;
             case "processing":
-                theme.put("icon", R.drawable.ic_transaction_outgoing_warning);
+                theme.put("icon", isIncoming ? R.drawable.ic_incoming_warning : R.drawable.ic_outgoing_warning);
                 theme.put("color", R.color.warningColor);
                 theme.put("badge", R.style.tag_warning);
                 theme.put("background", R.drawable.tag_warning);
                 break;
             case "successful":
-                theme.put("icon", R.drawable.ic_transaction_outgoing_success);
+                theme.put("icon", isIncoming ? R.drawable.ic_incoming_success : R.drawable.ic_outgoing_success);
                 theme.put("color", R.color.successColor);
                 theme.put("badge", R.style.tag_success);
                 theme.put("background", R.drawable.tag_success);
                 break;
             default:
-                theme.put("icon", R.drawable.ic_transaction_outgoing_danger);
+                theme.put("icon", isIncoming ? R.drawable.ic_incoming_danger : R.drawable.ic_outgoing_danger);
                 theme.put("color", R.color.dangerColor);
                 theme.put("badge", R.style.tag_danger);
                 theme.put("background", R.drawable.tag_danger);

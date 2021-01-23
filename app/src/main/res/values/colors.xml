@@ -15,6 +15,7 @@
     <color name="colorBlackLight">#6a5c54</color>
     <color name="colorButton">#e04805</color>
     <color name="colorFragment">#eef5f9</color>
+    <color name="colorLayoutStroke">#eae9e8</color>
     <color name="colorBackground">#f7f7f7</color>
     <color name="colorGray">#808080</color>
     <color name="colorGrayExtraDark">#67686c</color>
@@ -32,6 +33,7 @@
 
     <!-- bootstrap colors -->
     <color name="successBackground">#b6dfc3</color>
+    <color name="successBackgroundLight">#ddf2e4</color>
     <color name="successBorder">#AFDDBE</color>
     <color name="successColor">#199739</color>
 

@@ -1,37 +1,30 @@
 package com.quidvis.moneydrop.adapter;
 
-import android.content.Context;
-import android.content.Intent;
+import android.app.Activity;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.activity.LoanDetailsActivity;
-import com.quidvis.moneydrop.fragment.LoanOffersFragment;
-import com.quidvis.moneydrop.fragment.LoanRequestsFragment;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
 import com.quidvis.moneydrop.model.Loan;
-import com.quidvis.moneydrop.model.User;
+import com.quidvis.moneydrop.model.LoanApplication;
+import com.quidvis.moneydrop.model.Notification;
 import com.quidvis.moneydrop.utility.Utility;
 
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Objects;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.quidvis.moneydrop.constant.Constant.DEFAULT_RECORD_PER_VIEW;
 import static com.quidvis.moneydrop.utility.Utility.getTheme;
@@ -42,7 +35,7 @@ import static com.quidvis.moneydrop.utility.Utility.getTheme;
  * Time: 12:33 AM
  */
 
-public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
@@ -52,20 +45,16 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private int lastVisibleItem, totalItemCount;
     private final RecyclerView recyclerView;
     private final RecyclerView.OnScrollListener mOnScrollListener;
-
+    private final Activity activity;
+    private final List<LoanApplication> applications;
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en", "ng"));
-    private final Fragment fragment;
-    private final Context context;
-    private final List<Loan> loanList;
 
     //Constructor
-    public LoanAdapter(RecyclerView recyclerView, Fragment fragment, List<Loan> loanList) {
+    public HistoryAdapter(RecyclerView recyclerView, Activity activity, List<LoanApplication> applications) {
 
-        this.fragment = fragment;
-        this.context = fragment.getContext();
-        this.loanList = loanList;
+        this.activity = activity;
+        this.applications = applications;
         this.recyclerView = recyclerView;
-        format.setMaximumFractionDigits(0);
 
         final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
@@ -96,7 +85,7 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemViewType(int position) {
         int VIEW_TYPE_NO_MORE_RECORD = 2;
-        return loanList.get(position) == null ? (isLoading() ? VIEW_TYPE_LOADING : VIEW_TYPE_NO_MORE_RECORD) : VIEW_TYPE_ITEM;
+        return applications.get(position) == null ? (isLoading() ? VIEW_TYPE_LOADING : VIEW_TYPE_NO_MORE_RECORD) : VIEW_TYPE_ITEM;
     }
 
     @NonNull
@@ -106,19 +95,19 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (viewType == VIEW_TYPE_ITEM) {
 
             return new ParentViewHolder(
-                    LayoutInflater.from(context).inflate(R.layout.loan_layout, parent, false)
+                    LayoutInflater.from(activity).inflate(R.layout.history_layout, parent, false)
             );
 
         } else if (viewType == VIEW_TYPE_LOADING) {
 
             return new LoadingViewHolder(
-                    LayoutInflater.from(context).inflate(R.layout.loader, parent, false)
+                    LayoutInflater.from(activity).inflate(R.layout.loader, parent, false)
             );
 
         }
 
         return new NoMoreRecordViewHolder(
-                LayoutInflater.from(context).inflate(R.layout.no_more_record, parent, false)
+                LayoutInflater.from(activity).inflate(R.layout.no_more_record, parent, false)
         );
     }
 
@@ -127,44 +116,30 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         if (holder instanceof ParentViewHolder) {
 
-            Loan loan = this.loanList.get(position);
+            LoanApplication application = this.applications.get(position);
             ParentViewHolder parentViewHolder = (ParentViewHolder) holder;
 
-            String type = String.format("Loan %s", loan.getType());;
+            Loan loan = application.getLoan();
+            String type = String.format("Loan %s", loan.getType());
 
             if (loan.isMine()) type += " (Me)";
 
             parentViewHolder.tvType.setText(type);
-            parentViewHolder.tvDate.setText(loan.getDate());
-            parentViewHolder.tvAmount.setText(format.format(loan.getAmount()));
-            parentViewHolder.tvStatus.setText(Utility.ucFirst(loan.getStatus()));
+            parentViewHolder.tvDate.setText(application.getDate());
+            parentViewHolder.tvAmount.setText(format.format(application.getLoan().getAmount()));
+            parentViewHolder.tvStatus.setText(Utility.ucFirst(application.isGranted() ? "Granted" : "Awaiting"));
 
-            ArrayMap<String, Integer> theme = getTheme(loan.getStatus());
+            ArrayMap<String, Integer> theme = getTheme(application.isGranted() ? "successful" : "pending", loan.isMine());
 
-            User user = loan.getUser();
-            Glide.with(fragment)
-                    .load(user.getPictureUrl())
-                    .placeholder(user.getDefaultPicture())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .error(user.getDefaultPicture())
-                    .apply(new RequestOptions().override(150, 150))
-                    .into(parentViewHolder.mvPic);
-
-            parentViewHolder.tvAmount.setTextColor(fragment.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-            parentViewHolder.tvStatus.setTextAppearance(context, Objects.requireNonNull(theme.get("badge")));
+            parentViewHolder.mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
+            parentViewHolder.tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
+            parentViewHolder.tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
             parentViewHolder.tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
             int size = getItemCount();
 
             if ((position == 0 && size > 1) || position > 0 && position < (size - 1))
                 parentViewHolder.container.setBackgroundResource(R.drawable.layout_underline);
-
-            parentViewHolder.container.setOnClickListener(v -> {
-                Intent intent = new Intent(context, LoanDetailsActivity.class);
-                intent.putExtra(LoanDetailsActivity.LOAN_POSITION_KEY, position);
-                intent.putExtra(LoanDetailsActivity.LOAN_OBJECT_KEY, loan.getLoanObject().toString());
-                fragment.startActivityForResult(intent, loan.getType().equals("offer") ? LoanOffersFragment.LOAN_OFFER_DETAILS_KEY : LoanRequestsFragment.LOAN_REQUEST_DETAILS_KEY);
-            });
 
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -177,7 +152,7 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return loanList != null ? loanList.size() : 0;
+        return applications != null ? applications.size() : 0;
     }
 
     public boolean isPermitLoadMore() {
@@ -197,14 +172,14 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (loaded) {
 
             recyclerView.clearOnScrollListeners();
-            loanList.add(null);
+            applications.add(null);
             this.notifyItemInserted((getItemCount() - 1));
 
         } else if (isLoading()) {
 
             int currentSize = getItemCount();
             if (currentSize > 0) {
-                loanList.remove((currentSize - 1));
+                applications.remove((currentSize - 1));
                 this.notifyItemRemoved(currentSize);
             }
             recyclerView.addOnScrollListener(mOnScrollListener);
@@ -233,13 +208,13 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static class ParentViewHolder extends RecyclerView.ViewHolder {
 
         public final LinearLayout container;
-        public final CircleImageView mvPic;
+        public final ImageView mvIcon;
         public final TextView tvType, tvDate, tvAmount, tvStatus;
 
         public ParentViewHolder(View view) {
             super(view);
             container = view.findViewById(R.id.container);
-            mvPic = view.findViewById(R.id.profile_pic);
+            mvIcon = view.findViewById(R.id.loan_icon);
             tvType = view.findViewById(R.id.loan_type);
             tvDate = view.findViewById(R.id.loan_date);
             tvAmount = view.findViewById(R.id.loan_amount);

@@ -4,9 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +25,6 @@ import com.quidvis.moneydrop.fragment.WalletFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.model.LoanApplication;
-import com.quidvis.moneydrop.model.Transaction;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
@@ -45,18 +42,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
-import br.com.simplepass.loadingbutton.customViews.OnAnimationEndListener;
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.quidvis.moneydrop.utility.Utility.getTheme;
 
 public class LoanApplicantsActivity extends AppCompatActivity {
 
     public static final String LOAN_KEY = "loanObject";
     public final static String STATE_KEY = LoanApplicantsActivity.class.getName();
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en", "ng"));
-    private DbHelper dbHelper;
+    private User user;
     private Loan loan;
     private LoanApplicantAdapter loanApplicantAdapter;
     private final ArrayList<LoanApplication> loanApplications = new ArrayList<>();
@@ -68,6 +61,9 @@ public class LoanApplicantsActivity extends AppCompatActivity {
     private TextView tvItemCount, tvNoContent;
     private ShimmerFrameLayout shimmerFrameLayout;
     private RecyclerView recyclerView;
+
+    private CircleImageView mvPic;
+    private TextView tvType, tvDate, tvAmount, tvStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,33 +92,13 @@ public class LoanApplicantsActivity extends AppCompatActivity {
 
         format.setMaximumFractionDigits(0);
 
-        LinearLayout container = findViewById(R.id.container);
-        CircleImageView mvPic = findViewById(R.id.profile_pic);
-        TextView tvType = findViewById(R.id.loan_type);
-        TextView tvDate = findViewById(R.id.loan_date);
-        TextView tvAmount = findViewById(R.id.loan_amount);
-        TextView tvStatus = findViewById(R.id.loan_status);
+        mvPic = findViewById(R.id.profile_pic);
+        tvType = findViewById(R.id.loan_type);
+        tvDate = findViewById(R.id.loan_date);
+        tvAmount = findViewById(R.id.loan_amount);
+        tvStatus = findViewById(R.id.loan_status);
 
-        tvType.setText(String.format("Loan %s", loan.getType()));
-        tvDate.setText(loan.getDate());
-        tvAmount.setText(format.format(loan.getAmount()));
-        tvStatus.setText(Utility.ucFirst(loan.getStatus()));
-        container.setBackgroundResource(R.drawable.layout_background_rounded);
-
-        ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
-
-        User user = loan.getUser();
-        Glide.with(this)
-                .load(user.getPictureUrl())
-                .placeholder(user.getDefaultPicture())
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .error(user.getDefaultPicture())
-                .apply(new RequestOptions().override(150, 150))
-                .into(mvPic);
-
-        tvAmount.setTextColor(this.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-        tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
-        tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
+        setUpLoanView();
 
         tvItemCount = findViewById(R.id.item_count);
         tvItemCount.setText(R.string.no_record);
@@ -136,7 +112,8 @@ public class LoanApplicantsActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.applicant_list);
 
-        dbHelper = new DbHelper(this);
+        DbHelper dbHelper = new DbHelper(this);
+        user = dbHelper.getUser();
 
         loanApplicantAdapter = new LoanApplicantAdapter(recyclerView, this, loanApplications);
         recyclerView.setAdapter(loanApplicantAdapter);
@@ -155,11 +132,43 @@ public class LoanApplicantsActivity extends AppCompatActivity {
         getLoanApplications(null);
     }
 
+    public void setUpLoanView() {
+
+//        LinearLayout container = findViewById(R.id.container);
+
+        tvType.setText(String.format("Loan %s", loan.getType()));
+        tvDate.setText(loan.getDate());
+        tvAmount.setText(format.format(loan.getAmount()));
+        tvStatus.setText(Utility.ucFirst(loan.getStatus()));
+//        container.setBackgroundResource(R.drawable.layout_background_rounded);
+//        container.setElevation(2f);
+
+        User loanUser = loan.getUser();
+
+        Glide.with(this)
+                .load(loanUser.getPictureUrl())
+                .placeholder(loanUser.getDefaultPicture())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .error(loanUser.getDefaultPicture())
+                .apply(new RequestOptions().override(150, 150))
+                .into(mvPic);
+
+        ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
+
+        tvAmount.setTextColor(this.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
+        tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
+        tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
+    }
+
     public void grantLoan(LoanApplication application, ProgressButton btn) {
 
         CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(LoanApplicantsActivity.this);
         alertDialog.setIcon(application.getLoan().getType().equals("offer") ? R.drawable.ic_give_money : R.drawable.ic_receive_money);
-        alertDialog.setMessage(String.format("Are you sure you want to grant %s this loan?", application.getApplicant().getFirstname()));
+        String confirmation = "Are you sure you want to give %s this loan?";
+        if (application.getLoan().getType().equals("request")) {
+            confirmation = "Are you sure you want to collect this loan from %s?";
+        }
+        alertDialog.setMessage(String.format(confirmation, application.getApplicant().getFirstname()));
         alertDialog.setNegativeButton("No, cancel");
         alertDialog.setPositiveButton("Yes, proceed", v -> sendGrantLoanRequest(application, btn));
         alertDialog.display();
@@ -179,7 +188,7 @@ public class LoanApplicantsActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("Authorization", String.format("Bearer %s", user.getToken()));
                 return params;
             }
 
@@ -260,9 +269,18 @@ public class LoanApplicantsActivity extends AppCompatActivity {
                             }
                             loanApplicantAdapter.notifyDataSetChanged();
                         }
-                    }
 
-                    Utility.toastMessage(LoanApplicantsActivity.this, object.getString("message"), true);
+                        loan = new Loan(LoanApplicantsActivity.this, applicationObj.getJSONObject("loan"));
+                        setUpLoanView();
+
+                        Intent intent = new Intent(LoanApplicantsActivity.this, LoanApprovedActivity.class);
+                        intent.putExtra(LoanApprovedActivity.LOAN_APPLICATION_KEY, applicationObj.toString());
+                        intent.putExtra(LoanApprovedActivity.LOAN_APPROVAL_MESSAGE_KEY, object.getString("message"));
+                        startActivity(intent);
+
+                    } else {
+                        Utility.toastMessage(LoanApplicantsActivity.this, object.getString("message"));
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -372,7 +390,7 @@ public class LoanApplicantsActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("Authorization", String.format("Bearer %s", user.getToken()));
                 return params;
             }
 
@@ -459,6 +477,14 @@ public class LoanApplicantsActivity extends AppCompatActivity {
 
     public Bundle getState() {
         return Utility.getState(STATE_KEY);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra(LoanDetailsActivity.LOAN_OBJECT_KEY, loan.getLoanObject().toString());
+        setResult(RESULT_OK, intent);
+        super.onBackPressed();
     }
 
     public void onBackPressed(View view) {

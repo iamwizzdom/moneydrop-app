@@ -1,5 +1,6 @@
 package com.quidvis.moneydrop.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.LoanDetailsActivity;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.UserLoanActivity;
 import com.quidvis.moneydrop.adapter.LoanAdapter;
@@ -40,6 +43,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static android.app.Activity.RESULT_OK;
+import static com.quidvis.moneydrop.activity.LoanDetailsActivity.LOAN_OBJECT_KEY;
+import static com.quidvis.moneydrop.activity.LoanDetailsActivity.LOAN_POSITION_KEY;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,6 +72,8 @@ public class LoanOffersFragment extends CustomFragment {
     private TextView tvNoContent;
     private ShimmerFrameLayout shimmerFrameLayout;
     private RecyclerView recyclerView;
+
+    public static final int LOAN_OFFER_DETAILS_KEY = 120;
 
     public LoanOffersFragment() {
         // Required empty public constructor
@@ -115,7 +124,7 @@ public class LoanOffersFragment extends CustomFragment {
 
         recyclerView = view.findViewById(R.id.loan_offers_list);
 
-        loanAdapter = new LoanAdapter(recyclerView, activity, loans);
+        loanAdapter = new LoanAdapter(recyclerView, this, loans);
         recyclerView.setAdapter(loanAdapter);
         loanAdapter.setOnLoadMoreListener(() -> {
             loanAdapter.setLoading(true);
@@ -123,6 +132,37 @@ public class LoanOffersFragment extends CustomFragment {
         });
 
         setUp();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK || data == null) {
+            Utility.toastMessage(activity, "Failed to capture new loan data.");
+            return;
+        }
+
+        if (requestCode == LOAN_OFFER_DETAILS_KEY) {
+
+            int loanKey = data.getIntExtra(LOAN_POSITION_KEY, 0);
+            String loanString = data.getStringExtra(LOAN_OBJECT_KEY);
+
+            if (loanString == null) {
+                Utility.toastMessage(activity, "No loan passed");
+                return;
+            }
+
+            try {
+                JSONObject loanObject = new JSONObject(loanString);
+                Loan loan = new Loan(activity, loanObject);
+                loans.set(loanKey, loan);
+                loanAdapter.notifyDataSetChanged();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Utility.toastMessage(activity, "Invalid loan passed");
+            }
+        }
     }
 
     private void setUp() {

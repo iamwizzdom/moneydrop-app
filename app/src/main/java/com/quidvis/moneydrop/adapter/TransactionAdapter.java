@@ -126,7 +126,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             parentViewHolder.tvAmount.setText(format.format(transaction.getAmount()));
             parentViewHolder.tvStatus.setText(Utility.ucFirst(transaction.getStatus()));
 
-            ArrayMap<String, Integer> theme = getTheme(transaction.getStatus());
+            ArrayMap<String, Integer> theme = getTheme(transaction.getStatus(), transaction.getType().toLowerCase().equals("top-up"));
 
             parentViewHolder.mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
             parentViewHolder.tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));

@@ -187,7 +187,7 @@ public class WalletFragment extends Fragment {
         tvAmount.setText(format.format(transaction.getAmount()));
         tvStatus.setText(Utility.ucFirst(transaction.getStatus()));
 
-        ArrayMap<String, Integer> theme = getTheme(transaction.getStatus());
+        ArrayMap<String, Integer> theme = getTheme(transaction.getStatus(), transaction.getType().toLowerCase().equals("top-up"));
 
         mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
         tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));

@@ -4,13 +4,12 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -30,7 +29,6 @@ import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.Utility;
-import com.quidvis.moneydrop.utility.view.ProgressButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,9 +43,18 @@ import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
 public class LoanDetailsActivity extends AppCompatActivity {
 
-    public static final String LOAN_KEY = "loanObject";
+    public static final String LOAN_POSITION_KEY = "loanPositionKey";
+    public static final String LOAN_OBJECT_KEY = "loanObject";
+    public static final int LOAN_APPROVAL_KEY = 110;
+    private NumberFormat format;
     private DbHelper dbHelper;
     private Loan loan;
+
+    private ImageView ivUserPic;
+    private TextView tvType, tvFundRaiser, tvAmount, tvReference, tvTenure, tvInterest,
+            tvPurpose, tvInterestType, tvDate, tvStatus, tvNote;
+    private CircularProgressButton applyBtn;
+    private int loanKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +63,8 @@ public class LoanDetailsActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
 
-        String loanString = intent.getStringExtra(LOAN_KEY);
+        loanKey = intent.getIntExtra(LOAN_POSITION_KEY, 0);
+        String loanString = intent.getStringExtra(LOAN_OBJECT_KEY);
 
         if (loanString == null) {
             Utility.toastMessage(this, "No loan passed");
@@ -76,23 +84,29 @@ public class LoanDetailsActivity extends AppCompatActivity {
 
         dbHelper = new DbHelper(this);
 
-        NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en","ng"));
+        format = NumberFormat.getCurrencyInstance(new java.util.Locale("en","ng"));
         format.setMaximumFractionDigits(2);
 
-        ImageView ivUserPic = findViewById(R.id.user_pic);
-        TextView tvType = findViewById(R.id.loan_type);
-        TextView tvFundRaiser = findViewById(R.id.fund_raiser);
-        TextView tvAmount = findViewById(R.id.loan_amount);
-        TextView tvReference = findViewById(R.id.loan_reference);
-        TextView tvTenure = findViewById(R.id.loan_tenure);
-        TextView tvInterest = findViewById(R.id.interest);
-        TextView tvPurpose = findViewById(R.id.loan_purpose);
-        TextView tvInterestType = findViewById(R.id.interest_type);
-        TextView tvDate = findViewById(R.id.loan_date);
-        TextView tvStatus = findViewById(R.id.loan_status);
-        TextView tvNote = findViewById(R.id.note);
+        ivUserPic = findViewById(R.id.user_pic);
+        tvType = findViewById(R.id.loan_type);
+        tvFundRaiser = findViewById(R.id.fund_raiser);
+        tvAmount = findViewById(R.id.loan_amount);
+        tvReference = findViewById(R.id.loan_reference);
+        tvTenure = findViewById(R.id.loan_tenure);
+        tvInterest = findViewById(R.id.interest);
+        tvPurpose = findViewById(R.id.loan_purpose);
+        tvInterestType = findViewById(R.id.interest_type);
+        tvDate = findViewById(R.id.loan_date);
+        tvStatus = findViewById(R.id.loan_status);
+        tvNote = findViewById(R.id.note);
 
-        CircularProgressButton applyBtn = findViewById(R.id.apply_btn);
+        applyBtn = findViewById(R.id.apply_btn);
+
+        setLoanView();
+    }
+
+    private void setLoanView() {
+
         applyBtn.setText(loan.isMine() ? "View Applicants" : (loan.isHasApplied() ? "Applied" : "Apply"));
         if (!loan.isMine() && loan.isHasApplied()) {
             applyBtn.setEnabled(false);
@@ -101,8 +115,6 @@ public class LoanDetailsActivity extends AppCompatActivity {
         } else {
             applyBtn.setOnClickListener(this::viewApplicantsOrApply);
         }
-
-        ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
 
         User loanUser = loan.getUser();
 
@@ -123,16 +135,49 @@ public class LoanDetailsActivity extends AppCompatActivity {
         tvInterestType.setText(String.format("%s interest", loan.getInterestType()));
         tvDate.setText(loan.getDate());
         tvStatus.setText(loan.getStatus());
+
+        ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
         tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
         tvNote.setText(Utility.castEmpty(loan.getNote(), "No note"));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK || data == null) {
+            Utility.toastMessage(LoanDetailsActivity.this, "Failed to capture new loan data.");
+            return;
+        }
+
+        if (requestCode == LOAN_APPROVAL_KEY) {
+
+            String loanString = data.getStringExtra(LOAN_OBJECT_KEY);
+
+            if (loanString == null) {
+                Utility.toastMessage(this, "No loan passed");
+                finish();
+                return;
+            }
+
+            try {
+                JSONObject loanObject = new JSONObject(loanString);
+                loan = new Loan(this, loanObject);
+                setLoanView();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Utility.toastMessage(this, "Invalid loan passed");
+                finish();
+            }
+        }
     }
 
     public void viewApplicantsOrApply(View view) {
         if (loan.isMine()) {
             Intent intent = new Intent(this, LoanApplicantsActivity.class);
             intent.putExtra(LoanApplicantsActivity.LOAN_KEY, loan.getLoanObject().toString());
-            startActivity(intent);
+            startActivityForResult(intent, LOAN_APPROVAL_KEY);
         } else {
             applyForLoan(loan, (CircularProgressButton) view);
         }
@@ -305,6 +350,15 @@ public class LoanDetailsActivity extends AppCompatActivity {
             }
         };
         httpRequest.send();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra(LOAN_POSITION_KEY, loanKey);
+        intent.putExtra(LOAN_OBJECT_KEY, loan.getLoanObject().toString());
+        setResult(RESULT_OK, intent);
+        super.onBackPressed();
     }
 
     public void onBackPressed(View view) {

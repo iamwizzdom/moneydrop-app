@@ -213,7 +213,7 @@ public class MainFragment extends Fragment {
 
         container.setOnClickListener(v -> {
             Intent intent = new Intent(activity, LoanDetailsActivity.class);
-            intent.putExtra(LoanDetailsActivity.LOAN_KEY, object.toString());
+            intent.putExtra(LoanDetailsActivity.LOAN_OBJECT_KEY, object.toString());
             activity.startActivity(intent);
         });
 
@@ -246,7 +246,7 @@ public class MainFragment extends Fragment {
         tvAmount.setText(format.format(transaction.getAmount()));
         tvStatus.setText(Utility.ucFirst(transaction.getStatus()));
 
-        ArrayMap<String, Integer> theme = getTheme(transaction.getStatus());
+        ArrayMap<String, Integer> theme = getTheme(transaction.getStatus(), transaction.getType().toLowerCase().equals("top-up"));
 
         mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
         tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));

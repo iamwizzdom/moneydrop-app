@@ -77,6 +77,7 @@
     <string name="transaction_type">Transaction Type</string>
     <string name="transaction_icon">Transaction Icon</string>
     <string name="transaction_date">01/11/20</string>
+    <string name="loan_date">01/11/20</string>
     <string name="transaction_amount">#12,000</string>
     <string name="transaction_status">Pending</string>
     <string name="status">Status</string>
@@ -204,6 +205,7 @@
     <string name="time">3:00pm</string>
     <string name="loan">Loan</string>
     <string name="loan_applicants">Loan Applicants</string>
+    <string name="loan_approved">Loan Approved</string>
     <string name="no_applicant">No Applicant</string>
     <string name="grant">Grant</string>
     <string name="granted">Granted</string>
@@ -222,6 +224,10 @@
     <string name="note">Note</string>
     <string name="apply">Apply</string>
     <string name="repayment_amount">Repayment Amount</string>
+    <string name="loan_approval_note">Loan has been granted</string>
+    <string name="interest_note">5% interest after due date</string>
+    <string name="recipient">Recipient</string>
+    <string name="no_history">No History</string>
 
 
     <string-array name="interestType">

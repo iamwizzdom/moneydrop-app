@@ -97,12 +97,17 @@
 
         <activity
             android:name=".activity.LoanApplicantsActivity"
-            android:label="@string/wallets"
+            android:label="@string/loan_applicants"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
             android:name=".activity.LoanDetailsActivity"
-            android:label="@string/wallets"
+            android:label="@string/loan_details"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+            android:name=".activity.LoanApprovedActivity"
+            android:label="@string/loan_approved"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity

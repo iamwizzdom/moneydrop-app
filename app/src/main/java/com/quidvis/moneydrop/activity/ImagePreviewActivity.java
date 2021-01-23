@@ -44,6 +44,7 @@ public class ImagePreviewActivity extends AppCompatActivity {
             if (bundle != null) {
                 Glide.with(ImagePreviewActivity.this)
                         .load(bundle.getString(IMAGE_URL))
+                        .placeholder(R.drawable.image_placeholder)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .error(R.drawable.image_placeholder)
                         .into(zoomableImage);
