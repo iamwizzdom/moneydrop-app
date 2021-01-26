@@ -193,7 +193,7 @@ public class MainFragment extends Fragment {
         TextView tvAmount = view.findViewById(R.id.loan_amount);
         TextView tvStatus = view.findViewById(R.id.loan_status);
 
-        tvType.setText(String.format("Loan %s (Me)", loan.getType()));
+        tvType.setText(String.format("Loan %s (Me)", loan.getLoanType()));
         tvDate.setText(loan.getDate());
         tvAmount.setText(format.format(loan.getAmount()));
         tvStatus.setText(Utility.ucFirst(loan.getStatus()));
@@ -416,7 +416,7 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        Utility.saveState(STATE_KEY, getCurrentState());
+        saveState();
         super.onDestroyView();
     }
 }

@@ -345,7 +345,7 @@ public class CardsActivity extends AppCompatActivity {
 
             @Override
             protected void onRequestCompleted(boolean onError) {
-
+                addCardBtn.revertAnimation();
             }
 
             @Override
@@ -383,18 +383,17 @@ public class CardsActivity extends AppCompatActivity {
                         Utility.toastMessage(CardsActivity.this, object.getString("message"));
                     }
 
+                    contentView.setVisibility(View.GONE);
+                    successfulView.setVisibility(View.VISIBLE);
+                    addCardBtn.setOnClickListener(v -> bottomSheet.dismiss());
+                    new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> {
+                        addCardBtn.setText(R.string.done);
+                    }, 500);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Utility.toastMessage(CardsActivity.this, "Something unexpected happened. Please try that again.");
                 }
-
-                contentView.setVisibility(View.GONE);
-                successfulView.setVisibility(View.VISIBLE);
-                addCardBtn.revertAnimation();
-                addCardBtn.setOnClickListener(v -> bottomSheet.dismiss());
-                new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> {
-                    addCardBtn.setText(R.string.done);
-                }, 500);
             }
 
             @Override

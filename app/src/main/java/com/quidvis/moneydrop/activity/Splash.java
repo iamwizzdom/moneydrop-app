@@ -36,7 +36,7 @@ public class Splash extends AppCompatActivity {
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(getResources().getString(R.string.app_name));
         spannableStringBuilder.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), 5, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         spannableStringBuilder.setSpan(new android.text.style.RelativeSizeSpan(1.1f), 5, 9, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        appName.setText(spannableStringBuilder);
+        if (appName != null) appName.setText(spannableStringBuilder);
     }
 
     private void startActivity() {

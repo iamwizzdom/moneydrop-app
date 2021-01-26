@@ -24,8 +24,9 @@ public class User {
     
     private int id, gender, status;
     private boolean verifiedEmail, verifiedPhone;
-    private String firstname, middlename, lastname, email, phone, bvn,
+    private String uuid, firstname, middlename, lastname, email, phone, bvn,
             dob, address, country, state, picture, token;
+    private JSONObject userObject;
     
     public User(Context context) {
         this.dbHelper = new DbHelper(context);
@@ -33,6 +34,8 @@ public class User {
 
     public User(Context context, JSONObject userObject) throws JSONException {
         this.dbHelper = new DbHelper(context);
+        this.userObject = userObject;
+        this.setUuid(userObject.getString("uuid"));
         this.setFirstname(userObject.getString("firstname"));
         this.setMiddlename(userObject.getString("middlename"));
         this.setLastname(userObject.getString("lastname"));
@@ -58,6 +61,14 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getFirstname() {
@@ -195,7 +206,15 @@ public class User {
     public void setToken(String token) {
         this.token = token;
     }
-    
+
+    public boolean isMe() {
+        return getUuid().equals(dbHelper.getUser().getUuid());
+    }
+
+    public JSONObject getUserObject() {
+        return userObject;
+    }
+
     public boolean update() {
         return dbHelper.updateUser(this);
     }

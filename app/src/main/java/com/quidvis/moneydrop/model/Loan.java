@@ -2,21 +2,16 @@ package com.quidvis.moneydrop.model;
 
 import android.content.Context;
 
-import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.utility.Utility;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.quidvis.moneydrop.constant.Constant.FEMALE;
-import static com.quidvis.moneydrop.constant.Constant.MALE;
-
 public class Loan {
 
     private int id;
     private double amount, interest;
-    private String reference, type, interestType, tenure, purpose, note, status, date;
+    private String reference, loanType, interestType, tenure, purpose, note, status, date;
     private boolean isFundRaiser, isMine, hasApplied;
     private User user;
     private final JSONObject loanObject;
@@ -25,7 +20,7 @@ public class Loan {
         this.loanObject = loanObject;
         this.setId(loanObject.getInt("id"));
         this.setReference(loanObject.getString("uuid"));
-        this.setType(loanObject.getString("type"));
+        this.setLoanType(loanObject.getString("loan_type_readable"));
         this.setInterestType(loanObject.getString("interest_type_readable"));
         this.setAmount(loanObject.getDouble("amount"));
         this.setTenure(loanObject.getString("tenure_readable"));
@@ -57,12 +52,20 @@ public class Loan {
         this.reference = reference;
     }
 
-    public String getType() {
-        return type;
+    public boolean isLoanOffer() {
+        return getLoanType().equals("offer");
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public boolean isLoanRequest() {
+        return getLoanType().equals("request");
+    }
+
+    public String getLoanType() {
+        return loanType;
+    }
+
+    public void setLoanType(String loanType) {
+        this.loanType = loanType;
     }
 
     public String getInterestType() {

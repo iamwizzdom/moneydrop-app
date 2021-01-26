@@ -228,6 +228,23 @@
     <string name="interest_note">5% interest after due date</string>
     <string name="recipient">Recipient</string>
     <string name="no_history">No History</string>
+    <string name="application_details">Application Details</string>
+    <string name="application_reference">Application Reference</string>
+    <string name="paid_amount">Paid Amount</string>
+    <string name="unpaid_amount">Unpaid Amount</string>
+    <string name="date_granted">Date Granted</string>
+    <string name="due_date">Due Date</string>
+    <string name="make_payment">Make Payment</string>
+    <string name="view_payment_history">View Payment History</string>
+    <string name="rejected">Rejected</string>
+    <string name="date_applied">Date Applied</string>
+    <string name="payee">Payee</string>
+    <string name="cancel_application">Cancel Application</string>
+    <string name="pay">Pay</string>
+    <string name="alright_have_a_code">Alright have a code?</string>
+    <string name="no_card">No Card</string>
+    <string name="no_bank_account">No Bank Account</string>
+    <string name="repayment_history">Repayment History</string>
 
 
     <string-array name="interestType">

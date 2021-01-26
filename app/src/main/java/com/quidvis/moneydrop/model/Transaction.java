@@ -25,7 +25,7 @@ public class Transaction {
         this.setType(transObject.getString("type_readable"));
         this.setDirection(transObject.getString("direction_readable"));
         this.setAmount(transObject.getDouble("amount"));
-        this.setFees(transObject.getDouble("fees"));
+        this.setFees(transObject.getDouble("fee"));
         this.setCurrency(transObject.getString("currency"));
         this.setNarration(transObject.getString("narration"));
         this.setStatus(transObject.getString("status_readable"));

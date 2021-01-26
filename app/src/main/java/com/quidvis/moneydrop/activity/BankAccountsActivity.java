@@ -81,6 +81,7 @@ public class BankAccountsActivity extends AppCompatActivity {
 
         } else {
 
+            isContentEmpty(true);
             AwesomeAlertDialog awesomeAlertDialog = new AwesomeAlertDialog(this);
             awesomeAlertDialog.setTitle("BVN Check");
             awesomeAlertDialog.setMessage("Sorry, you must set your BVN before performing any bank operation.");
@@ -222,7 +223,7 @@ public class BankAccountsActivity extends AppCompatActivity {
 
             @Override
             protected void onRequestCompleted(boolean onError) {
-
+                addBankBtn.revertAnimation();
             }
 
             @Override
@@ -258,18 +259,17 @@ public class BankAccountsActivity extends AppCompatActivity {
                         Utility.toastMessage(BankAccountsActivity.this, object.getString("message"));
                     }
 
+                    contentView.setVisibility(View.GONE);
+                    successfulView.setVisibility(View.VISIBLE);
+                    addBankBtn.setOnClickListener(v -> bottomSheet.dismiss());
+                    new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> {
+                        addBankBtn.setText(R.string.done);
+                    }, 500);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Utility.toastMessage(BankAccountsActivity.this, "Something unexpected happened. Please try that again.");
                 }
-
-                contentView.setVisibility(View.GONE);
-                successfulView.setVisibility(View.VISIBLE);
-                addBankBtn.revertAnimation();
-                addBankBtn.setOnClickListener(v -> bottomSheet.dismiss());
-                new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> {
-                    addBankBtn.setText(R.string.done);
-                }, 500);
             }
 
             @Override

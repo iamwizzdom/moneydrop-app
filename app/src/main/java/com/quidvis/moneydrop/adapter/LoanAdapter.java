@@ -130,7 +130,7 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Loan loan = this.loanList.get(position);
             ParentViewHolder parentViewHolder = (ParentViewHolder) holder;
 
-            String type = String.format("Loan %s", loan.getType());;
+            String type = String.format("Loan %s", loan.getLoanType());;
 
             if (loan.isMine()) type += " (Me)";
 
@@ -163,7 +163,7 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Intent intent = new Intent(context, LoanDetailsActivity.class);
                 intent.putExtra(LoanDetailsActivity.LOAN_POSITION_KEY, position);
                 intent.putExtra(LoanDetailsActivity.LOAN_OBJECT_KEY, loan.getLoanObject().toString());
-                fragment.startActivityForResult(intent, loan.getType().equals("offer") ? LoanOffersFragment.LOAN_OFFER_DETAILS_KEY : LoanRequestsFragment.LOAN_REQUEST_DETAILS_KEY);
+                fragment.startActivityForResult(intent, loan.getLoanType().equals("offer") ? LoanOffersFragment.LOAN_OFFER_DETAILS_KEY : LoanRequestsFragment.LOAN_REQUEST_DETAILS_KEY);
             });
 
         } else if (holder instanceof LoadingViewHolder) {

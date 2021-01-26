@@ -32,6 +32,7 @@
         android:paddingStart="60dp"
         android:paddingEnd="60dp"
         style="@style/text_view_style"
+        android:textColor="@color/titleColorGray"
         android:text="@string/intro" />
 
     <Button

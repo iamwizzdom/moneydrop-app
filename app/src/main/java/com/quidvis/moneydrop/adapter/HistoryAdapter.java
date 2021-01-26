@@ -1,6 +1,7 @@
 package com.quidvis.moneydrop.adapter;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +17,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.LoanApplicationDetailsActivity;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.model.LoanApplication;
-import com.quidvis.moneydrop.model.Notification;
 import com.quidvis.moneydrop.utility.Utility;
 
 import java.text.NumberFormat;
@@ -120,16 +121,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ParentViewHolder parentViewHolder = (ParentViewHolder) holder;
 
             Loan loan = application.getLoan();
-            String type = String.format("Loan %s", loan.getType());
+            String type = String.format("Loan %s", loan.getLoanType());
 
             if (loan.isMine()) type += " (Me)";
 
             parentViewHolder.tvType.setText(type);
             parentViewHolder.tvDate.setText(application.getDate());
             parentViewHolder.tvAmount.setText(format.format(application.getLoan().getAmount()));
-            parentViewHolder.tvStatus.setText(Utility.ucFirst(application.isGranted() ? "Granted" : "Awaiting"));
+            parentViewHolder.tvStatus.setText(Utility.ucFirst(application.getStatus()));
 
-            ArrayMap<String, Integer> theme = getTheme(application.isGranted() ? "successful" : "pending", loan.isMine());
+            ArrayMap<String, Integer> theme = getTheme(application.getStatus(), true);
 
             parentViewHolder.mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
             parentViewHolder.tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
@@ -140,6 +141,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             if ((position == 0 && size > 1) || position > 0 && position < (size - 1))
                 parentViewHolder.container.setBackgroundResource(R.drawable.layout_underline);
+
+            parentViewHolder.container.setOnClickListener(v -> {
+                Intent intent = new Intent(activity, LoanApplicationDetailsActivity.class);
+                intent.putExtra(LoanApplicationDetailsActivity.LOAN_APPLICATION_OBJECT_KEY, application.getApplicationObject().toString());
+                activity.startActivity(intent);
+            });
 
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;

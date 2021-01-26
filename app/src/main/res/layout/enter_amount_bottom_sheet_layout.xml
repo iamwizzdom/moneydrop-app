@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/margin_20">
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_10"
+            style="@style/text_view_style"
+            android:textColor="@color/titleColorGray"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="@string/min_amount"/>
+
+        <EditText
+            android:id="@+id/amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_naira_sign_dark"
+            android:drawablePadding="@dimen/margin_20"
+            android:layout_marginStart="@dimen/margin_40"
+            android:layout_marginEnd="@dimen/margin_40"
+            android:hint="@string/enter_amount"
+            style="@style/edit_text_stroked_style"
+            android:inputType="numberDecimal"
+            android:autofillHints="" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/successful"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_30"
+        android:layout_marginBottom="@dimen/margin_40"
+        style="@style/text_view_style"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_large"
+        android:text="@string/success"
+        android:drawablePadding="@dimen/activity_vertical_margin"
+        android:visibility="gone"
+        app:drawableTopCompat="@drawable/ic_success" />
+
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        android:id="@+id/submit_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_20"
+        android:paddingStart="@dimen/padding_50"
+        android:paddingEnd="@dimen/padding_50"
+        android:layout_gravity="center"
+        style="@style/button_style"
+        android:text="@string/top_up"
+        android:textAllCaps="false"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:spinning_bar_width="4dp"
+        app:spinning_bar_color="@color/colorWhite"
+        app:spinning_bar_padding="6dp" />
+
+</LinearLayout>

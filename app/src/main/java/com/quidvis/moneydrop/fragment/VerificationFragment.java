@@ -226,13 +226,11 @@ public class VerificationFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Utility.requestFocus(etEmail, activity);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Utility.clearFocus(etEmail, activity);
     }
 
     /**

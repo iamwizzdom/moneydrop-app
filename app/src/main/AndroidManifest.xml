@@ -111,6 +111,16 @@
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
+            android:name=".activity.LoanApplicationDetailsActivity"
+            android:label="@string/application_details"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+            android:name=".activity.LoanRepaymentTransactionsActivity"
+            android:label="@string/repayment_history"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
             android:name=".activity.BankAccountsActivity"
             android:label="@string/accounts"
             android:theme="@style/AppTheme.NoActionBar"/>

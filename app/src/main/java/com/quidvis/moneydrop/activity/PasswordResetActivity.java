@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.android.volley.Request;
+import com.google.android.material.textfield.TextInputLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
@@ -34,7 +35,8 @@ import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
 public class PasswordResetActivity extends AppCompatActivity {
 
-    private EditText etOTP;
+    private TextInputLayout emailHolder;
+    private EditText etEmail, etOTP;
     private EditText etPassword;
     private EditText etConfirmPassword;
     private CircularProgressButton resetBtn;
@@ -54,13 +56,15 @@ public class PasswordResetActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
+        emailHolder = findViewById(R.id.email_holder);
+        etEmail = findViewById(R.id.etEmail);
         etOTP = findViewById(R.id.etOTP);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         resetBtn = findViewById(R.id.resetBtn);
 
-
-        new Handler().postDelayed(() -> Utility.requestFocus(etOTP, PasswordResetActivity.this), 1000);
+        if (email != null && !email.isEmpty()) emailHolder.setVisibility(View.GONE);
+        else emailHolder.setVisibility(View.VISIBLE);
 
         etConfirmPassword.setOnEditorActionListener((textView, id, keyEvent) -> {
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -78,6 +82,9 @@ public class PasswordResetActivity extends AppCompatActivity {
         final String otp = Objects.requireNonNull(etOTP.getText()).toString();
         final String password = Objects.requireNonNull(etPassword.getText()).toString();
         final String passwordConfirmation = Objects.requireNonNull(etConfirmPassword.getText()).toString();
+
+        if (email == null || email.isEmpty())
+            email = Objects.requireNonNull(etEmail.getText()).toString();
 
         if (!Validator.isValidEmail(email)) {
             Utility.toastMessage(PasswordResetActivity.this, "Please enter a valid email address");
@@ -156,18 +163,20 @@ public class PasswordResetActivity extends AppCompatActivity {
 
                     JSONObject object = new JSONObject(response);
 
+                    etEmail.setText("");
+                    etOTP.setText("");
+                    etPassword.setText("");
+                    etConfirmPassword.setText("");
+
                     AwesomeAlertDialog dialog = new AwesomeAlertDialog(PasswordResetActivity.this);
                     dialog.setCancelable(false);
                     dialog.setTitle(object.getString("title"));
                     dialog.setMessage(object.getString("message"));
-                    dialog.setPositiveButton("Ok", new OnAwesomeDialogClickListener() {
-                        @Override
-                        public void onClick(AwesomeAlertDialog dialog) {
-                            dialog.dismiss();
-                            Intent intent = new Intent(PasswordResetActivity.this, LoginActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
+                    dialog.setPositiveButton("Ok", dialog1 -> {
+                        dialog1.dismiss();
+                        Intent intent = new Intent(PasswordResetActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
                     });
                     dialog.display();
 

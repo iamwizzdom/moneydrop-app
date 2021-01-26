@@ -185,8 +185,8 @@ public class MainActivity extends AppCompatActivity {
 
         CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog((AppCompatActivity) activity);
         alertDialog.setIcon(R.drawable.ic_log_me_out);
-        alertDialog.setMessage("Are you sure you want to logout?");
-        alertDialog.setNegativeButton("No, I am not ready");
+        alertDialog.setMessage((title != null && message != null) ? String.format("%s: %s. Logout to fix this.", title, message) : "Are you sure you want to logout?");
+        alertDialog.setNegativeButton("No, I'm not ready");
         alertDialog.setPositiveButton("Yes, Log me out", v -> {
 
             finalDbHelper.deleteUser();
@@ -308,11 +308,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showTopUpAmountDialog() {
-        View view = getLayoutInflater().inflate(R.layout.topup_amount_bottom_sheet_layout, null);
+        View view = getLayoutInflater().inflate(R.layout.enter_amount_bottom_sheet_layout, null);
         CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
         EditText tvAmount = view.findViewById(R.id.amount);
-        Button btnTopUp = view.findViewById(R.id.top_up_btn);
-        btnTopUp.setOnClickListener(v -> {
+        CircularProgressButton submitBtn = view.findViewById(R.id.submit_btn);
+        submitBtn.setOnClickListener(v -> {
             String amount = tvAmount.getText().toString();
             double dAmount;
             if (amount.isEmpty() || (dAmount = Double.parseDouble(amount)) < 1000) {
@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout cardsContainer = view.findViewById(R.id.cards_container);
         TextView cardsEmpty = view.findViewById(R.id.cards_empty);
-        CircularProgressButton btnTopUp = view.findViewById(R.id.top_up_btn);
+        CircularProgressButton submitBtn = view.findViewById(R.id.submit_btn);
 
         ArrayList<Card> cards = dbHelper.getCards();
         if (cards.size() > 0) {
@@ -358,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
                 cardsContainer.addView(cardView);
             }
 
-            btnTopUp.setOnClickListener(v -> {
+            submitBtn.setOnClickListener(v -> {
 
                 if (topUpAmount < MIN_TOP_UP_AMOUNT) {
                     Utility.toastMessage(MainActivity.this, String.format("Top up amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
@@ -369,14 +369,14 @@ public class MainActivity extends AppCompatActivity {
                     Utility.toastMessage(MainActivity.this, "Please select a card");
                     return;
                 }
-                topUp(selectCard[0], btnTopUp, bottomSheet);
+                topUp(selectCard[0], submitBtn, bottomSheet);
             });
 
         } else {
             cardsEmpty.setVisibility(View.VISIBLE);
             cardsContainer.setVisibility(View.GONE);
-            btnTopUp.setText(R.string.add_card);
-            btnTopUp.setOnClickListener(v -> {
+            submitBtn.setText(R.string.add_card);
+            submitBtn.setOnClickListener(v -> {
                 bottomSheet.dismiss();
                 startActivity(new Intent(MainActivity.this, CardsActivity.class));
             });

@@ -30,6 +30,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS "
             + DbContract.USERS_TABLE_NAME + "("
             + DbContract.USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + DbContract.USER_UUID + " CHAR(36) NOT NULL,"
             + DbContract.USER_FIRSTNAME + " CHAR(100) NOT NULL,"
             + DbContract.USER_MIDDLENAME + " CHAR(100) NOT NULL,"
             + DbContract.USER_LASTNAME + " CHAR(100) NOT NULL,"
@@ -121,6 +122,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public boolean saveUser(User user) {
 
         ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.USER_UUID, user.getUuid());
         contentValues.put(DbContract.USER_FIRSTNAME, user.getFirstname());
         contentValues.put(DbContract.USER_MIDDLENAME, user.getMiddlename());
         contentValues.put(DbContract.USER_LASTNAME, user.getLastname());
@@ -222,6 +224,7 @@ public class DbHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.USER_UUID, user.getUuid());
         contentValues.put(DbContract.USER_FIRSTNAME, user.getFirstname());
         contentValues.put(DbContract.USER_MIDDLENAME, user.getMiddlename());
         contentValues.put(DbContract.USER_LASTNAME, user.getLastname());
@@ -337,6 +340,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         String[] projection = {
                 DbContract.USER_ID,
+                DbContract.USER_UUID,
                 DbContract.USER_FIRSTNAME,
                 DbContract.USER_MIDDLENAME,
                 DbContract.USER_LASTNAME,
@@ -363,6 +367,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         if (cursor != null && cursor.moveToFirst()) {
             user.setId(cursor.getInt(cursor.getColumnIndex(DbContract.USER_ID)));
+            user.setUuid(cursor.getString(cursor.getColumnIndex(DbContract.USER_UUID)));
             user.setFirstname(cursor.getString(cursor.getColumnIndex(DbContract.USER_FIRSTNAME)));
             user.setMiddlename(cursor.getString(cursor.getColumnIndex(DbContract.USER_MIDDLENAME)));
             user.setLastname(cursor.getString(cursor.getColumnIndex(DbContract.USER_LASTNAME)));

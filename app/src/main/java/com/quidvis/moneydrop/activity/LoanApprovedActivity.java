@@ -5,7 +5,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -80,7 +79,8 @@ public class LoanApprovedActivity extends AppCompatActivity {
         spannableStringBuilder.setSpan(new android.text.style.RelativeSizeSpan(1.3f), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvInterest.setText(spannableStringBuilder);
 
-        User applicant = loanApplication.getApplicant();
+        User applicant = loan.getLoanType().equals("request") ? loan.getUser() : loanApplication.getApplicant();
+
         Glide.with(this)
                 .load(applicant.getPictureUrl())
                 .placeholder(applicant.getDefaultPicture())

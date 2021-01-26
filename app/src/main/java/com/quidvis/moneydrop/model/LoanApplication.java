@@ -10,8 +10,9 @@ import org.json.JSONObject;
 public class LoanApplication {
 
     private int id, userID;
-    private String reference, loanID, dueDate, dueDateShort, date, dateShort;
-    private boolean granted, repaid, hasGranted;
+    private double amount, repaidAmount, payableAmount;
+    private String reference, loanID, dueDate, dueDateShort, date, dateShort, dateGranted, status;
+    private boolean repaid, hasGranted;
     private Loan loan;
     private User applicant;
     private final JSONObject applicationObject;
@@ -20,15 +21,19 @@ public class LoanApplication {
         this.applicationObject = applicationObject;
         this.setId(applicationObject.getInt("id"));
         this.setReference(applicationObject.getString("uuid"));
+        this.setAmount(applicationObject.getDouble("amount"));
+        this.setPayableAmount(applicationObject.getDouble("amount_payable"));
+        this.setRepaidAmount(applicationObject.getDouble("repaid_amount"));
         this.setLoanID(applicationObject.getString("loan_id"));
         this.setUserID(applicationObject.getInt("user_id"));
-        this.setGranted(applicationObject.getBoolean("is_granted"));
+        this.setStatus(applicationObject.getString("status_readable"));
         this.setRepaid(applicationObject.getBoolean("is_repaid"));
         this.setHasGranted(applicationObject.getBoolean("has_granted"));
         this.setDueDate(applicationObject.getString("due_date"));
         this.setDueDateShort(applicationObject.getString("due_date_short"));
         this.setDate(applicationObject.getString("date"));
         this.setDateShort(applicationObject.getString("date_short"));
+        this.setDateGranted(applicationObject.getString("date_granted"));
         if (applicationObject.has("loan") && !Utility.castEmpty(applicationObject.getString("loan")).isEmpty())
             loan = new Loan(context, applicationObject.getJSONObject("loan"));
         if (applicationObject.has("applicant") && !Utility.castEmpty(applicationObject.getString("applicant")).isEmpty())
@@ -57,6 +62,34 @@ public class LoanApplication {
 
     public void setReference(String reference) {
         this.reference = reference;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public double getRepaidAmount() {
+        return repaidAmount;
+    }
+
+    public void setRepaidAmount(double repaidAmount) {
+        this.repaidAmount = repaidAmount;
+    }
+
+    public double getPayableAmount() {
+        return payableAmount;
+    }
+
+    public void setPayableAmount(double payableAmount) {
+        this.payableAmount = payableAmount;
+    }
+
+    public double getUnpaidAmount() {
+        return getPayableAmount() - getRepaidAmount();
     }
 
     public String getLoanID() {
@@ -107,12 +140,32 @@ public class LoanApplication {
         this.dateShort = dateShort;
     }
 
-    public boolean isGranted() {
-        return granted;
+    public String getDateGranted() {
+        return dateGranted;
     }
 
-    public void setGranted(boolean granted) {
-        this.granted = granted;
+    public void setDateGranted(String dateGranted) {
+        this.dateGranted = dateGranted;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public boolean isGranted() {
+        return getStatus().equals("granted");
+    }
+
+    public boolean isAwaiting() {
+        return getStatus().equals("awaiting");
+    }
+
+    public boolean isRejected() {
+        return getStatus().equals("rejected");
     }
 
     public boolean isRepaid() {

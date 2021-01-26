@@ -18,6 +18,7 @@ public class DbContract {
      */
     public static final String USERS_TABLE_NAME = "users";
     public static final String USER_ID = "_id";
+    public static final String USER_UUID = "uuid";
     public static final String USER_FIRSTNAME = "firstname";
     public static final String USER_MIDDLENAME = "middlename";
     public static final String USER_LASTNAME = "lastname";

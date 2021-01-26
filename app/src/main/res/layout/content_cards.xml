@@ -60,7 +60,7 @@
                     android:layout_gravity="center"
                     android:padding="@dimen/activity_vertical_margin"
                     android:textColor="@color/colorGray"
-                    android:text="@string/no_content"
+                    android:text="@string/no_card"
                     style="@style/text_view_style"
                     android:visibility="gone"
                     android:drawablePadding="@dimen/padding_15"

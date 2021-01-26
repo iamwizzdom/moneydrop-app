@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".activity.LoanDetailsActivity">
+    tools:context=".activity.LoanApplicationDetailsActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -20,7 +20,61 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/padding_10">
+            android:paddingBottom="@dimen/padding_5">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/text_view_style"
+                android:gravity="start"
+                android:text="@string/loan"
+                android:textColor="@color/colorAccent"
+                android:textSize="23sp"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_5"
+                android:layout_marginBottom="@dimen/margin_10"
+                android:padding="@dimen/padding_5"
+                android:background="@drawable/layout_background_rounded">
+
+                <include android:id="@+id/loan_layout" layout="@layout/loan_layout" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/text_view_style"
+                android:gravity="start"
+                android:text="@string/payee"
+                android:textColor="@color/colorAccent"
+                android:textSize="23sp"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_5"
+                android:layout_marginBottom="@dimen/margin_10"
+                android:padding="@dimen/padding_5"
+                android:background="@drawable/layout_background_rounded">
+
+                <include layout="@layout/user_layout" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/text_view_style"
+                android:gravity="start"
+                android:text="@string/application_details"
+                android:textColor="@color/colorAccent"
+                android:textSize="23sp"
+                android:textStyle="bold"/>
 
             <LinearLayout
                 android:id="@+id/loan_layout"
@@ -28,131 +82,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="@dimen/padding_30"
+                android:layout_marginTop="@dimen/margin_5"
                 android:background="@drawable/layout_background_rounded">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="2"
-                    android:background="@drawable/layout_dotted_divider"
-                    android:paddingBottom="@dimen/padding_20"
-                    android:layout_marginBottom="@dimen/margin_20"
-                    android:baselineAligned="false">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginEnd="@dimen/margin_10"
-                        android:layout_weight="1">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                style="@style/text_view_style"
-                                android:gravity="start"
-                                android:textSize="12sp"
-                                android:textColor="@color/subtitleColorGray"
-                                android:text="@string/loan_type"/>
-
-                            <TextView
-                                android:id="@+id/loan_type"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                style="@style/text_view_style"
-                                android:gravity="start"
-                                android:textSize="13sp"
-                                android:textColor="@color/colorGray"
-                                android:text="@string/loan_type"
-                                android:textStyle="bold"/>
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginTop="@dimen/margin_20">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                style="@style/text_view_style"
-                                android:gravity="start"
-                                android:textSize="12sp"
-                                android:textColor="@color/subtitleColorGray"
-                                android:text="@string/fund_raiser"/>
-
-                            <TextView
-                                android:id="@+id/fund_raiser"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                style="@style/text_view_style"
-                                android:gravity="start"
-                                android:textSize="13sp"
-                                android:textColor="@color/colorGray"
-                                android:text="@string/yes"
-                                android:textStyle="bold"/>
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginStart="@dimen/margin_10"
-                        android:layout_weight="1">
-
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/user_pic"
-                            android:layout_width="54dp"
-                            android:layout_height="54dp"
-                            android:layout_gravity="end"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/unisex"
-                            app:civ_border_color="@color/imageBorder"
-                            app:civ_border_width="4dp" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginTop="@dimen/margin_20">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                style="@style/text_view_style"
-                                android:gravity="end"
-                                android:textSize="12sp"
-                                android:textColor="@color/subtitleColorGray"
-                                android:text="@string/amount_text"/>
-
-                            <TextView
-                                android:id="@+id/loan_amount"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                style="@style/text_view_style"
-                                android:gravity="end"
-                                android:fontFamily="@font/campton_medium"
-                                android:textColor="@color/colorGrayExtraDark"
-                                android:text="@string/amount"
-                                android:textSize="14sp"
-                                android:textStyle="bold"/>
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -166,10 +97,10 @@
                         android:gravity="start"
                         android:textSize="12sp"
                         android:textColor="@color/subtitleColorGray"
-                        android:text="@string/loan_reference"/>
+                        android:text="@string/application_reference"/>
 
                     <TextView
-                        android:id="@+id/loan_reference"
+                        android:id="@+id/application_reference"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         style="@style/text_view_style"
@@ -177,7 +108,7 @@
                         android:gravity="start"
                         android:textSize="13sp"
                         android:textColor="@color/colorGray"
-                        android:text="@string/loan_reference"
+                        android:text="@string/application_reference"
                         android:textStyle="bold"/>
 
                 </LinearLayout>
@@ -208,17 +139,17 @@
                                 android:gravity="start"
                                 android:textSize="12sp"
                                 android:textColor="@color/subtitleColorGray"
-                                android:text="@string/loan_tenure"/>
+                                android:text="@string/paid_amount"/>
 
                             <TextView
-                                android:id="@+id/loan_tenure"
+                                android:id="@+id/paid_amount"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 style="@style/text_view_style"
                                 android:gravity="start"
                                 android:textSize="13sp"
                                 android:textColor="@color/colorGray"
-                                android:text="@string/loan_tenure_hint"
+                                android:text="@string/amount"
                                 android:textStyle="bold"/>
 
                         </LinearLayout>
@@ -236,17 +167,17 @@
                                 android:gravity="start"
                                 android:textSize="12sp"
                                 android:textColor="@color/subtitleColorGray"
-                                android:text="@string/loan_purpose"/>
+                                android:text="@string/date_granted"/>
 
                             <TextView
-                                android:id="@+id/loan_purpose"
+                                android:id="@+id/date_granted"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 style="@style/text_view_style"
                                 android:gravity="start"
                                 android:textSize="13sp"
                                 android:textColor="@color/colorGray"
-                                android:text="@string/loan_purpose"
+                                android:text="@string/date"
                                 android:textStyle="bold"/>
 
                         </LinearLayout>
@@ -267,7 +198,7 @@
                                 android:text="@string/status"/>
 
                             <TextView
-                                android:id="@+id/loan_status"
+                                android:id="@+id/application_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 style="@style/tag_pending"
@@ -300,17 +231,17 @@
                                 android:gravity="end"
                                 android:textSize="12sp"
                                 android:textColor="@color/subtitleColorGray"
-                                android:text="@string/interest"/>
+                                android:text="@string/unpaid_amount"/>
 
                             <TextView
-                                android:id="@+id/interest"
+                                android:id="@+id/unpaid_amount"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 style="@style/text_view_style"
                                 android:gravity="end"
                                 android:textSize="13sp"
                                 android:textColor="@color/colorGray"
-                                android:text="@string/interest_hint"
+                                android:text="@string/amount"
                                 android:textStyle="bold"/>
 
                         </LinearLayout>
@@ -328,17 +259,17 @@
                                 android:gravity="end"
                                 android:textSize="12sp"
                                 android:textColor="@color/subtitleColorGray"
-                                android:text="@string/interest_type"/>
+                                android:text="@string/due_date"/>
 
                             <TextView
-                                android:id="@+id/interest_type"
+                                android:id="@+id/due_date"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 style="@style/text_view_style"
                                 android:gravity="end"
                                 android:textSize="13sp"
                                 android:textColor="@color/colorGray"
-                                android:text="@string/interest_type"
+                                android:text="@string/date"
                                 android:textStyle="bold"/>
 
                         </LinearLayout>
@@ -356,10 +287,10 @@
                                 android:gravity="end"
                                 android:textSize="12sp"
                                 android:textColor="@color/subtitleColorGray"
-                                android:text="@string/date_time"/>
+                                android:text="@string/date_applied"/>
 
                             <TextView
-                                android:id="@+id/loan_date"
+                                android:id="@+id/application_date"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 style="@style/text_view_style"
@@ -375,51 +306,62 @@
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="@dimen/margin_20">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        style="@style/text_view_style"
-                        android:gravity="start"
-                        android:textSize="12sp"
-                        android:textColor="@color/subtitleColorGray"
-                        android:text="@string/note"/>
-
-                    <TextView
-                        android:id="@+id/note"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        style="@style/text_view_style"
-                        android:gravity="start"
-                        android:textSize="13sp"
-                        android:textColor="@color/colorGray"
-                        android:text="@string/note"
-                        android:textStyle="bold"/>
-
-                </LinearLayout>
-
             </LinearLayout>
 
             <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
-                android:id="@+id/apply_btn"
+                android:id="@+id/cancel_application_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_20"
                 android:textColor="@color/colorWhite"
-                android:layout_marginTop="20dp"
                 android:layout_gravity="center"
                 android:background="@drawable/circular_border_shape"
-                android:text="@string/apply"
+                android:text="@string/cancel_application"
                 android:textAllCaps="false"
                 android:textSize="14sp"
                 android:textStyle="bold"
+                android:visibility="gone"
                 app:spinning_bar_width="4dp"
                 app:spinning_bar_color="@color/colorWhite"
                 app:spinning_bar_padding="6dp" />
+
+            <LinearLayout
+                android:id="@+id/payment_btn_holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/margin_20">
+
+                <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+                    android:id="@+id/pay_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorWhite"
+                    android:layout_gravity="center"
+                    android:background="@drawable/circular_border_shape"
+                    android:text="@string/make_payment"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:onClick="makePayment"
+                    app:spinning_bar_width="4dp"
+                    app:spinning_bar_color="@color/colorWhite"
+                    app:spinning_bar_padding="6dp" />
+
+                <TextView
+                    android:id="@+id/view_payments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/padding_10"
+                    android:layout_gravity="center"
+                    style="@style/text_view_style"
+                    android:textColor="@color/colorAccent"
+                    android:text="@string/view_payment_history"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:onClick="viewPaymentHistory"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -259,12 +259,14 @@ public class Utility {
                 theme.put("badge", R.style.tag_pending);
                 theme.put("background", R.drawable.tag_pending);
                 break;
+            case "awaiting":
             case "processing":
                 theme.put("icon", isIncoming ? R.drawable.ic_incoming_warning : R.drawable.ic_outgoing_warning);
                 theme.put("color", R.color.warningColor);
                 theme.put("badge", R.style.tag_warning);
                 theme.put("background", R.drawable.tag_warning);
                 break;
+            case "granted":
             case "successful":
                 theme.put("icon", isIncoming ? R.drawable.ic_incoming_success : R.drawable.ic_outgoing_success);
                 theme.put("color", R.color.successColor);

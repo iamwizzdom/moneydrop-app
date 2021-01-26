@@ -41,7 +41,7 @@
                 android:textColor="@color/colorWhite"
                 android:text="@string/offer_loan"
                 style="@style/text_view_style"
-                android:textSize="14sp"/>
+                android:textSize="13sp"/>
 
         </LinearLayout>
 
@@ -70,7 +70,7 @@
                 android:textColor="@color/colorWhite"
                 android:text="@string/request_loan"
                 style="@style/text_view_style"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
 
         </LinearLayout>
 
@@ -99,7 +99,7 @@
                 android:textColor="@color/colorWhite"
                 android:text="@string/history"
                 style="@style/text_view_style"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
 
         </LinearLayout>
 
@@ -127,7 +127,7 @@
                 android:textColor="@color/colorWhite"
                 android:text="@string/top_up"
                 style="@style/text_view_style"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
 
         </LinearLayout>
 

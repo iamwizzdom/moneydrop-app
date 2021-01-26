@@ -347,10 +347,14 @@ public class LoanRequestsFragment extends CustomFragment {
         }
     }
 
-    public Bundle getState() {
+    private String getStateKey() {
         String stateKey = activity instanceof MainActivity ? MainActivity.STATE_KEY : UserLoanActivity.STATE_KEY;
         stateKey += ("-" + STATE_KEY);
-        return Utility.getState(stateKey);
+        return stateKey;
+    }
+
+    public Bundle getState() {
+        return Utility.getState(getStateKey());
     }
 
     public Bundle getCurrentState() {
@@ -360,9 +364,7 @@ public class LoanRequestsFragment extends CustomFragment {
     }
 
     public void saveState() {
-        String stateKey = activity instanceof MainActivity ? MainActivity.STATE_KEY : UserLoanActivity.STATE_KEY;
-        stateKey += ("-" + STATE_KEY);
-        Utility.saveState(stateKey, getCurrentState());
+        Utility.saveState(getStateKey(), getCurrentState());
     }
 
     @Override

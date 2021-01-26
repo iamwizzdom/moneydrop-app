@@ -125,16 +125,16 @@ public class LoanDetailsActivity extends AppCompatActivity {
                 .error(loanUser.getDefaultPicture())
                 .into(ivUserPic);
 
-        tvType.setText(String.format("Loan %s", loan.getType()));
+        tvType.setText(String.format("Loan %s", loan.getLoanType()));
         tvFundRaiser.setText(loan.isFundRaiser() ? "Yes" : "No");
         tvAmount.setText(format.format(loan.getAmount()));
         tvReference.setText(loan.getReference());
         tvTenure.setText(loan.getTenure());
         tvInterest.setText(String.format("%s percent", loan.getInterest()));
-        tvPurpose.setText(loan.getType().equals("request") ? Utility.castEmpty(loan.getPurpose(), "Not specified") : "Not applicable");
+        tvPurpose.setText(loan.getLoanType().equals("request") ? Utility.castEmpty(loan.getPurpose(), "Not specified") : "Not applicable");
         tvInterestType.setText(String.format("%s interest", loan.getInterestType()));
         tvDate.setText(loan.getDate());
-        tvStatus.setText(loan.getStatus());
+        tvStatus.setText(Utility.ucFirst(loan.getStatus()));
 
         ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
         tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
@@ -289,7 +289,7 @@ public class LoanDetailsActivity extends AppCompatActivity {
                             Utility.saveState(WalletFragment.STATE_KEY, walletFragmentState);
                         }
 
-                        String stateKey = (MainActivity.STATE_KEY + "-" + (loan.getType().equals("offer") ? LoanOffersFragment.class.getName() : LoanRequestsFragment.class.getName()));
+                        String stateKey = (MainActivity.STATE_KEY + "-" + (loan.getLoanType().equals("offer") ? LoanOffersFragment.class.getName() : LoanRequestsFragment.class.getName()));
                         Bundle state = Utility.getState(stateKey);
                         if (state.size() > 0) {
                             try {

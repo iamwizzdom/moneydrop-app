@@ -51,23 +51,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         sendOTPBtn = findViewById(R.id.sendOTPBtn);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                Utility.requestFocus(etEmail, ForgotPasswordActivity.this);
+        etEmail.setOnEditorActionListener((textView, id, keyEvent) -> {
+            if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
+                sendOTP();
+                return true;
             }
-        }, 1000);
-
-        etEmail.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    sendOTP();
-                    return true;
-                }
-                return false;
-            }
+            return false;
         });
 
         sendOTPBtn.setOnClickListener(v -> sendOTP());
@@ -75,6 +64,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     public void onBackPressed(View view) {
         super.onBackPressed();
+    }
+
+    public void verifyOTP(View view) {
+        Intent intent = new Intent(ForgotPasswordActivity.this, PasswordResetActivity.class);
+        startActivity(intent);
     }
 
     private void sendOTP() {

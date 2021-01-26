@@ -28,7 +28,6 @@ public class VerificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verification);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         mHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         loadFragment(TAG_VERIFICATION);
     }

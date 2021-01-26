@@ -11,7 +11,8 @@ public class URLContract {
     private static final String URL_HTTP_SCHEME = "http://";
     private static final String URL_HTTPS_SCHEME = "https://";
     public static final String URL_SCHEME = URL_HTTP_SCHEME;
-    public static final String HOST_URL = "192.168.0.109:8000";
+//    public static final String HOST_URL = "192.168.0.109:8000";
+    public static final String HOST_URL = "10.101.184.55:8000";
     public static final String BASE_URL = URL_SCHEME + HOST_URL;
     private static final String API_URL = BASE_URL + "/api/v1";
     public static final String LOGIN_URL = API_URL + "/auth/login";
@@ -21,7 +22,7 @@ public class URLContract {
     public static final String VERIFY_EMAIL_REQUEST_URL = API_URL + "/auth/verification/email/request";
     public static final String VERIFY_EMAIL_URL = API_URL + "/auth/verification/email/verify";
     public static final String DASHBOARD_REQUEST_URL = API_URL + "/dashboard";
-    public static final String PROFILE_UPDATE_REQUEST_URL = API_URL + "/profile/update";
+    public static final String PROFILE_UPDATE_REQUEST_URL = API_URL + "/user/profile/update";
     public static final String USER_LOAN_REQUEST_LIST_URL = API_URL + "/user/loan/requests";
     public static final String USER_LOAN_OFFERS_LIST_URL = API_URL + "/user/loan/offers";
     public static final String LOAN_REQUEST_LIST_URL = API_URL + "/loan/requests";
@@ -44,5 +45,7 @@ public class URLContract {
     public static final String LOAN_CONSTANTS_URL = API_URL + "/loan/constants";
     public static final String NOTIFICATIONS_URL = API_URL + "/notifications";
     public static final String HISTORY_URL = API_URL + "/history";
+    public static final String LOAN_REPAYMENT_URL = API_URL + "/loan/application/%s/repayment";
+    public static final String LOAN_REPAYMENT_HISTORY_URL = API_URL + "/loan/application/%s/repayment/history";
 
 }

@@ -136,7 +136,7 @@ public class LoanApplicantsActivity extends AppCompatActivity {
 
 //        LinearLayout container = findViewById(R.id.container);
 
-        tvType.setText(String.format("Loan %s", loan.getType()));
+        tvType.setText(String.format("Loan %s", loan.getLoanType()));
         tvDate.setText(loan.getDate());
         tvAmount.setText(format.format(loan.getAmount()));
         tvStatus.setText(Utility.ucFirst(loan.getStatus()));
@@ -163,9 +163,9 @@ public class LoanApplicantsActivity extends AppCompatActivity {
     public void grantLoan(LoanApplication application, ProgressButton btn) {
 
         CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(LoanApplicantsActivity.this);
-        alertDialog.setIcon(application.getLoan().getType().equals("offer") ? R.drawable.ic_give_money : R.drawable.ic_receive_money);
+        alertDialog.setIcon(application.getLoan().getLoanType().equals("offer") ? R.drawable.ic_give_money : R.drawable.ic_receive_money);
         String confirmation = "Are you sure you want to give %s this loan?";
-        if (application.getLoan().getType().equals("request")) {
+        if (application.getLoan().getLoanType().equals("request")) {
             confirmation = "Are you sure you want to collect this loan from %s?";
         }
         alertDialog.setMessage(String.format(confirmation, application.getApplicant().getFirstname()));

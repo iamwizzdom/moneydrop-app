@@ -1,37 +1,35 @@
 package com.quidvis.moneydrop.adapter;
 
 import android.app.Activity;
-import android.graphics.Typeface;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
+import android.content.Intent;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.activity.LoanApplicantsActivity;
+import com.quidvis.moneydrop.activity.TransactionReceiptActivity;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
-import com.quidvis.moneydrop.model.LoanApplication;
-import com.quidvis.moneydrop.model.User;
-import com.quidvis.moneydrop.utility.view.ProgressButton;
+import com.quidvis.moneydrop.model.LoanRepayment;
+import com.quidvis.moneydrop.model.Transaction;
+import com.quidvis.moneydrop.utility.Utility;
 
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.Objects;
 
 import static com.quidvis.moneydrop.constant.Constant.DEFAULT_RECORD_PER_VIEW;
+import static com.quidvis.moneydrop.utility.Utility.getTheme;
 
 /**
  * Created by Wisdom Emenike.
@@ -39,7 +37,7 @@ import static com.quidvis.moneydrop.constant.Constant.DEFAULT_RECORD_PER_VIEW;
  * Time: 12:33 AM
  */
 
-public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class LoanRepaymentTransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
@@ -50,15 +48,17 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
     private final RecyclerView recyclerView;
     private final RecyclerView.OnScrollListener mOnScrollListener;
 
+    private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en", "ng"));
     private final Activity activity;
-    private final List<LoanApplication> loanApplications;
+    private final List<LoanRepayment> loanRepayments;
 
     //Constructor
-    public LoanApplicantAdapter(RecyclerView recyclerView, Activity activity, List<LoanApplication> loanApplications) {
+    public LoanRepaymentTransactionAdapter(RecyclerView recyclerView, Activity activity, List<LoanRepayment> loanRepayments) {
 
         this.activity = activity;
-        this.loanApplications = loanApplications;
+        this.loanRepayments = loanRepayments;
         this.recyclerView = recyclerView;
+        format.setMaximumFractionDigits(2);
 
         final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
@@ -89,7 +89,7 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public int getItemViewType(int position) {
         int VIEW_TYPE_NO_MORE_RECORD = 2;
-        return loanApplications.get(position) == null ? (isLoading() ? VIEW_TYPE_LOADING : VIEW_TYPE_NO_MORE_RECORD) : VIEW_TYPE_ITEM;
+        return loanRepayments.get(position) == null ? (isLoading() ? VIEW_TYPE_LOADING : VIEW_TYPE_NO_MORE_RECORD) : VIEW_TYPE_ITEM;
     }
 
     @NonNull
@@ -99,7 +99,7 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (viewType == VIEW_TYPE_ITEM) {
 
             return new ParentViewHolder(
-                    LayoutInflater.from(activity).inflate(R.layout.loan_applicant_layout, parent, false)
+                    LayoutInflater.from(activity).inflate(R.layout.transaction_layout, parent, false)
             );
 
         } else if (viewType == VIEW_TYPE_LOADING) {
@@ -120,67 +120,35 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         if (holder instanceof ParentViewHolder) {
 
-            LoanApplication application = this.loanApplications.get(position);
+            LoanRepayment repayment = this.loanRepayments.get(position);
+            Transaction transaction = repayment.getTransaction();
+
             ParentViewHolder parentViewHolder = (ParentViewHolder) holder;
 
-            User user = application.getApplicant();
+            parentViewHolder.tvType.setText(transaction.getType());
+            parentViewHolder.tvDate.setText(transaction.getDate());
+            parentViewHolder.tvAmount.setText(format.format(transaction.getAmount()));
+            parentViewHolder.tvStatus.setText(Utility.ucFirst(transaction.getStatus()));
 
-            parentViewHolder.tvUsername.setText(String.format("%s %s", user.getFirstname(), user.getLastname()));
+            ArrayMap<String, Integer> theme = getTheme(transaction.getStatus(), transaction.getType().toLowerCase().equals("top-up"));
 
-            String date = String.format("Date Applied: %s", application.getDateShort());
-            int start = date.indexOf(":") + 1, end = date.length();
-            SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(date);
-            spannableStringBuilder.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            spannableStringBuilder.setSpan(new android.text.style.RelativeSizeSpan(1.1f), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            spannableStringBuilder.setSpan(new android.text.style.ForegroundColorSpan(activity.getResources().getColor(R.color.colorAccent)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            parentViewHolder.tvDate.setText(spannableStringBuilder);
-
-            Glide.with(activity)
-                    .load(user.getPictureUrl())
-                    .placeholder(user.getDefaultPicture())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .error(user.getDefaultPicture())
-                    .apply(new RequestOptions().override(150, 150))
-                    .into(parentViewHolder.mvPic);
+            parentViewHolder.mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
+            parentViewHolder.tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
+            parentViewHolder.tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
+            parentViewHolder.tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
             int size = getItemCount();
 
-            if ((position == 0 && size >= 1) || position > 0 && position < (size - 1))
+            if ((position == 0 && size > 1) || position > 0 && position < (size - 1))
                 parentViewHolder.container.setBackgroundResource(R.drawable.layout_underline);
 
-            parentViewHolder.container.setOnClickListener(v -> {
-//                Intent intent = new Intent(activity, TransactionReceiptActivity.class);
-//                intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, loanApplication.getTransObject().toString());
-//                activity.startActivity(intent);
-            });
+            if (repayment.getPayer().isMe()) {
 
-            Button button = parentViewHolder.grantBtn.getButton();
-
-            if (application.isHasGranted()) {
-
-                button.setEnabled(false);
-                button.setAlpha(0.5f);
-                parentViewHolder.grantBtn.setButtonOnClickListener(null);
-
-                if (application.isGranted()) {
-                    button.setText(R.string.granted);
-                    button.setTextColor(activity.getResources().getColor(R.color.successColor));
-                    button.setBackgroundResource(R.drawable.button_border_success);
-                } else {
-                    button.setText(R.string.rejected);
-                    button.setTextColor(activity.getResources().getColor(R.color.dangerColor));
-                    button.setBackgroundResource(R.drawable.button_border_default);
-                }
-
-            } else {
-
-                button.setEnabled(true);
-                button.setAlpha(1f);
-
-                button.setText(R.string.grant);
-                button.setTextColor(activity.getResources().getColor(R.color.colorAccent));
-                button.setBackgroundResource(R.drawable.button_border_info);
-                parentViewHolder.grantBtn.setButtonOnClickListener(v -> ((LoanApplicantsActivity) activity).grantLoan(application, (ProgressButton) v));
+                parentViewHolder.container.setOnClickListener(v -> {
+                    Intent intent = new Intent(activity, TransactionReceiptActivity.class);
+                    intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, transaction.getTransObject().toString());
+                    activity.startActivity(intent);
+                });
             }
 
         } else if (holder instanceof LoadingViewHolder) {
@@ -194,7 +162,7 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemCount() {
-        return loanApplications != null ? loanApplications.size() : 0;
+        return loanRepayments != null ? loanRepayments.size() : 0;
     }
 
     public boolean isPermitLoadMore() {
@@ -214,14 +182,14 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (loaded) {
 
             recyclerView.clearOnScrollListeners();
-            loanApplications.add(null);
+            loanRepayments.add(null);
             this.notifyItemInserted((getItemCount() - 1));
 
         } else if (isLoading()) {
 
             int currentSize = getItemCount();
             if (currentSize > 0) {
-                loanApplications.remove((currentSize - 1));
+                loanRepayments.remove((currentSize - 1));
                 this.notifyItemRemoved(currentSize);
             }
             recyclerView.addOnScrollListener(mOnScrollListener);
@@ -250,17 +218,17 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
     private static class ParentViewHolder extends RecyclerView.ViewHolder {
 
         public final LinearLayout container;
-        public final ImageView mvPic;
-        public final TextView tvUsername, tvDate;
-        public final ProgressButton grantBtn;
+        public final ImageView mvIcon;
+        public final TextView tvType, tvDate, tvAmount, tvStatus;
 
         public ParentViewHolder(View view) {
             super(view);
             container = view.findViewById(R.id.container);
-            mvPic = view.findViewById(R.id.profile_pic);
-            tvUsername = view.findViewById(R.id.username);
-            tvDate = view.findViewById(R.id.application_date);
-            grantBtn = view.findViewById(R.id.grant_btn);
+            mvIcon = view.findViewById(R.id.transaction_icon);
+            tvType = view.findViewById(R.id.transaction_type);
+            tvDate = view.findViewById(R.id.transaction_date);
+            tvAmount = view.findViewById(R.id.transaction_amount);
+            tvStatus = view.findViewById(R.id.transaction_status);
         }
     }
 }
