@@ -1,22 +1,36 @@
 package com.quidvis.moneydrop.adapter;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.ImagePreviewActivity;
+import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
 import com.quidvis.moneydrop.model.Notification;
+import com.quidvis.moneydrop.utility.NotificationIntent;
+import com.quidvis.moneydrop.utility.Utility;
+
 import java.util.List;
 import java.util.Objects;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.quidvis.moneydrop.constant.Constant.DEFAULT_RECORD_PER_VIEW;
 
@@ -109,13 +123,36 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             Notification notification = this.notifications.get(position);
             ParentViewHolder parentViewHolder = (ParentViewHolder) holder;
 
-            parentViewHolder.tvNotice.setText(notification.getNotice());
+            parentViewHolder.tvNotice.setText(notification.getMessage());
             parentViewHolder.tvNoticeTime.setText(notification.getDateTime());
+
+            if (!TextUtils.isEmpty(notification.getImage())) {
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
+                params.weight = 1.7f;
+                parentViewHolder.noticeContainer.setLayoutParams(params);
+                parentViewHolder.noticeImageHolder.setVisibility(View.VISIBLE);
+                Glide.with(activity)
+                        .load((URLContract.URL_SCHEME + URLContract.HOST_URL + "/" + notification.getImage()))
+                        .placeholder(R.drawable.unisex)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .error(R.drawable.unisex)
+                        .into(parentViewHolder.noticeImage);
+            } else {
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                parentViewHolder.noticeContainer.setLayoutParams(params);
+                parentViewHolder.noticeImageHolder.setVisibility(View.GONE);
+            }
 
             int size = getItemCount();
 
             if ((position == 0 && size > 1) || position > 0 && position < (size - 1))
                 parentViewHolder.container.setBackgroundResource(R.drawable.layout_underline);
+
+            parentViewHolder.container.setOnClickListener(v -> {
+                Intent intent = NotificationIntent.getIntent(activity, notification.getActivity(), notification.getPayload());
+                activity.startActivity(intent);
+            });
 
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -183,12 +220,17 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private static class ParentViewHolder extends RecyclerView.ViewHolder {
 
-        public final LinearLayout container;
+        public final RelativeLayout noticeImageHolder;
+        public final LinearLayout container, noticeContainer;
+        public final CircleImageView noticeImage;
         public final TextView tvNotice, tvNoticeTime;
 
         public ParentViewHolder(View view) {
             super(view);
             container = view.findViewById(R.id.container);
+            noticeContainer = view.findViewById(R.id.notice_container);
+            noticeImageHolder = view.findViewById(R.id.notice_image_holder);
+            noticeImage = view.findViewById(R.id.notice_image);
             tvNotice = view.findViewById(R.id.notice);
             tvNoticeTime = view.findViewById(R.id.notice_time);
         }

@@ -177,7 +177,7 @@
                             android:gravity="start"
                             android:text="@string/my_loans"
                             android:textColor="@color/colorAccent"
-                            android:textSize="23sp"
+                            android:textSize="20sp"
                             android:textStyle="bold"/>
 
                         <TextView
@@ -195,13 +195,13 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:layout_marginTop="@dimen/margin_10"
                         android:paddingStart="3dp"
                         android:paddingEnd="3dp"
                         android:paddingTop="@dimen/padding_5"
                         android:paddingBottom="@dimen/padding_5"
                         app:cardUseCompatPadding="true"
-                        app:cardElevation="2dp"
+                        app:cardElevation="1dp"
                         app:cardCornerRadius="8dp">
 
                         <LinearLayout
@@ -266,7 +266,7 @@
                             android:gravity="start"
                             android:text="@string/transactions"
                             android:textColor="@color/colorAccent"
-                            android:textSize="23sp"
+                            android:textSize="20sp"
                             android:textStyle="bold"/>
 
                         <TextView
@@ -284,13 +284,13 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:layout_marginTop="@dimen/margin_10"
                         android:paddingStart="3dp"
                         android:paddingEnd="3dp"
                         android:paddingTop="@dimen/padding_5"
                         android:paddingBottom="@dimen/padding_5"
                         app:cardUseCompatPadding="true"
-                        app:cardElevation="2dp"
+                        app:cardElevation="1dp"
                         app:cardCornerRadius="8dp">
 
                         <LinearLayout

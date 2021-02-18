@@ -11,15 +11,15 @@ public class Loan {
 
     private int id;
     private double amount, interest;
-    private String reference, loanType, interestType, tenure, purpose, note, status, date;
-    private boolean isFundRaiser, isMine, hasApplied;
+    private String uuid, loanType, interestType, tenure, purpose, note, status, date;
+    private boolean isFundRaiser, isMine, isGranted, hasApplied;
     private User user;
     private final JSONObject loanObject;
 
     public Loan(Context context, JSONObject loanObject) throws JSONException {
         this.loanObject = loanObject;
         this.setId(loanObject.getInt("id"));
-        this.setReference(loanObject.getString("uuid"));
+        this.setUuid(loanObject.getString("uuid"));
         this.setLoanType(loanObject.getString("loan_type_readable"));
         this.setInterestType(loanObject.getString("interest_type_readable"));
         this.setAmount(loanObject.getDouble("amount"));
@@ -31,6 +31,7 @@ public class Loan {
         this.setDate(loanObject.getString("date"));
         this.setFundRaiser(loanObject.getBoolean("is_fund_raiser"));
         this.setMine(loanObject.getBoolean("is_mine"));
+        this.setGranted(loanObject.getBoolean("is_granted"));
         this.setHasApplied(loanObject.getBoolean("has_applied"));
         if (loanObject.has("user") && !Utility.castEmpty(loanObject.getString("user")).isEmpty())
             user = new User(context, loanObject.getJSONObject("user"));
@@ -44,20 +45,20 @@ public class Loan {
         this.id = id;
     }
 
-    public String getReference() {
-        return reference;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setReference(String reference) {
-        this.reference = reference;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public boolean isLoanOffer() {
-        return getLoanType().equals("offer");
+        return getLoanType().toLowerCase().equals("offer");
     }
 
     public boolean isLoanRequest() {
-        return getLoanType().equals("request");
+        return getLoanType().toLowerCase().equals("request");
     }
 
     public String getLoanType() {
@@ -144,8 +145,20 @@ public class Loan {
         return isMine;
     }
 
+    public boolean isRevoked() {
+        return getStatus().toLowerCase().equals("revoked");
+    }
+
     public void setMine(boolean mine) {
         isMine = mine;
+    }
+
+    public boolean isGranted() {
+        return isGranted;
+    }
+
+    public void setGranted(boolean granted) {
+        isGranted = granted;
     }
 
     public boolean isHasApplied() {

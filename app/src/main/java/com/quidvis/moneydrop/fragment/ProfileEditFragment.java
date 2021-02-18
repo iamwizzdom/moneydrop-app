@@ -203,8 +203,9 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
     private void update() {
 
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity, String.format("%s/%s", URLContract.PROFILE_UPDATE_REQUEST_URL,
-                getUpdateUriType()), Request.Method.POST, new HttpRequestParams() {
+        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
+                String.format( URLContract.PROFILE_UPDATE_REQUEST_URL, getUpdateUriType()),
+                Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 return getUpdateParams();

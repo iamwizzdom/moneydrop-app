@@ -55,10 +55,10 @@
             app:cursorWidth="2dp"
             app:hideLineWhenFilled="true"
             app:itemCount="4"
-            app:itemWidth="48dp"
             app:itemHeight="48dp"
             app:itemRadius="4dp"
             app:itemSpacing="10dp"
+            app:itemWidth="48dp"
             app:lineColor="@color/colorBackground"
             app:lineWidth="2dp"
             app:viewType="rectangle" />

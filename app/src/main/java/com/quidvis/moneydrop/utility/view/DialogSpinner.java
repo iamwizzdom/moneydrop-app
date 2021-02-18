@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.quidvis.moneydrop.R;
 
@@ -31,8 +32,10 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
     private String[] entries;
     private boolean isSelected = false;
     private String spinnerPlaceholder, dialogTitle, dialogMessage;
-    private int spinnerIcon, selectedItemPosition = 0;
-    private final View.OnClickListener onClickListener = v -> {
+    private int originalTextColor, spinnerPlaceholderColor,
+            spinnerIcon, selectedItemPosition = 0;
+    private OnSelectedListener onSelectedListener;
+    private final OnClickListener onClickListener = v -> {
 
         AlertDialog dialog = new AlertDialog(getContext(), R.layout.spinner_layout);
 
@@ -56,14 +59,15 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
         changeDividerColor(picker);
         setNumberPickerTextColor(picker);
         picker.setValue(selectedItemPosition);
-        dialog.show();
 
         doneBtn.setOnClickListener(vw -> {
             selectedItemPosition = picker.getValue();
             selected();
+            if (onSelectedListener != null) onSelectedListener.onSelected(v);
             dialog.dismiss();
         });
 
+        dialog.show();
     };
 
     public DialogSpinner(@NonNull Context context) {
@@ -74,9 +78,11 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
         super(context, attrs);
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.DialogSpinner, 0, 0);
 
+        originalTextColor = getCurrentTextColor();
         setDialogTitle(a.getString(R.styleable.DialogSpinner_dialogTitle));
         setDialogMessage(a.getString(R.styleable.DialogSpinner_dialogMessage));
         setSpinnerPlaceholder(a.getString(R.styleable.DialogSpinner_spinnerPlaceholder));
+        setSpinnerPlaceholderColor(a.getResourceId(R.styleable.DialogSpinner_spinnerPlaceholderColor, R.color.black));
         setSpinnerIcon(a.getResourceId(R.styleable.DialogSpinner_spinnerIcon, R.drawable.ic_down_arrow));
 
         CharSequence[] entry = a.getTextArray(R.styleable.DialogSpinner_entries);
@@ -92,6 +98,7 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
             setText(entries[selectedItemPosition]);
         } else setText(spinnerPlaceholder);
 
+        setTextColor(ResourcesCompat.getColor(getResources(), spinnerPlaceholderColor, null));
         setCompoundDrawablesWithIntrinsicBounds(0, 0, getSpinnerIcon(),0);
         setOnClickListener(null);
     }
@@ -100,10 +107,13 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
         super(context, attrs, defStyleAttr);
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.DialogSpinner, 0, 0);
 
+        originalTextColor = getCurrentTextColor();
+
         setDialogTitle(a.getString(R.styleable.DialogSpinner_dialogTitle));
         setDialogMessage(a.getString(R.styleable.DialogSpinner_dialogMessage));
         setSpinnerPlaceholder(a.getString(R.styleable.DialogSpinner_spinnerPlaceholder));
         setSpinnerIcon(a.getResourceId(R.styleable.DialogSpinner_spinnerIcon, R.drawable.ic_down_arrow));
+        setSpinnerPlaceholderColor(a.getResourceId(R.styleable.DialogSpinner_spinnerPlaceholderColor, R.color.black));
 
         CharSequence[] entry = a.getTextArray(R.styleable.DialogSpinner_entries);
         int size = entry != null ? entry.length : 0;
@@ -118,6 +128,7 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
             setText(entries[selectedItemPosition]);
         } else setText(spinnerPlaceholder);
 
+        setTextColor(ResourcesCompat.getColor(getResources(), spinnerPlaceholderColor, null));
         setCompoundDrawablesWithIntrinsicBounds(0, 0, getSpinnerIcon(),0);
         setOnClickListener(null);
     }
@@ -125,6 +136,10 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
     @Override
     public void setOnClickListener(@Nullable OnClickListener l) {
         super.setOnClickListener(onClickListener);
+    }
+
+    public void setOnSelectedListener(OnSelectedListener onSelectedListener) {
+        this.onSelectedListener = onSelectedListener;
     }
 
     public void setDialogTitle(String dialogTitle) {
@@ -141,6 +156,10 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
 
     public void setSpinnerPlaceholder(String spinnerPlaceholder) {
         this.spinnerPlaceholder = spinnerPlaceholder;
+    }
+
+    public void setSpinnerPlaceholderColor(int color) {
+        this.spinnerPlaceholderColor = color;
     }
 
     public void setSpinnerIcon(int spinnerIcon) {
@@ -177,13 +196,14 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
         if (entries != null && entries.length > 0) {
             setText(entries[selectedItemPosition]);
             isSelected = true;
+            setTextColor(originalTextColor);
         }
     }
 
     private void changeDividerColor(NumberPicker picker) {
         int color = getContext().getResources().getColor(R.color.colorWhiteDark);
-        java.lang.reflect.Field[] pickerFields = NumberPicker.class.getDeclaredFields();
-        for (java.lang.reflect.Field pf : pickerFields) {
+        Field[] pickerFields = NumberPicker.class.getDeclaredFields();
+        for (Field pf : pickerFields) {
             if (pf.getName().equals("mSelectionDivider")) {
                 pf.setAccessible(true);
                 try {
@@ -232,5 +252,9 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
             window.setGravity(Gravity.CENTER);
             window.getAttributes().windowAnimations = R.style.DialogAnimationPop;
         }
+    }
+
+    public interface OnSelectedListener {
+        void onSelected(View v);
     }
 }

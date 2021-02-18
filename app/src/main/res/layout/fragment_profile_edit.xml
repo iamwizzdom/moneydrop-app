@@ -18,7 +18,7 @@
             android:id="@+id/backBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_dark_back_arrow"
+            android:src="@drawable/ic_back_arrow_dark"
             android:padding="21dp"
             android:layout_weight="0.5"
             android:layout_gravity="start|center"

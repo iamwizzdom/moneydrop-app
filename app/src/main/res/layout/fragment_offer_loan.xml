@@ -39,7 +39,7 @@
                     android:gravity="start"
                     android:text="@string/offer_amount"
                     android:textColor="@color/colorAccent"
-                    android:textSize="23sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -47,7 +47,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight=".8"
-                    android:padding="@dimen/padding_15"
+                    android:paddingStart="@dimen/padding_10"
+                    android:paddingEnd="@dimen/padding_10"
+                    android:paddingTop="@dimen/padding_15"
+                    android:paddingBottom="@dimen/padding_15"
                     style="@style/text_view_style"
                     android:background="@drawable/layout_background_rounded"
                     android:backgroundTint="@color/colorGrayExtraLight"
@@ -100,20 +103,6 @@
 
             </LinearLayout>
 
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxHeight="8dp"
-                android:layout_marginTop="@dimen/margin_20"
-                android:indeterminate="false"
-                android:max="20"
-                android:progress="8"
-                android:progressDrawable="@drawable/seekbar_progress_style"
-                android:thumb="@drawable/seekbar_thumb"
-                android:thumbOffset="0dp" />
-
-
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -129,6 +118,31 @@
                 </LinearLayout>
 
             </HorizontalScrollView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/text_view_style"
+                android:layout_marginTop="@dimen/margin_20"
+                android:gravity="start"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                android:textColor="@color/black"
+                android:text="@string/interest_rate"/>
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="8dp"
+                android:indeterminate="false"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:max="20"
+                android:progress="8"
+                android:progressDrawable="@drawable/seekbar_progress_style"
+                android:thumb="@drawable/seekbar_thumb"
+                android:thumbOffset="0dp" />
 
             <com.quidvis.moneydrop.utility.view.DialogSpinner
                 android:id="@+id/loan_tenure"

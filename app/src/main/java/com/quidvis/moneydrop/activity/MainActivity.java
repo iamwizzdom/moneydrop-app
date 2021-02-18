@@ -2,8 +2,13 @@ package com.quidvis.moneydrop.activity;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,8 +19,14 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.constant.FirebaseConfig;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.fragment.MainFragment;
@@ -29,12 +40,17 @@ import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
 import com.quidvis.moneydrop.network.HttpRequest;
+import com.quidvis.moneydrop.utility.FirebaseMessageReceiver;
+import com.quidvis.moneydrop.utility.NotificationIntent;
+import com.quidvis.moneydrop.utility.NotificationUtils;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.model.BottomSheetLayoutModel;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
@@ -55,7 +71,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
+    public final static String START_FRAGMENT = "startFragment";
     public final static String STATE_KEY = MainActivity.class.getName();
+    private LinearLayout backBtnHolder, titleHolder;
     private TextView titleTv, subtitleTv;
     private BottomNavigationView navView;
     private NavController navController;
@@ -68,9 +86,8 @@ public class MainActivity extends AppCompatActivity {
     private CircleImageView profilePic;
 
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
-        int itemId = item.getItemId();
         try {
-            navController.navigate(itemId, null, getNavOptions());
+            loadFragment(item.getItemId());
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -82,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        titleHolder = findViewById(R.id.titleHolder);
+        backBtnHolder = findViewById(R.id.backBtnHolder);
         profilePic = findViewById(R.id.profile_pic);
         titleTv = findViewById(R.id.title);
         subtitleTv = findViewById(R.id.subtitle);
@@ -102,10 +121,45 @@ public class MainActivity extends AppCompatActivity {
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 //        NavigationUI.setupWithNavController(navView, navController);
 
+        Intent intent = getIntent();
+
+        if (intent != null) {
+            String fragment = intent.getStringExtra(START_FRAGMENT);
+            if (fragment != null) {
+                int id = getFragmentID(fragment);
+                if (id != 0) loadFragment(id);
+            }
+        }
+
+    }
+
+    private int getFragmentID(String fragment) {
+        switch (fragment) {
+            case "wallet":
+                return R.id.nav_wallet;
+            case "history":
+                return R.id.nav_history;
+        }
+        return 0;
     }
 
     public void loadFragment(View view) {
-        navController.navigate(view.getId(), null, getNavOptions());
+        loadFragment(view.getId());
+    }
+
+    public void loadFragment(int id) {
+        if (id == R.id.nav_history || id == R.id.nav_offer_loan || id == R.id.nav_request_loan) {
+            backBtnHolder.setVisibility(View.VISIBLE);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) titleHolder.getLayoutParams();
+            params.weight = 1.9f;
+            titleHolder.setLayoutParams(params);
+        } else {
+            backBtnHolder.setVisibility(View.GONE);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) titleHolder.getLayoutParams();
+            params.weight = 2.2f;
+            titleHolder.setLayoutParams(params);
+        }
+        navController.navigate(id, null, getNavOptions());
     }
 
     @Override
@@ -189,16 +243,23 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setNegativeButton("No, I'm not ready");
         alertDialog.setPositiveButton("Yes, Log me out", v -> {
 
-            finalDbHelper.deleteUser();
-            finalDbHelper.deleteAllCards();
-            finalDbHelper.deleteAllBankAccounts();
-            finalSession.clearAll();
+            Utility.toastMessage(activity, "Logging out, please wait.");
 
-            Intent intent = new Intent(activity, LoginActivity.class);
-            if (title != null) intent.putExtra(LoginActivity.TITLE, title);
-            if (message != null) intent.putExtra(LoginActivity.MESSAGE, message);
-            activity.startActivity(intent);
-            activity.finish();
+            FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener(task -> {
+
+                finalDbHelper.deleteUser();
+                finalDbHelper.deleteAllCards();
+                finalDbHelper.deleteAllBankAccounts();
+                finalSession.clearAll();
+
+                Intent intent = new Intent(activity, LoginActivity.class);
+                if (title != null) intent.putExtra(LoginActivity.TITLE, title);
+                if (message != null) intent.putExtra(LoginActivity.MESSAGE, message);
+                activity.startActivity(intent);
+                activity.finish();
+
+            }).addOnFailureListener(e -> Utility.toastMessage(activity, "Logout failed"));
+
         });
         alertDialog.display();
     }
@@ -948,11 +1009,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (!(new Session(this)).isLoggedIn()) {
+            Utility.clearAllState();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        // clear the notification area when the app is opened
+        NotificationUtils.clearNotifications(getApplicationContext());
+
         setUserPic();
+    }
+
+    public void onBackPressed(View view) {
+        onBackPressed();
     }
 }

@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -33,6 +34,7 @@ import com.quidvis.moneydrop.model.LoanApplication;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
+import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
 import com.quidvis.moneydrop.utility.Utility;
 
@@ -51,14 +53,15 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
     public static final String LOAN_APPLICATION_OBJECT_KEY = "applicationObject";
     public static final int LOAN_APPLICATION_REQUEST_KEY = 134;
     private NumberFormat format;
-    private DbHelper dbHelper;
+    private User user;
     private LoanApplication loanApplication;
     private Loan loan;
 
     private ImageView ivProfilePic, ivUserPic;
     private TextView tvUsername, tvLoanType, tvLoanAmount, tvAmountPaid, tvAmountUnpaid, tvReference,
             tvLoanDate, tvDate, tvLoanStatus, tvDateGranted, tvDateDue, tvApplicationDate, tvApplicationStatus;
-    private LinearLayout loanLayout;
+    private LinearLayout loanLayout, paymentBtnHolder;
+    CircularProgressButton payBtn, cancelApplicationBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,8 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
             return;
         }
 
+        Log.e("applicationString", applicationString);
+
         try {
             JSONObject applicationObject = new JSONObject(applicationString);
             loanApplication = new LoanApplication(this, applicationObject);
@@ -86,7 +91,9 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
         }
 
 
-        dbHelper = new DbHelper(this);
+        DbHelper dbHelper = new DbHelper(this);
+        user = dbHelper.getUser();
+
         loan = loanApplication.getLoan();
 
         loanLayout = findViewById(R.id.loan_layout);
@@ -112,18 +119,9 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
         tvApplicationDate = findViewById(R.id.application_date);
         tvApplicationStatus = findViewById(R.id.application_status);
 
-        LinearLayout paymentBtnHolder = findViewById(R.id.payment_btn_holder);
-        CircularProgressButton payBtn = findViewById(R.id.pay_btn);
-        CircularProgressButton cancelApplicationBtn = findViewById(R.id.cancel_application_btn);
-
-        paymentBtnHolder.setVisibility(loanApplication.isGranted() ? View.VISIBLE : View.GONE);
-        cancelApplicationBtn.setVisibility(loanApplication.isGranted() ? View.GONE : View.VISIBLE);
-
-        if (loan.isLoanOffer()) {
-            if (loan.isMine()) payBtn.setVisibility(View.GONE);
-        } else if (loan.isLoanRequest()) {
-            if (!loan.isMine()) payBtn.setVisibility(View.GONE);
-        }
+        paymentBtnHolder = findViewById(R.id.payment_btn_holder);
+        payBtn = findViewById(R.id.pay_btn);
+        cancelApplicationBtn = findViewById(R.id.cancel_application_btn);
 
         setLoanView();
         setLoanRecipientView();
@@ -161,17 +159,17 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
 
     private void setLoanRecipientView() {
 
-        User applicant = loan.getLoanType().equals("request") ? loanApplication.getApplicant() : loan.getUser();
+        User payee = loan.isLoanOffer() ? loanApplication.getApplicant() : loan.getUser();
 
         Glide.with(this)
-                .load(applicant.getPictureUrl())
-                .placeholder(applicant.getDefaultPicture())
+                .load(payee.getPictureUrl())
+                .placeholder(payee.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .error(applicant.getDefaultPicture())
+                .error(payee.getDefaultPicture())
                 .apply(new RequestOptions().override(150, 150))
                 .into(ivUserPic);
 
-        tvUsername.setText(String.format("%s %s", applicant.getFirstname(), applicant.getLastname()));
+        tvUsername.setText(String.format("%s %s", payee.getFirstname(), payee.getLastname()));
 
         String date = String.format("Date Applied: %s", loanApplication.getDate());
         int start = date.indexOf(":") + 1, end = date.length();
@@ -195,6 +193,24 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
         ArrayMap<String, Integer> theme = Utility.getTheme(loanApplication.getStatus());
         tvApplicationStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
         tvApplicationStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
+
+        if (loanApplication.getApplicant().isMe() || (loan.isLoanRequest() && loan.isMine())) {
+            paymentBtnHolder.setVisibility(loanApplication.isGranted() ? View.VISIBLE : View.GONE);
+            cancelApplicationBtn.setVisibility(loanApplication.isGranted() ? View.GONE : View.VISIBLE);
+        }
+
+        if (loan.isLoanOffer() && loan.getUser().isMe()) payBtn.setVisibility(View.GONE);
+        else if (loan.isLoanRequest() && !loanApplication.getApplicant().isMe()) payBtn.setVisibility(View.GONE);
+        else if (loanApplication.isRepaid()) Utility.disableButton(payBtn);
+    }
+
+    public void reviewRecipient(View view) {
+        if ((loan.isLoanRequest() && loan.isMine()) || (loan.isLoanOffer() && !loan.isMine())) return;
+        User user = loan.isLoanOffer() ? loanApplication.getApplicant() : loan.getUser();
+        if (user.isMe()) return;
+        Intent intent = new Intent(this, ReviewUserActivity.class);
+        intent.putExtra(ReviewUserActivity.LOAN_APPLICATION_OBJECT_KEY, loanApplication.getApplicationObject().toString());
+        startActivity(intent);
     }
 
     @Override
@@ -258,6 +274,15 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
 
     }
 
+    public void cancelApplication(View view) {
+        CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(this);
+        alertDialog.setIcon(R.drawable.ic_remove);
+        alertDialog.setMessage("Are you sure you want to cancel your application?");
+        alertDialog.setNegativeButton("No, cancel");
+        alertDialog.setPositiveButton("Yes, proceed", v -> sendCancelApplicationRequest((CircularProgressButton) view));
+        alertDialog.display();
+    }
+
     public void sendRepaymentRequest(LinearLayout container, TextView tvSuccess, CircularProgressButton submitBtn, CustomBottomSheet bottomSheet, String amount) {
 
         HttpRequest httpRequest = new HttpRequest(this, String.format(URLContract.LOAN_REPAYMENT_URL, loanApplication.getReference()),
@@ -273,7 +298,7 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("Authorization", String.format("Bearer %s", user.getToken()));
                 return params;
             }
 
@@ -306,6 +331,7 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
                         JSONObject applicationObj = respObj.getJSONObject("application");
                         loanApplication = new LoanApplication(LoanApplicationDetailsActivity.this, applicationObj);
                         setLoanApplicationView();
+
                         double balance = respObj.getDouble("balance");
                         double availableBalance = respObj.getDouble("available_balance");
 
@@ -341,9 +367,136 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
                         container.setVisibility(View.GONE);
                         tvSuccess.setVisibility(View.VISIBLE);
                         submitBtn.setOnClickListener(v -> bottomSheet.dismiss());
-                        new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> submitBtn.setText(R.string.done), 500);
+                        new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> {
+                            submitBtn.setText(R.string.done);
+                            submitBtn.setPadding(30, 0, 30, 0);
+                        }, 500);
 
                     } else Utility.toastMessage(LoanApplicationDetailsActivity.this, object.getString("message"), true);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(LoanApplicationDetailsActivity.this, "Something unexpected happened. Please try that again.");
+                }
+
+            }
+
+            @Override
+            protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(error);
+                    AwesomeAlertDialog dialog = new AwesomeAlertDialog(LoanApplicationDetailsActivity.this);
+
+                    dialog.setTitle(object.getString("title"));
+                    String message;
+                    if (object.has("error") && object.getJSONObject("error").length() > 0) {
+                        message = Utility.serializeObject(object.getJSONObject("error"));
+                    } else message = object.getString("message");
+                    dialog.setMessage(message);
+                    dialog.setPositiveButton("Ok", Dialog::dismiss);
+
+                    dialog.display();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(LoanApplicationDetailsActivity.this, statusCode == 503 ? error :
+                            "Something unexpected happened. Please try that again.");
+                }
+            }
+
+            @Override
+            protected void onRequestCancelled() {
+
+            }
+        };
+        httpRequest.send();
+    }
+
+    public void sendCancelApplicationRequest(CircularProgressButton cancelBtn) {
+
+        HttpRequest httpRequest = new HttpRequest(this, String.format(URLContract.LOAN_APPLICATION_CANCEL_URL, loan.getUuid(), loanApplication.getReference()),
+                Request.Method.POST, new HttpRequestParams() {
+
+            @Override
+            public Map<String, String> getParams() {
+                return null;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", String.format("Bearer %s", user.getToken()));
+                return params;
+            }
+
+            @Override
+            public byte[] getBody() {
+                return null;
+            }
+        }) {
+            @Override
+            protected void onRequestStarted() {
+                cancelBtn.startAnimation();
+            }
+
+            @Override
+            protected void onRequestCompleted(boolean onError) {
+
+                cancelBtn.revertAnimation();
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(response);
+
+                    if (object.getBoolean("status")) {
+
+                        JSONObject respObj = object.getJSONObject("response");
+                        JSONObject applicationObj = respObj.getJSONObject("application");
+                        loanApplication = new LoanApplication(LoanApplicationDetailsActivity.this, applicationObj);
+                        setLoanApplicationView();
+
+                        double balance = respObj.getDouble("balance");
+                        double availableBalance = respObj.getDouble("available_balance");
+
+                        Bundle mainFragmentState = Utility.getState(MainFragment.STATE_KEY);
+                        String mainFragmentStringData = mainFragmentState.getString("data");
+
+                        if (mainFragmentStringData != null) {
+
+                            JSONObject mainFragmentData = new JSONObject(mainFragmentStringData);
+
+                            mainFragmentData.put("balance", balance);
+                            mainFragmentData.put("available_balance", availableBalance);
+
+                            mainFragmentState.putString("data", mainFragmentData.toString());
+                            Utility.saveState(MainFragment.STATE_KEY, mainFragmentState);
+                        }
+
+                        Bundle walletFragmentState = Utility.getState(WalletFragment.STATE_KEY);
+                        String walletFragmentStringData = walletFragmentState.getString("data");
+
+                        if (walletFragmentStringData != null) {
+
+                            JSONObject walletFragmentData = new JSONObject(walletFragmentStringData);
+
+                            walletFragmentData.put("balance", balance);
+                            walletFragmentData.put("available_balance", availableBalance);
+
+                            walletFragmentState.putString("data", walletFragmentData.toString());
+                            Utility.saveState(WalletFragment.STATE_KEY, walletFragmentState);
+                        }
+
+                        Utility.disableButton(cancelBtn);
+
+                    }
+
+                    Utility.toastMessage(LoanApplicationDetailsActivity.this, object.getString("message"), true);
 
                 } catch (JSONException e) {
                     e.printStackTrace();

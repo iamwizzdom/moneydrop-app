@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -30,7 +31,6 @@ import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.Utility;
-import com.quidvis.moneydrop.utility.view.ProgressButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class LoanApplicantsActivity extends AppCompatActivity {
@@ -74,6 +75,8 @@ public class LoanApplicantsActivity extends AppCompatActivity {
 
         String loanString = intent.getStringExtra(LOAN_KEY);
 
+        Log.e("loanString", loanString);
+
         if (loanString == null) {
             Utility.toastMessage(this, "No loan passed");
             finish();
@@ -82,6 +85,7 @@ public class LoanApplicantsActivity extends AppCompatActivity {
 
         try {
             JSONObject loanObject = new JSONObject(loanString);
+            Log.e("loanObject", loanObject.toString());
             loan = new Loan(this, loanObject);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -132,6 +136,13 @@ public class LoanApplicantsActivity extends AppCompatActivity {
         getLoanApplications(null);
     }
 
+    public void viewApplicant(User applicant) {
+        if (applicant.isMe()) return;
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra(ProfileActivity.USER_OBJECT_KEY, applicant.getUserObject().toString());
+        startActivity(intent);
+    }
+
     public void setUpLoanView() {
 
 //        LinearLayout container = findViewById(R.id.container);
@@ -160,10 +171,10 @@ public class LoanApplicantsActivity extends AppCompatActivity {
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
     }
 
-    public void grantLoan(LoanApplication application, ProgressButton btn) {
+    public void grantLoan(LoanApplication application, CircularProgressButton btn) {
 
         CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(LoanApplicantsActivity.this);
-        alertDialog.setIcon(application.getLoan().getLoanType().equals("offer") ? R.drawable.ic_give_money : R.drawable.ic_receive_money);
+        alertDialog.setIcon(application.getLoan().isLoanOffer() ? R.drawable.ic_give_money : R.drawable.ic_receive_money);
         String confirmation = "Are you sure you want to give %s this loan?";
         if (application.getLoan().getLoanType().equals("request")) {
             confirmation = "Are you sure you want to collect this loan from %s?";
@@ -174,7 +185,7 @@ public class LoanApplicantsActivity extends AppCompatActivity {
         alertDialog.display();
     }
 
-    public void sendGrantLoanRequest(LoanApplication application, ProgressButton btn) {
+    public void sendGrantLoanRequest(LoanApplication application, CircularProgressButton btn) {
 
         HttpRequest httpRequest = new HttpRequest(this, String.format(URLContract.LOAN_APPLICATION_GRANT_URL,
                 application.getLoanID(), application.getReference()),
@@ -199,12 +210,12 @@ public class LoanApplicantsActivity extends AppCompatActivity {
         }) {
             @Override
             protected void onRequestStarted() {
-                btn.startProgress();
+                btn.startAnimation();
             }
 
             @Override
             protected void onRequestCompleted(boolean onError) {
-                btn.stopProgress();
+                btn.revertAnimation();
             }
 
             @Override
@@ -354,7 +365,7 @@ public class LoanApplicantsActivity extends AppCompatActivity {
                 LoanApplication loanApplication = new LoanApplication(this, applicationObject);
                 this.loanApplications.add(loanApplication);
                 if (!addUp) continue;
-                data.getJSONArray("transactions").put(applicationObject);
+                data.getJSONArray("applications").put(applicationObject);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -379,7 +390,7 @@ public class LoanApplicantsActivity extends AppCompatActivity {
         }
 
         HttpRequest httpRequest = new HttpRequest(this,
-                nextPage != null ? (URLContract.BASE_URL + nextPage) : String.format(URLContract.LOAN_APPLICANTS_URL, loan.getReference()),
+                nextPage != null ? (URLContract.BASE_URL + nextPage) : String.format(URLContract.LOAN_APPLICANTS_URL, loan.getUuid()),
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override

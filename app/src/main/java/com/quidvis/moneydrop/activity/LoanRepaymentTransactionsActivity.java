@@ -275,7 +275,6 @@ public class LoanRepaymentTransactionsActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        saveState();
         super.onDestroy();
     }
 

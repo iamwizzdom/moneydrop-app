@@ -28,6 +28,7 @@
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
         android:background="?android:attr/windowBackground"
+        app:layout_dodgeInsetEdges="bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -52,6 +53,27 @@
             android:weightSum="3">
 
             <LinearLayout
+                android:id="@+id/backBtnHolder"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_weight=".3"
+                android:gravity="start"
+                android:visibility="gone"
+                android:onClick="onBackPressed">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_15"
+                    android:src="@drawable/ic_back_arrow_white"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@string/back_button"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/titleHolder"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"

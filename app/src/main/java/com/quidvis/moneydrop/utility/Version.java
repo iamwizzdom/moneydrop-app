@@ -14,7 +14,7 @@ public class Version {
         for (int i = 0; i < serverVersionArray.length; i++) {
             if (currentVersionArray.length > i) {
                 String token = serverVersionArray[i];
-                if (Integer.valueOf(token) > Integer.valueOf(currentVersionArray[i]))
+                if (Integer.parseInt(token) > Integer.parseInt(currentVersionArray[i]))
                     return true;
             } else return true;
         }

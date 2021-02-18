@@ -110,7 +110,7 @@ public class VerificationOTPFragment extends Fragment {
 
         resendCodeListener = v -> requestVerification();
 
-        countDown();
+        startCountDown();
 
         verifyBtn.setOnClickListener(v -> verifyOTP());
 
@@ -123,7 +123,7 @@ public class VerificationOTPFragment extends Fragment {
         });
     }
 
-    private void countDown() {
+    private void startCountDown() {
 
         countDownTimer = new CountDownTimer(countDownTime * 1000, 1000) {
             @Override
@@ -158,7 +158,8 @@ public class VerificationOTPFragment extends Fragment {
             return;
         }
 
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity, URLContract.VERIFY_EMAIL_REQUEST_URL, Request.Method.POST, new HttpRequestParams() {
+        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
+                URLContract.VERIFY_EMAIL_REQUEST_URL, Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -181,7 +182,7 @@ public class VerificationOTPFragment extends Fragment {
                 if (countDownTimer != null) countDownTimer.cancel();
                 tvResend.setText(getResources().getString(R.string.resending));
                 tvResend.setOnClickListener(null);
-                tvResend.setTextColor(getResources().getColor(R.color.titleColor));
+                tvResend.setTextColor(getResources().getColor(R.color.titleColorGray));
             }
 
             @Override
@@ -198,7 +199,7 @@ public class VerificationOTPFragment extends Fragment {
                     Utility.toastMessage(activity, object.getString("message"));
                     email = object.getString("email");
                     countDownTime = object.getInt("expire");
-                    countDown();
+                    startCountDown();
 
                 } catch (JSONException e) {
                     e.printStackTrace();

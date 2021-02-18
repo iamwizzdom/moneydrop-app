@@ -1,5 +1,6 @@
 package com.quidvis.moneydrop.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Dialog;
@@ -15,6 +16,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.volley.Request;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
@@ -24,6 +28,7 @@ import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.network.HttpRequest;
+import com.quidvis.moneydrop.utility.FirebaseMessageReceiver;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -67,6 +72,10 @@ public class LoginActivity extends AppCompatActivity {
 
         session = new Session(this);
         dbHelper = new DbHelper(this);
+
+        if (TextUtils.isEmpty(session.getFirebaseToken())) {
+            FirebaseMessaging.getInstance().getToken().addOnSuccessListener(s -> FirebaseMessageReceiver.storeRegIdInPref(session, s));
+        }
 
         TextView appName = findViewById(R.id.tv_app_name);
         TextView forgotPassword = findViewById(R.id.forgotPassword);
@@ -127,6 +136,7 @@ public class LoginActivity extends AppCompatActivity {
                 Map<String, String> params = new HashMap<>();
                 params.put("email", email);
                 params.put("password", password);
+                params.put("pn_token", session.getFirebaseToken());
                 return params;
             }
 

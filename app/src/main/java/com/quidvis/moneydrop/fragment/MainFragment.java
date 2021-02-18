@@ -32,6 +32,7 @@ import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.model.Transaction;
+import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
 
@@ -198,10 +199,13 @@ public class MainFragment extends Fragment {
         tvAmount.setText(format.format(loan.getAmount()));
         tvStatus.setText(Utility.ucFirst(loan.getStatus()));
 
+        User loanOwner = loan.getUser();
+
         Glide.with(activity)
-                .load(loan.getUser().getPictureUrl())
+                .load(loanOwner.getPictureUrl())
+                .placeholder(loanOwner.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .error(loan.getUser().getDefaultPicture())
+                .error(loanOwner.getDefaultPicture())
                 .apply(new RequestOptions().override(150, 150))
                 .into(mvIcon);
 

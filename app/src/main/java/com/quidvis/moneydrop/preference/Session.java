@@ -36,6 +36,15 @@ public class Session {
         return prefs.getBoolean("loggedIn", false);
     }
 
+    public void setFirstTimeLaunch(boolean launched) {
+        this.editor.putBoolean("launched", launched);
+        this.editor.commit();
+    }
+
+    public boolean isFirstTimeLaunch() {
+        return prefs.getBoolean("launched", true);
+    }
+
     public void setJSONObject(String key, JSONObject data) {
         this.editor.putString(key, data.toString());
         this.editor.commit();
@@ -62,6 +71,15 @@ public class Session {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void setFirebaseToken(String token) {
+        this.editor.putString("firebaseToken", token);
+        this.editor.commit();
+    }
+
+    public String getFirebaseToken() {
+        return prefs.getString("firebaseToken", "");
     }
 
     public boolean clearAll() {

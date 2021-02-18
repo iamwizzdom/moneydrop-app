@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "629705934099",
+    "project_id": "moneydrop-778da",
+    "storage_bucket": "moneydrop-778da.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:629705934099:android:3d56490b426a733f8946e6",
+        "android_client_info": {
+          "package_name": "com.quidvis.moneydrop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "629705934099-qegmlkl29i7m0sce8c3crlf987g8rb8j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quidvis.moneydrop",
+            "certificate_hash": "80726ab3f65c2a99ea7e43644b1977ab1caa1900"
+          }
+        },
+        {
+          "client_id": "629705934099-185d1ijs1uum9qra9k7klsvglfjsv2sg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADjpYjTHHiwS0Aj6zRB2AGrpMWvGvWkhM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "629705934099-185d1ijs1uum9qra9k7klsvglfjsv2sg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

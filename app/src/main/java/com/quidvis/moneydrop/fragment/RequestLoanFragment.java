@@ -300,7 +300,7 @@ public class RequestLoanFragment extends CustomFragment {
                                     List<Fragment> fragments = fragment.getChildFragmentManager().getFragments();
                                     for (Fragment frag: fragments) {
                                         if (frag instanceof RequestLoanCentralFragment) {
-                                            ((RequestLoanCentralFragment) frag).loadFragment(view, String.valueOf(etAmount.getNumericValue()), data.getString("message"));
+                                            ((RequestLoanCentralFragment) frag).loadFragment(view, String.valueOf(etAmount.getNumericValue()), data.getString("message"), loan.toString());
                                         }
                                     }
                                 }
@@ -435,6 +435,16 @@ public class RequestLoanFragment extends CustomFragment {
 
     @Override
     public void refresh() {
+
+    }
+
+    @Override
+    public void mount() {
+
+    }
+
+    @Override
+    public void dismount() {
 
     }
 }

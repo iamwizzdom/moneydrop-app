@@ -11,10 +11,10 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -22,7 +22,6 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.activity.LoanDetailsActivity;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.UserLoanActivity;
 import com.quidvis.moneydrop.adapter.LoanAdapter;
@@ -33,6 +32,7 @@ import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.network.HttpRequest;
+import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.Utility;
 
 import org.json.JSONArray;
@@ -131,6 +131,7 @@ public class LoanOffersFragment extends CustomFragment {
             getLoanOffers(state.getString("nextPage"));
         });
 
+        registerForContextMenu(recyclerView);
         setUp();
     }
 
@@ -163,6 +164,31 @@ public class LoanOffersFragment extends CustomFragment {
                 Utility.toastMessage(activity, "Invalid loan passed");
             }
         }
+    }
+
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenu.ContextMenuInfo menuInfo) {
+        activity.getMenuInflater().inflate(R.menu.loan_offer_option, menu);
+        Log.e("onCreateContextMenu", "I ran onCreateContextMenu in " + this);
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.revoke_loan_offer) {
+            Loan loan = loanAdapter.getItem(loanAdapter.getPosition());
+            if (loan != null) {
+                CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog((AppCompatActivity) activity);
+                alertDialog.setIcon(R.drawable.ic_remove);
+                alertDialog.setMessage("Are you sure you want to revoke this loan?");
+                alertDialog.setNegativeButton("No, cancel");
+                alertDialog.setPositiveButton("Yes, proceed", vw -> LoansFragment.revokeLoan(activity, loanAdapter, loan, activity instanceof MainActivity));
+                alertDialog.display();
+            } else {
+                Utility.toastMessage(activity, "Invalid item selected");
+            }
+        }
+        return super.onContextItemSelected(item);
     }
 
     private void setUp() {
@@ -377,6 +403,14 @@ public class LoanOffersFragment extends CustomFragment {
         return state;
     }
 
+    public void removeData(int index) {
+        try {
+            data.getJSONArray("loans").remove(index);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void saveState() {
         Utility.saveState(getStateKey(), getCurrentState());
     }
@@ -385,5 +419,21 @@ public class LoanOffersFragment extends CustomFragment {
     public void refresh() {
         if (data == null) getLoanOffers(null);
         else setUp();
+    }
+
+    @Override
+    public void mount() {
+        if (recyclerView != null) {
+            registerForContextMenu(recyclerView);
+            Log.e("mount", "mounted " + this);
+        }
+    }
+
+    @Override
+    public void dismount() {
+        if (recyclerView != null) {
+            unregisterForContextMenu(recyclerView);
+            Log.e("dismount", "dismounted " + this);
+        }
     }
 }

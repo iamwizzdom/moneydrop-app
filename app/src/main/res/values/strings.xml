@@ -245,6 +245,24 @@
     <string name="no_card">No Card</string>
     <string name="no_bank_account">No Bank Account</string>
     <string name="repayment_history">Repayment History</string>
+    <string name="gender_hint">Male</string>
+    <string name="country">Country</string>
+    <string name="country_hint">Nigeria</string>
+    <string name="state">State</string>
+    <string name="state_hint">Lagos</string>
+    <string name="address">Address</string>
+    <string name="address_hint">Festac town</string>
+    <string name="review">Review</string>
+    <string name="enter_review">Enter your review</string>
+    <string name="submit">Submit</string>
+    <string name="view_reviews">View reviews</string>
+    <string name="reviews">Reviews</string>
+    <string name="no_review">No Review</string>
+    <string name="channel_name">MoneyDrop Notification</string>
+    <string name="channel_description">This channel is meant to display notifications from MoneyDrop.</string>
+    <string name="interest_rate">Interest Rate</string>
+    <string name="revoke_loan">Revoke loan</string>
+    <string name="copy_right">Copy right</string>
 
 
     <string-array name="interestType">

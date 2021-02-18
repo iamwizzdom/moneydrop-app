@@ -17,21 +17,34 @@ public class GetStartedActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_started);
 
         session = new Session(this);
+
+        if (!session.isFirstTimeLaunch()) {
+            //start login activity
+            startLoginActivity();
+            return;
+        }
+
+        setContentView(R.layout.activity_get_started);
 
         Button createAcctBtn = findViewById(R.id.create_acct_btn);
         TextView loginBtn = findViewById(R.id.login_btn);
 
-        createAcctBtn.setOnClickListener(v -> startActivity(new Intent(GetStartedActivity.this, VerificationActivity.class)));
+        createAcctBtn.setOnClickListener(v -> {
+            session.setFirstTimeLaunch(false);
+            startActivity(new Intent(GetStartedActivity.this, VerificationActivity.class));
+            finish();
+        });
 
-        loginBtn.setOnClickListener(v -> startActivity(new Intent(GetStartedActivity.this, LoginActivity.class)));
+        loginBtn.setOnClickListener(v -> {
+            session.setFirstTimeLaunch(false);
+            startLoginActivity();
+        });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (session.isLoggedIn()) finish();
+    private void startLoginActivity() {
+        startActivity(new Intent(GetStartedActivity.this, LoginActivity.class));
+        finish();
     }
 }

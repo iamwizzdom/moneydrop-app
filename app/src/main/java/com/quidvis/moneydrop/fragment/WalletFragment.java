@@ -156,6 +156,7 @@ public class WalletFragment extends Fragment {
             try {
 
                 View view = getTransactionView(trans.getJSONObject(i));
+                if (view == null) continue;
                 if ((i == 0 && size > 1) || i > 0 && i < (size - 1)) view.setBackgroundResource(R.drawable.layout_underline);
                 transactionView.addView(view);
 

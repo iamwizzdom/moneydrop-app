@@ -78,7 +78,7 @@
             android:gravity="start"
             android:text="@string/recipient"
             android:textColor="@color/colorAccent"
-            android:textSize="23sp"
+            android:textSize="20sp"
             android:textStyle="bold"/>
 
         <androidx.cardview.widget.CardView
@@ -89,7 +89,7 @@
             android:paddingTop="@dimen/padding_5"
             android:paddingBottom="@dimen/padding_5"
             app:cardUseCompatPadding="true"
-            app:cardElevation="2dp"
+            app:cardElevation="1dp"
             app:cardCornerRadius="8dp">
 
             <include layout="@layout/user_layout" />

@@ -63,6 +63,7 @@ public class UserLoanActivity extends AppCompatActivity {
                     View v = tab.getCustomView();
                     if (v != null) selectView(v);
                     viewPagerAdapter.notifyDataSetChanged(tab.getPosition());
+                    viewPagerAdapter.getItem(tab.getPosition()).mount();
                 }
             }
 
@@ -71,6 +72,7 @@ public class UserLoanActivity extends AppCompatActivity {
                 if (tab != null) {
                     View v = tab.getCustomView();
                     if (v != null) deselectView(v);
+                    viewPagerAdapter.getItem(tab.getPosition()).dismount();
                 }
             }
 

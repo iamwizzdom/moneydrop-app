@@ -50,7 +50,7 @@ public class OfferLoanCentralFragment extends Fragment {
         });
     }
 
-    public void loadFragment(View view, String amount, String message) {
+    public void loadFragment(View view, String amount, String message, String loanObject) {
         Bundle bundle = new Bundle();
         int id = view.getId();
         if (id == R.id.done_btn) {
@@ -59,6 +59,7 @@ public class OfferLoanCentralFragment extends Fragment {
         }
         bundle.putString("amount", amount);
         bundle.putString("message", message);
+        bundle.putString("loanObject", loanObject);
         navController.navigate(R.id.nav_offer_loan_success, bundle, getNavOptions());
     }
 

@@ -127,7 +127,7 @@ public class TransactionReceiptActivity extends AppCompatActivity {
         try {
             Utility.saveByteArray(bytes.toByteArray(), FILE_PATH,
                     transaction.getReference() + ".png",
-                    true, true, this, rootLayout.getRootView());
+                    true, true, this, findViewById(R.id.receipt_parent_layout));
         } catch (IOException e) {
             e.printStackTrace();
             Utility.toastMessage(this, "Failed to save receipt");

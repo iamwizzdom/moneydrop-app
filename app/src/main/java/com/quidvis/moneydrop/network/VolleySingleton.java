@@ -2,17 +2,39 @@ package com.quidvis.moneydrop.network;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
+import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.constant.URLContract;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import javax.net.SocketFactory;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 /**
@@ -44,7 +66,7 @@ public class VolleySingleton extends Application {
         // If RequestQueue is null the initialize new RequestQueue
         if (mRequestQueue == null) {
             mRequestQueue = Volley.newRequestQueue(this);
-//            mRequestQueue = Volley.newRequestQueue(this, new HurlStack(null, sslSocketFactory()));
+//            mRequestQueue = Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory()));
         }
 
         // Return RequestQueue
@@ -57,35 +79,38 @@ public class VolleySingleton extends Application {
         getRequestQueue().add(request);
     }
 
-    public SSLSocketFactory sslSocketFactory() {
+    private SSLSocketFactory getSocketFactory() {
 
-        //Create a trust manager that does not validate certificate chains
-        TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                        //
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                        //
-                    }
-                }
-        };
-
-        //Install the all-trusting trust manager
-        SSLContext sc = null;
         try {
-            sc = SSLContext.getInstance("TLS");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-        } catch (KeyManagementException|NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+            CertificateFactory cf;
+            cf = CertificateFactory.getInstance("X.509");
 
-        return sc.getSocketFactory();
+            Certificate ca;
+            InputStream cert = getApplicationContext().getResources().openRawResource(R.raw.cert);
+            ca = cf.generateCertificate(cert);
+            cert.close();
+
+            String keyStoreType = KeyStore.getDefaultType();
+            KeyStore keyStore   = KeyStore.getInstance(keyStoreType);
+            keyStore.load(null, null);
+            keyStore.setCertificateEntry("ca", ca);
+
+            String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+            tmf.init(keyStore);
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, tmf.getTrustManagers(), null);
+
+            SSLSocketFactory ssf = sslContext.getSocketFactory();
+            HttpsURLConnection.setDefaultSSLSocketFactory(ssf);
+
+            return ssf;
+
+        }
+        catch (Exception e){
+            return null;
+        }
     }
 
 }

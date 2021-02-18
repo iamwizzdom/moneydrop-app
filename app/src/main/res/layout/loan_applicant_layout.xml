@@ -50,17 +50,40 @@
             android:text="@string/date"/>
     </LinearLayout>
 
-    <com.quidvis.moneydrop.utility.view.ProgressButton
-        android:id="@+id/grant_btn"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight=".6"
-        app:btnHeight="30dp"
-        app:btnStyle="@style/button_style_info"
-        app:btnTextAllCaps="false"
-        app:btnTextStyle="normal"
-        app:btnTextSize="12sp"
-        app:btnText="@string/grant"/>
+        android:orientation="vertical"
+        android:layout_weight=".6">
+
+        <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            android:id="@+id/grant_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginTop="@dimen/margin_5"
+            style="@style/button_style_info"
+            android:layout_gravity="center|end"
+            android:text="@string/grant"
+            android:textColor="@color/colorAccent"
+            android:textAllCaps="false"
+            android:textSize="12sp"
+            app:spinning_bar_width="2dp"
+            app:spinning_bar_color="@color/colorAccent"
+            app:spinning_bar_padding="5dp" />
+
+    </LinearLayout>
+
+<!--    <com.quidvis.moneydrop.utility.view.ProgressButton-->
+<!--        android:id="@+id/grant_btn"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_weight=".6"-->
+<!--        app:btnHeight="30dp"-->
+<!--        app:btnStyle="@style/button_style_info"-->
+<!--        app:btnTextAllCaps="false"-->
+<!--        app:btnTextStyle="normal"-->
+<!--        app:btnTextSize="12sp"-->
+<!--        app:btnText="@string/grant"/>-->
 
 
 </LinearLayout>

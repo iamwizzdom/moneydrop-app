@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.Request;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.hbb20.CountryCodePicker;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.constant.URLContract;
@@ -25,6 +27,7 @@ import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.network.HttpRequest;
+import com.quidvis.moneydrop.utility.FirebaseMessageReceiver;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -72,6 +75,10 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
 
         session = new Session(this);
         dbHelper = new DbHelper(this);
+
+        if (TextUtils.isEmpty(session.getFirebaseToken())) {
+            FirebaseMessaging.getInstance().getToken().addOnSuccessListener(s -> FirebaseMessageReceiver.storeRegIdInPref(session, s));
+        }
 
         Intent intent = getIntent();
         email = intent.getStringExtra(EMAIL);
@@ -185,6 +192,7 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
                 params.put("email", email);
                 params.put("dob", dob);
                 params.put("password", password);
+                params.put("pn_token", session.getFirebaseToken());
                 return params;
             }
 
@@ -360,7 +368,6 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
     @Override
     public void onStart() {
         super.onStart();
-        Utility.requestFocus(etFirstname, this);
     }
 
     @Override

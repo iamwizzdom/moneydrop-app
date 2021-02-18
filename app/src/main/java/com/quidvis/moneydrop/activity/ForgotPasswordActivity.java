@@ -100,14 +100,15 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         }) {
             @Override
             protected void onRequestStarted() {
-                Utility.disableEditText(etEmail);
                 Utility.clearFocus(etEmail, ForgotPasswordActivity.this);
+                Utility.disableEditText(etEmail);
                 sendOTPBtn.startAnimation();
             }
 
             @Override
             protected void onRequestCompleted(boolean onError) {
 
+                Utility.enableEditText(etEmail);
                 sendOTPBtn.revertAnimation();
             }
 
@@ -117,13 +118,13 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
                     JSONObject object = new JSONObject(response);
                     Utility.toastMessage(ForgotPasswordActivity.this, object.getString("message"));
+                    etEmail.setText("");
                     Intent intent = new Intent(ForgotPasswordActivity.this, PasswordResetActivity.class);
                     intent.putExtra(PasswordResetActivity.EMAIL, email);
                     startActivity(intent);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.enableEditText(etEmail);
                     Utility.toastMessage(ForgotPasswordActivity.this, "Something unexpected happened. Please try that again.");
                 }
             }
@@ -140,15 +141,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
                     if (statusCode == HttpURLConnection.HTTP_CONFLICT) {
                         dialog.setCancelable(false);
-                        dialog.setPositiveButton("Ok", new OnAwesomeDialogClickListener() {
-                            @Override
-                            public void onClick(AwesomeAlertDialog dialog) {
-                                dialog.dismiss();
-                                Intent intent = new Intent(ForgotPasswordActivity.this, PasswordResetActivity.class);
-                                intent.putExtra(PasswordResetActivity.EMAIL, email);
-                                startActivity(intent);
-                                finish();
-                            }
+                        dialog.setPositiveButton("Ok", dialog1 -> {
+                            dialog1.dismiss();
+                            Intent intent = new Intent(ForgotPasswordActivity.this, PasswordResetActivity.class);
+                            intent.putExtra(PasswordResetActivity.EMAIL, email);
+                            startActivity(intent);
+                            finish();
                         });
                     } else dialog.setPositiveButton("Ok");
 
@@ -173,7 +171,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     Utility.toastMessage(ForgotPasswordActivity.this, statusCode == 503 ? error :
                                     "Something unexpected happened. Please try that again.");
                 }
-                Utility.enableEditText(etEmail);
             }
 
             @Override

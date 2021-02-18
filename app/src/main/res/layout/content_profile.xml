@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:scrollbars="none"
     tools:context=".activity.ProfileActivity"
     tools:showIn="@layout/activity_profile">
 
@@ -16,7 +17,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="@dimen/activity_vertical_padding"
-        android:paddingEnd="@dimen/activity_vertical_padding">
+        android:paddingEnd="@dimen/activity_vertical_padding"
+        android:paddingBottom="@dimen/padding_20">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -83,6 +85,15 @@
                 android:text="@string/email_address_hint"
                 android:textColor="@color/colorBlack" />
 
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/margin_5"
+                android:numStars="5"
+                android:rating="0" />
+
         </LinearLayout>
 
         <androidx.fragment.app.FragmentContainerView
@@ -92,8 +103,21 @@
             android:layout_height="300dp"
             android:background="@drawable/layout_background_rounded"
             android:layout_marginTop="@dimen/margin_20"
-            app:defaultNavHost="true"
-            app:navGraph="@navigation/profile_navigation" />
+            app:defaultNavHost="true" />
+
+        <TextView
+            android:id="@+id/view_payments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_10"
+            android:layout_marginTop="@dimen/margin_10"
+            android:layout_gravity="center|bottom"
+            style="@style/text_view_style"
+            android:textColor="@color/colorAccent"
+            android:text="@string/view_reviews"
+            android:onClick="viewReviews"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
     </LinearLayout>
 

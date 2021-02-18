@@ -31,6 +31,8 @@ import com.quidvis.moneydrop.utility.view.ProgressButton;
 import java.util.List;
 import java.util.Objects;
 
+import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+
 import static com.quidvis.moneydrop.constant.Constant.DEFAULT_RECORD_PER_VIEW;
 
 /**
@@ -148,39 +150,33 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
             if ((position == 0 && size >= 1) || position > 0 && position < (size - 1))
                 parentViewHolder.container.setBackgroundResource(R.drawable.layout_underline);
 
-            parentViewHolder.container.setOnClickListener(v -> {
-//                Intent intent = new Intent(activity, TransactionReceiptActivity.class);
-//                intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, loanApplication.getTransObject().toString());
-//                activity.startActivity(intent);
-            });
-
-            Button button = parentViewHolder.grantBtn.getButton();
+            parentViewHolder.container.setOnClickListener(v -> ((LoanApplicantsActivity) activity).viewApplicant(user));
 
             if (application.isHasGranted()) {
 
-                button.setEnabled(false);
-                button.setAlpha(0.5f);
-                parentViewHolder.grantBtn.setButtonOnClickListener(null);
+                parentViewHolder.grantBtn.setEnabled(false);
+                parentViewHolder.grantBtn.setAlpha(0.5f);
+                parentViewHolder.grantBtn.setOnClickListener(null);
 
                 if (application.isGranted()) {
-                    button.setText(R.string.granted);
-                    button.setTextColor(activity.getResources().getColor(R.color.successColor));
-                    button.setBackgroundResource(R.drawable.button_border_success);
+                    parentViewHolder.grantBtn.setText(R.string.granted);
+                    parentViewHolder.grantBtn.setTextColor(activity.getResources().getColor(R.color.successColor));
+                    parentViewHolder.grantBtn.setBackgroundResource(R.drawable.button_border_success);
                 } else {
-                    button.setText(R.string.rejected);
-                    button.setTextColor(activity.getResources().getColor(R.color.dangerColor));
-                    button.setBackgroundResource(R.drawable.button_border_default);
+                    parentViewHolder.grantBtn.setText(R.string.rejected);
+                    parentViewHolder.grantBtn.setTextColor(activity.getResources().getColor(R.color.dangerColor));
+                    parentViewHolder.grantBtn.setBackgroundResource(R.drawable.button_border_default);
                 }
 
             } else {
 
-                button.setEnabled(true);
-                button.setAlpha(1f);
+                parentViewHolder.grantBtn.setEnabled(true);
+                parentViewHolder.grantBtn.setAlpha(1f);
 
-                button.setText(R.string.grant);
-                button.setTextColor(activity.getResources().getColor(R.color.colorAccent));
-                button.setBackgroundResource(R.drawable.button_border_info);
-                parentViewHolder.grantBtn.setButtonOnClickListener(v -> ((LoanApplicantsActivity) activity).grantLoan(application, (ProgressButton) v));
+                parentViewHolder.grantBtn.setText(R.string.grant);
+                parentViewHolder.grantBtn.setTextColor(activity.getResources().getColor(R.color.colorAccent));
+                parentViewHolder.grantBtn.setBackgroundResource(R.drawable.button_border_info);
+                parentViewHolder.grantBtn.setOnClickListener(v -> ((LoanApplicantsActivity) activity).grantLoan(application, (CircularProgressButton) v));
             }
 
         } else if (holder instanceof LoadingViewHolder) {
@@ -252,7 +248,7 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
         public final LinearLayout container;
         public final ImageView mvPic;
         public final TextView tvUsername, tvDate;
-        public final ProgressButton grantBtn;
+        public final CircularProgressButton grantBtn;
 
         public ParentViewHolder(View view) {
             super(view);

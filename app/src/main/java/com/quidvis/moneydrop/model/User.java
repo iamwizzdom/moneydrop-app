@@ -23,6 +23,7 @@ public class User {
     private final DbHelper dbHelper;
     
     private int id, gender, status;
+    private double rating;
     private boolean verifiedEmail, verifiedPhone;
     private String uuid, firstname, middlename, lastname, email, phone, bvn,
             dob, address, country, state, picture, token;
@@ -44,6 +45,7 @@ public class User {
         this.setBvn(userObject.getString("bvn"));
         this.setPicture(userObject.getString("picture"));
         this.setDob(userObject.getString("dob"));
+        this.setRating(userObject.getDouble("rating"));
         this.setGender(userObject.getInt("gender"));
         this.setAddress(userObject.getString("address"));
         this.setCountry(userObject.getString("country"));
@@ -175,6 +177,14 @@ public class User {
         this.picture = picture;
     }
 
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
     public int getStatus() {
         return status;
     }
@@ -212,7 +222,33 @@ public class User {
     }
 
     public JSONObject getUserObject() {
-        return userObject;
+        if (userObject != null) return userObject;
+        JSONObject object = new JSONObject();
+        try {
+            object.put("uuid", uuid);
+            object.put("firstname", firstname);
+            object.put("middlename", middlename);
+            object.put("lastname", lastname);
+            object.put("phone", phone);
+            object.put("email", email);
+            object.put("bvn", bvn);
+            object.put("picture", picture);
+            object.put("dob", dob);
+            object.put("rating", rating);
+            object.put("gender", gender);
+            object.put("address", address);
+            object.put("country", country);
+            object.put("state", state);
+            object.put("status", status);
+            JSONObject verified = new JSONObject();
+            verified.put("email", verifiedEmail);
+            verified.put("phone", verifiedPhone);
+            object.put("verified", verified);
+            if (token != null) object.put("token", token);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return object;
     }
 
     public boolean update() {

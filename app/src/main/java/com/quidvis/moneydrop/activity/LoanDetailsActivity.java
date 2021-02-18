@@ -105,9 +105,21 @@ public class LoanDetailsActivity extends AppCompatActivity {
         setLoanView();
     }
 
+    public void viewUser(View view) {
+        User loanUser = loan.getUser();
+        if (loanUser.isMe()) return;
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra(ProfileActivity.USER_OBJECT_KEY, loanUser.getUserObject().toString());
+        startActivity(intent);
+    }
+
     private void setLoanView() {
 
-        applyBtn.setText(loan.isMine() ? "View Applicants" : (loan.isHasApplied() ? "Applied" : "Apply"));
+        if (!loan.isMine() && loan.isGranted()) applyBtn.setVisibility(View.GONE);
+        else {
+            applyBtn.setVisibility(View.VISIBLE);
+            applyBtn.setText(loan.isMine() ? "View Applicants" : (loan.isHasApplied() ? "Applied" : "Apply"));
+        }
         if (!loan.isMine() && loan.isHasApplied()) {
             applyBtn.setEnabled(false);
             applyBtn.setAlpha(.7f);
@@ -128,7 +140,7 @@ public class LoanDetailsActivity extends AppCompatActivity {
         tvType.setText(String.format("Loan %s", loan.getLoanType()));
         tvFundRaiser.setText(loan.isFundRaiser() ? "Yes" : "No");
         tvAmount.setText(format.format(loan.getAmount()));
-        tvReference.setText(loan.getReference());
+        tvReference.setText(loan.getUuid());
         tvTenure.setText(loan.getTenure());
         tvInterest.setText(String.format("%s percent", loan.getInterest()));
         tvPurpose.setText(loan.getLoanType().equals("request") ? Utility.castEmpty(loan.getPurpose(), "Not specified") : "Not applicable");
@@ -211,7 +223,7 @@ public class LoanDetailsActivity extends AppCompatActivity {
 
     public void sendLoanApplyRequest(Loan loan, CircularProgressButton applyBtn, String amount, String note) {
 
-        HttpRequest httpRequest = new HttpRequest(this, String.format(URLContract.LOAN_APPLY_URL, loan.getReference()),
+        HttpRequest httpRequest = new HttpRequest(this, String.format(URLContract.LOAN_APPLY_URL, loan.getUuid()),
                 Request.Method.POST, new HttpRequestParams() {
 
             @Override
@@ -289,14 +301,14 @@ public class LoanDetailsActivity extends AppCompatActivity {
                             Utility.saveState(WalletFragment.STATE_KEY, walletFragmentState);
                         }
 
-                        String stateKey = (MainActivity.STATE_KEY + "-" + (loan.getLoanType().equals("offer") ? LoanOffersFragment.class.getName() : LoanRequestsFragment.class.getName()));
+                        String stateKey = (MainActivity.STATE_KEY + "-" + (loan.isLoanOffer() ? LoanOffersFragment.class.getName() : LoanRequestsFragment.class.getName()));
                         Bundle state = Utility.getState(stateKey);
                         if (state.size() > 0) {
                             try {
                                 JSONObject data = new JSONObject(Objects.requireNonNull(state.getString("data")));
                                 JSONArray loans = data.getJSONArray("loans");
                                 for (int i = 0; i < loans.length(); i++) {
-                                    if (loan.getReference().equals(loans.getJSONObject(i).getString("uuid"))) {
+                                    if (loan.getUuid().equals(loans.getJSONObject(i).getString("uuid"))) {
                                         loans.put(i, applicationObj.getJSONObject("loan"));
                                         data.put("loans", loans);
                                         state.putString("data", data.toString());

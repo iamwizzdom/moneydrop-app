@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -54,6 +55,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Objects;
+
+import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
 import static com.quidvis.moneydrop.constant.Constant.FEMALE;
 import static com.quidvis.moneydrop.constant.Constant.MALE;
@@ -142,18 +145,18 @@ public class Utility {
      * @param jsonArray
      * @return
      */
-    public static int[] arrayShuffle(int[] intArray) {
-        int length = intArray.length;
+    public static int[] arrayShuffle(int[] initArray) {
+        int length = initArray.length;
         if (length > 0) {
             for (int i = 0; i < length; i++) {
                 int rand = (int) (Math.random() * (length - 1) + 1);
-                int value = intArray[i];
-                int randValue = intArray[rand];
-                intArray[i] = randValue;
-                intArray[rand] = value;
+                int value = initArray[i];
+                int randValue = initArray[rand];
+                initArray[i] = randValue;
+                initArray[rand] = value;
             }
         }
-        return intArray;
+        return initArray;
     }
 
     /**
@@ -283,12 +286,6 @@ public class Utility {
         return theme;
     }
 
-    public static Bundle getState(String key) {
-        Bundle prevState = state.getBundle(key);
-        if (prevState == null) prevState = new Bundle();
-        return prevState;
-    }
-
     public static int getDip(Activity activity, int dip) {
         float scale = activity.getResources().getDisplayMetrics().density;
         return (int) (dip * scale + 0.5f);
@@ -312,6 +309,12 @@ public class Utility {
         int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         view.measure(widthMeasureSpec, heightMeasureSpec);
         return view.getMeasuredHeight(); //        view.getMeasuredWidth();
+    }
+
+    public static Bundle getState(String key) {
+        Bundle prevState = state.getBundle(key);
+        if (prevState == null) prevState = new Bundle();
+        return prevState;
     }
 
     public static void saveState(String key, Bundle state) {
@@ -365,6 +368,16 @@ public class Utility {
     public static void disableEditText(@NonNull EditText editText, int color) {
         editText.setEnabled(false);
         editText.setTextColor(color);
+    }
+
+    public static void disableButton(@NonNull Button button) {
+        button.setEnabled(false);
+        button.setAlpha(0.5f);
+    }
+
+    public static void disableButton(@NonNull CircularProgressButton button) {
+        button.setEnabled(false);
+        button.setAlpha(0.5f);
     }
 
     public static void startRevealActivity(Activity activity, View v, Class<?> className) {

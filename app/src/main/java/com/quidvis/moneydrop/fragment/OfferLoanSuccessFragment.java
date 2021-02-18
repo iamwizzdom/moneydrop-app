@@ -1,5 +1,6 @@
 package com.quidvis.moneydrop.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.LoanApplicantsActivity;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 
 import java.text.NumberFormat;
@@ -19,7 +21,7 @@ import java.util.List;
 
 public class OfferLoanSuccessFragment extends CustomFragment {
 
-    private String amount, message;
+    private String amount, message, loanObject;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,6 +30,7 @@ public class OfferLoanSuccessFragment extends CustomFragment {
         if (bundle != null) {
             amount = bundle.getString("amount");
             message = bundle.getString("message");
+            loanObject = bundle.getString("loanObject");
         }
     }
 
@@ -43,6 +46,8 @@ public class OfferLoanSuccessFragment extends CustomFragment {
         TextView tvAmount = view.findViewById(R.id.amount);
         TextView tvMessage = view.findViewById(R.id.message);
         Button doneBtn = view.findViewById(R.id.done_btn);
+        Button requestsBtn = view.findViewById(R.id.view_requests_btn);
+
         if (amount != null) {
             NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en","ng"));
             format.setMaximumFractionDigits(2);
@@ -60,12 +65,18 @@ public class OfferLoanSuccessFragment extends CustomFragment {
                         List<Fragment> fragments = fragment.getChildFragmentManager().getFragments();
                         for (Fragment frag: fragments) {
                             if (frag instanceof OfferLoanCentralFragment) {
-                                ((OfferLoanCentralFragment) frag).loadFragment(v, null, null);
+                                ((OfferLoanCentralFragment) frag).loadFragment(v, null, null, null);
                             }
                         }
                     }
                 }
             }
+        });
+
+        requestsBtn.setOnClickListener(v -> {
+            Intent intent  = new Intent(requireActivity(), LoanApplicantsActivity.class);
+            intent.putExtra(LoanApplicantsActivity.LOAN_KEY, loanObject);
+            startActivity(intent);
         });
     }
 
@@ -76,6 +87,16 @@ public class OfferLoanSuccessFragment extends CustomFragment {
 
     @Override
     public void refresh() {
+
+    }
+
+    @Override
+    public void mount() {
+
+    }
+
+    @Override
+    public void dismount() {
 
     }
 }

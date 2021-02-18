@@ -27,6 +27,7 @@ public class DbContract {
     public static final String USER_PICTURE = "picture";
     public static final String USER_DOB = "dob";
     public static final String USER_GENDER = "gender";
+    public static final String USER_RATING = "rating";
     public static final String USER_ADDRESS = "address";
     public static final String USER_COUNTY = "country";
     public static final String USER_STATE = "state";

@@ -45,4 +45,8 @@ public abstract class CustomFragment extends Fragment {
     public abstract void saveState();
 
     public abstract void refresh();
+
+    public abstract void mount();
+
+    public abstract void dismount();
 }

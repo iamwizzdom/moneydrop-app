@@ -142,18 +142,25 @@ public class PasswordResetActivity extends AppCompatActivity {
         }) {
             @Override
             protected void onRequestStarted() {
-                Utility.disableEditText(etOTP);
-                Utility.disableEditText(etPassword);
-                Utility.disableEditText(etConfirmPassword);
+                Utility.clearFocus(etEmail, PasswordResetActivity.this);
                 Utility.clearFocus(etOTP, PasswordResetActivity.this);
                 Utility.clearFocus(etPassword, PasswordResetActivity.this);
                 Utility.clearFocus(etConfirmPassword, PasswordResetActivity.this);
+
+                Utility.disableEditText(etEmail);
+                Utility.disableEditText(etOTP);
+                Utility.disableEditText(etPassword);
+                Utility.disableEditText(etConfirmPassword);
                 resetBtn.startAnimation();
             }
 
             @Override
             protected void onRequestCompleted(boolean onError) {
 
+                Utility.enableEditText(etEmail);
+                Utility.enableEditText(etOTP);
+                Utility.enableEditText(etPassword);
+                Utility.enableEditText(etConfirmPassword);
                 resetBtn.revertAnimation();
             }
 
@@ -182,9 +189,6 @@ public class PasswordResetActivity extends AppCompatActivity {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.enableEditText(etOTP);
-                    Utility.enableEditText(etPassword);
-                    Utility.enableEditText(etConfirmPassword);
                     Utility.toastMessage(PasswordResetActivity.this, "Something unexpected happened. Please try that again.");
                 }
             }
@@ -233,10 +237,6 @@ public class PasswordResetActivity extends AppCompatActivity {
                     Utility.toastMessage(PasswordResetActivity.this, statusCode == 503 ? error :
                                     "Something unexpected happened. Please try that again.");
                 }
-
-                Utility.enableEditText(etOTP);
-                Utility.enableEditText(etPassword);
-                Utility.enableEditText(etConfirmPassword);
             }
 
             @Override

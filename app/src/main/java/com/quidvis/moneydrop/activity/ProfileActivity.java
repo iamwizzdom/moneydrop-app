@@ -14,6 +14,7 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -56,32 +57,60 @@ public class ProfileActivity extends AppCompatActivity {
 
     private NavController navController;
     private ProgressBar uploadProgressBar;
+    private RatingBar ratingBar;
     private DbHelper dbHelper;
     private User user;
     private ImageView imagePicker;
     private static File camImage;
     private CircleImageView profilePic;
+    private Bundle startDestinationBundle;
+
+    public static final String USER_OBJECT_KEY = "userObject";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        Intent intent = getIntent();
+
+        if (intent != null) {
+            String userObject = intent.getStringExtra(USER_OBJECT_KEY);
+            if (userObject != null) {
+                try {
+                    user = new User(this, new JSONObject(userObject));
+                    startDestinationBundle = new Bundle();
+                    startDestinationBundle.putString(USER_OBJECT_KEY, user.getUserObject().toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         dbHelper = new DbHelper(this);
 
-        user = dbHelper.getUser();
+        if (user == null) user = dbHelper.getUser();
 
         navController = getNavController();
+        navController.setGraph(R.navigation.profile_navigation, startDestinationBundle);
+
         uploadProgressBar = findViewById(R.id.upload_photo_progress_bar);
         imagePicker = findViewById(R.id.image_picker);
-        imagePicker.setOnClickListener(v -> selectImage());
+
+        if (user.isMe()) imagePicker.setOnClickListener(v -> selectImage());
+        else imagePicker.setVisibility(View.GONE);
 
         profilePic = findViewById(R.id.profile_pic);
+        ratingBar = findViewById(R.id.ratingBar);
 
         profilePic.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putString(ImagePreviewActivity.IMAGE_URL, user.getPictureUrl());
             startRevealActivity(this, v, ImagePreviewActivity.class, bundle);
+        });
+
+        ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
+            if (fromUser) rateUser(rating);
         });
 
         setUser();
@@ -107,6 +136,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         tvName.setText(String.format("%s %s", user.getFirstname(), user.getLastname()));
         tvEmail.setText(user.getEmail());
+        ratingBar.setRating(Double.valueOf(user.getRating()).floatValue());
     }
 
     private void selectImage() {
@@ -237,6 +267,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void loadEditFragment(View view) {
+        if (!user.isMe()) return;
         Bundle bundle = new Bundle();
         int id = view.getId();
         if (id == R.id.account_name) {
@@ -265,10 +296,16 @@ public class ProfileActivity extends AppCompatActivity {
         navController.navigate(R.id.nav_profile_edit, bundle, getNavOptions());
     }
 
+    public void viewReviews(View view) {
+        Intent intent = new Intent(this, UserReviewsActivity.class);
+        intent.putExtra(UserReviewsActivity.USER_OBJECT_KEY, user.getUserObject().toString());
+        startActivity(intent);
+    }
+
     private void updatePhoto(String imageString) {
 
-        HttpRequest httpRequest = new HttpRequest(this, String.format("%s/%s",
-                URLContract.PROFILE_UPDATE_REQUEST_URL, "picture"), Request.Method.POST,
+        HttpRequest httpRequest = new HttpRequest(this,
+                String.format(URLContract.PROFILE_UPDATE_REQUEST_URL, "picture"), Request.Method.POST,
                 new HttpRequestParams() {
                     @Override
                     public Map<String, String> getParams() {
@@ -363,6 +400,86 @@ public class ProfileActivity extends AppCompatActivity {
 
                 progressToggle(false);
                 imagePicker.setVisibility(View.VISIBLE);
+            }
+        };
+
+        httpRequest.send();
+    }
+
+    public void rateUser(float rating) {
+
+        if (user.isMe()) {
+            ratingBar.setRating(Double.valueOf(user.getRating()).floatValue());
+            Utility.toastMessage(this, "You can't rate yourself");
+            return;
+        }
+
+        HttpRequest httpRequest = new HttpRequest(this, URLContract.PROFILE_RATE_REQUEST_URL, Request.Method.POST,
+                new HttpRequestParams() {
+                    @Override
+                    public Map<String, String> getParams() {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("id", user.getUuid());
+                        params.put("rate", String.valueOf(rating));
+                        return params;
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                        return params;
+                    }
+
+                    @Override
+                    public byte[] getBody() {
+                        return null;
+                    }
+                }) {
+            @Override
+            protected void onRequestStarted() {
+            }
+
+            @Override
+            protected void onRequestCompleted(boolean onError) {
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(response);
+
+                    Utility.toastMessage(ProfileActivity.this, object.getString("message"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    ratingBar.setRating(Double.valueOf(user.getRating()).floatValue());
+                    Utility.toastMessage(ProfileActivity.this, "Something unexpected happened. Please try that again.");
+                }
+
+            }
+
+            @Override
+            protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(error);
+                    Utility.toastMessage(ProfileActivity.this, object.getString("message"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(ProfileActivity.this, statusCode == 503 ? error :
+                                    "Something unexpected happened. Please try that again.");
+                }
+                ratingBar.setRating(Double.valueOf(user.getRating()).floatValue());
+            }
+
+            @Override
+            protected void onRequestCancelled() {
+
             }
         };
 

@@ -3,6 +3,7 @@ package com.quidvis.moneydrop.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.LoanDetailsActivity;
 import com.quidvis.moneydrop.fragment.LoanOffersFragment;
 import com.quidvis.moneydrop.fragment.LoanRequestsFragment;
+import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.model.User;
@@ -51,23 +53,25 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int visibleThreshold = 3;
     private int lastVisibleItem, totalItemCount;
     private final RecyclerView recyclerView;
+    private final LinearLayoutManager linearLayoutManager;
     private final RecyclerView.OnScrollListener mOnScrollListener;
 
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en", "ng"));
-    private final Fragment fragment;
+    private final CustomFragment fragment;
     private final Context context;
-    private final List<Loan> loanList;
+    private final List<Loan> loans;
+    private int mPosition = -1;
 
     //Constructor
-    public LoanAdapter(RecyclerView recyclerView, Fragment fragment, List<Loan> loanList) {
+    public LoanAdapter(RecyclerView recyclerView, CustomFragment fragment, List<Loan> loans) {
 
         this.fragment = fragment;
         this.context = fragment.getContext();
-        this.loanList = loanList;
+        this.loans = loans;
         this.recyclerView = recyclerView;
         format.setMaximumFractionDigits(0);
 
-        final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
         mOnScrollListener = new RecyclerView.OnScrollListener() {
             @Override
@@ -96,7 +100,7 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemViewType(int position) {
         int VIEW_TYPE_NO_MORE_RECORD = 2;
-        return loanList.get(position) == null ? (isLoading() ? VIEW_TYPE_LOADING : VIEW_TYPE_NO_MORE_RECORD) : VIEW_TYPE_ITEM;
+        return loans.get(position) == null ? (isLoading() ? VIEW_TYPE_LOADING : VIEW_TYPE_NO_MORE_RECORD) : VIEW_TYPE_ITEM;
     }
 
     @NonNull
@@ -127,7 +131,7 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         if (holder instanceof ParentViewHolder) {
 
-            Loan loan = this.loanList.get(position);
+            Loan loan = this.loans.get(position);
             ParentViewHolder parentViewHolder = (ParentViewHolder) holder;
 
             String type = String.format("Loan %s", loan.getLoanType());;
@@ -159,12 +163,21 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if ((position == 0 && size > 1) || position > 0 && position < (size - 1))
                 parentViewHolder.container.setBackgroundResource(R.drawable.layout_underline);
 
-            parentViewHolder.container.setOnClickListener(v -> {
+            parentViewHolder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(context, LoanDetailsActivity.class);
                 intent.putExtra(LoanDetailsActivity.LOAN_POSITION_KEY, position);
                 intent.putExtra(LoanDetailsActivity.LOAN_OBJECT_KEY, loan.getLoanObject().toString());
-                fragment.startActivityForResult(intent, loan.getLoanType().equals("offer") ? LoanOffersFragment.LOAN_OFFER_DETAILS_KEY : LoanRequestsFragment.LOAN_REQUEST_DETAILS_KEY);
+                fragment.startActivityForResult(intent, loan.isLoanOffer() ? LoanOffersFragment.LOAN_OFFER_DETAILS_KEY : LoanRequestsFragment.LOAN_REQUEST_DETAILS_KEY);
             });
+
+            if (!loan.isRevoked() && loan.isMine()) {
+                parentViewHolder.itemView.setOnLongClickListener(v -> {
+                    setPosition(parentViewHolder.getAdapterPosition());
+                    return false;
+                });
+            } else {
+                parentViewHolder.itemView.setLongClickable(false);
+            }
 
         } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
@@ -175,9 +188,56 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    public int getPosition() {
+        return mPosition;
+    }
+
+    public void setPosition(int mPosition) {
+        this.mPosition = mPosition;
+    }
+
+    public Loan getItem(int position) {
+        return loans.get(position);
+    }
+
+    public void removeItem(int position) {
+        if (loans.remove(position) != null) {
+
+            CustomFragment fragment = getFragment();
+
+            if (fragment instanceof LoanOffersFragment) {
+                LoanOffersFragment offersFragment = ((LoanOffersFragment) fragment);
+                offersFragment.removeData(position);
+                fragment.saveState();
+            }
+
+            if (fragment instanceof LoanOffersFragment) {
+                LoanOffersFragment offersFragment = ((LoanOffersFragment) fragment);
+                offersFragment.removeData(position);
+                fragment.saveState();
+            }
+
+            notifyDataSetChanged();
+        }
+    }
+
+    public void setItem(int position, Loan loan) {
+        if (loans.set(position, loan) != null) notifyDataSetChanged();
+    }
+
+    public void fadeItem(int position, boolean fade) {
+        position = ((recyclerView.getChildCount() - (linearLayoutManager.findLastVisibleItemPosition() - position)) - 1);
+        View view = recyclerView.getChildAt(position);
+        if (view != null) view.setAlpha(fade ? .5f : 1f);
+    }
+
+    private CustomFragment getFragment() {
+        return fragment;
+    }
+
     @Override
     public int getItemCount() {
-        return loanList != null ? loanList.size() : 0;
+        return loans != null ? loans.size() : 0;
     }
 
     public boolean isPermitLoadMore() {
@@ -197,14 +257,14 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (loaded) {
 
             recyclerView.clearOnScrollListeners();
-            loanList.add(null);
+            loans.add(null);
             this.notifyItemInserted((getItemCount() - 1));
 
         } else if (isLoading()) {
 
             int currentSize = getItemCount();
             if (currentSize > 0) {
-                loanList.remove((currentSize - 1));
+                loans.remove((currentSize - 1));
                 this.notifyItemRemoved(currentSize);
             }
             recyclerView.addOnScrollListener(mOnScrollListener);

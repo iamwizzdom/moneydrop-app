@@ -25,6 +25,7 @@
     <color name="colorGrayDark">#A9A9A9</color>
     <color name="colorGrayButton">#7f7d7d</color>
     <color name="colorTransparent">#0000ffff</color>
+    <color name="borderShadow">#33000000</color>
     <color name="imageBorder">#f9beaa</color>
     <color name="danger">#f55f78</color>
     <color name="warning">#ffbd31</color>

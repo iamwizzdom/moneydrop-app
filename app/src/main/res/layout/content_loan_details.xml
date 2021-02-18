@@ -118,6 +118,7 @@
                             android:layout_gravity="end"
                             android:scaleType="centerCrop"
                             android:src="@drawable/unisex"
+                            android:onClick="viewUser"
                             app:civ_border_color="@color/imageBorder"
                             app:civ_border_width="4dp" />
 

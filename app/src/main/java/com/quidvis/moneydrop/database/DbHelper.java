@@ -39,6 +39,7 @@ public class DbHelper extends SQLiteOpenHelper {
             + DbContract.USER_PICTURE + " CHAR(500) NOT NULL,"
             + DbContract.USER_DOB + " DATE NOT NULL,"
             + DbContract.USER_GENDER + " INT NOT NULL,"
+            + DbContract.USER_RATING + " DOUBLE NOT NULL,"
             + DbContract.USER_ADDRESS + " CHAR(500) NOT NULL,"
             + DbContract.USER_COUNTY + " CHAR(500) NOT NULL,"
             + DbContract.USER_STATE + " CHAR(500) NOT NULL,"
@@ -130,6 +131,7 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.USER_PHONE, user.getPhone());
         contentValues.put(DbContract.USER_PICTURE, user.getPicture());
         contentValues.put(DbContract.USER_GENDER, user.getGender());
+        contentValues.put(DbContract.USER_RATING, user.getRating());
         contentValues.put(DbContract.USER_DOB, user.getDob());
         contentValues.put(DbContract.USER_ADDRESS, user.getAddress());
         contentValues.put(DbContract.USER_COUNTY, user.getCountry());
@@ -232,6 +234,7 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.USER_PHONE, user.getPhone());
         contentValues.put(DbContract.USER_PICTURE, user.getPicture());
         contentValues.put(DbContract.USER_GENDER, user.getGender());
+        contentValues.put(DbContract.USER_RATING, user.getRating());
         contentValues.put(DbContract.USER_DOB, user.getDob());
         contentValues.put(DbContract.USER_ADDRESS, user.getAddress());
         contentValues.put(DbContract.USER_COUNTY, user.getCountry());
@@ -348,6 +351,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.USER_PHONE,
                 DbContract.USER_DOB,
                 DbContract.USER_GENDER,
+                DbContract.USER_RATING,
                 DbContract.USER_PICTURE,
                 DbContract.USER_ADDRESS,
                 DbContract.USER_COUNTY,
@@ -375,6 +379,7 @@ public class DbHelper extends SQLiteOpenHelper {
             user.setPhone(cursor.getString(cursor.getColumnIndex(DbContract.USER_PHONE)));
             user.setDob(cursor.getString(cursor.getColumnIndex(DbContract.USER_DOB)));
             user.setGender(cursor.getInt(cursor.getColumnIndex(DbContract.USER_GENDER)));
+            user.setRating(cursor.getDouble(cursor.getColumnIndex(DbContract.USER_RATING)));
             user.setPicture(cursor.getString(cursor.getColumnIndex(DbContract.USER_PICTURE)));
             user.setAddress(cursor.getString(cursor.getColumnIndex(DbContract.USER_ADDRESS)));
             user.setCountry(cursor.getString(cursor.getColumnIndex(DbContract.USER_COUNTY)));

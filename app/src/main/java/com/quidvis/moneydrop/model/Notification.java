@@ -2,8 +2,6 @@ package com.quidvis.moneydrop.model;
 
 import android.content.Context;
 
-import com.quidvis.moneydrop.utility.Utility;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,15 +10,18 @@ import java.io.Serializable;
 public class Notification implements Serializable {
 
     private int id;
-    private String reference, notice, dateTime;
+    private String reference, message, image, activity, payload, dateTime;
     private final JSONObject noticeObject;
 
-    public Notification(Context context, JSONObject transObject) throws JSONException {
-        this.noticeObject = transObject;
-        this.setId(transObject.getInt("id"));
-        this.setReference(transObject.getString("uuid"));
-        this.setNotice(transObject.getString("notice"));
-        this.setDateTime(transObject.getString("date_time"));
+    public Notification(Context context, JSONObject notificationObject) throws JSONException {
+        this.noticeObject = notificationObject;
+        this.setId(notificationObject.getInt("id"));
+        this.setReference(notificationObject.getString("uuid"));
+        this.setMessage(notificationObject.getString("message"));
+        this.setImage(notificationObject.getString("image"));
+        this.setActivity(notificationObject.getString("activity"));
+        this.setPayload(notificationObject.getString("payload"));
+        this.setDateTime(notificationObject.getString("date_time"));
     }
 
     public int getId() {
@@ -39,12 +40,36 @@ public class Notification implements Serializable {
         this.reference = reference;
     }
 
-    public String getNotice() {
-        return notice;
+    public String getMessage() {
+        return message;
     }
 
-    public void setNotice(String notice) {
-        this.notice = notice;
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getActivity() {
+        return activity;
+    }
+
+    public void setActivity(String activity) {
+        this.activity = activity;
+    }
+
+    public String getPayload() {
+        return payload;
+    }
+
+    public void setPayload(String payload) {
+        this.payload = payload;
     }
 
     public String getDateTime() {
