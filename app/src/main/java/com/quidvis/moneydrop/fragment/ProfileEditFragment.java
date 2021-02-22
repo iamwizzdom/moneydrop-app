@@ -148,6 +148,12 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                     etGender.setText(String.valueOf(Constant.FEMALE));
                 });
                 break;
+            case ProfileOptionFragment.EDIT_ADDRESS:
+                contentView = inflater.inflate(R.layout.fragment_profile_edit_address, container, false);
+                EditText etAddress = contentView.findViewById(R.id.etAddress);
+                etAddress.setText(user.getAddress());
+                editTexts.put("address", etAddress);
+                break;
             case ProfileOptionFragment.EDIT_DOB:
                 contentView = inflater.inflate(R.layout.fragment_profile_edit_dob, container, false);
                 EditText etDOB = contentView.findViewById(R.id.etDOB);
@@ -201,6 +207,9 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                 break;
             case ProfileOptionFragment.EDIT_GENDER:
                 type = "gender";
+                break;
+            case ProfileOptionFragment.EDIT_ADDRESS:
+                type = "address";
                 break;
             case ProfileOptionFragment.EDIT_DOB:
                 type = "dob";

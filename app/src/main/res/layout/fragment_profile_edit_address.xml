@@ -11,36 +11,21 @@
     android:paddingBottom="@dimen/padding_20"
     android:paddingTop="@dimen/padding_20">
 
-    <LinearLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        style="@style/edit_text_style"
-        android:layout_marginTop="@dimen/activity_vertical_margin">
-
-        <com.hbb20.CountryCodePicker
-            android:id="@+id/ccp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:ccp_autoDetectCountry="true"
-            app:ccp_defaultNameCode="NG"
-            app:ccp_showFlag="false"
-            app:ccp_countryPreference="NG,US"
-            app:ccp_showNameCode="false" />
+        android:hint="@string/address">
 
         <EditText
-            android:id="@+id/etPhone"
+            android:id="@+id/etAddress"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             style="@style/edit_text_style"
-            android:backgroundTint="@color/colorTransparent"
-            android:hint="@string/phone"
-            android:nextFocusDown="@id/etPassword"
-            android:inputType="phone"
+            android:inputType="textCapSentences"
             android:importantForAutofill="no"
             tools:ignore="LabelFor" />
 
-    </LinearLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
         android:id="@+id/submit"

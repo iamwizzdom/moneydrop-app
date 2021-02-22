@@ -282,6 +282,9 @@ public class ProfileActivity extends AppCompatActivity {
         } else if (id == R.id.gender) {
             bundle.putString(ProfileOptionFragment.EDIT_TITLE, "Update Gender");
             bundle.putString(ProfileOptionFragment.EDIT_OPTION, ProfileOptionFragment.EDIT_GENDER);
+        } else if (id == R.id.address) {
+            bundle.putString(ProfileOptionFragment.EDIT_TITLE, "Update Address");
+            bundle.putString(ProfileOptionFragment.EDIT_OPTION, ProfileOptionFragment.EDIT_ADDRESS);
         } else if (id == R.id.dob) {
             bundle.putString(ProfileOptionFragment.EDIT_TITLE, "Update DOB");
             bundle.putString(ProfileOptionFragment.EDIT_OPTION, ProfileOptionFragment.EDIT_DOB);

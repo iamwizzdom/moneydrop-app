@@ -32,6 +32,7 @@ public class ProfileOptionFragment extends Fragment {
     public static final String EDIT_PHONE = "edit_phone";
     public static final String EDIT_EMAIL = "edit_email";
     public static final String EDIT_GENDER = "edit_gender";
+    public static final String EDIT_ADDRESS = "edit_address";
     public static final String EDIT_DOB = "edit_dob";
     public static final String EDIT_BVN = "edit_bvn";
     public static final String EDIT_PASSWORD = "edit_password";
