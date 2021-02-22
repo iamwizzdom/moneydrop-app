@@ -152,7 +152,8 @@
                 android:paddingEnd="@dimen/padding_15"
                 android:paddingBottom="@dimen/padding_15"
                 android:paddingTop="@dimen/padding_15"
-                android:weightSum="2">
+                android:weightSum="2"
+                android:onClick="loadEditFragment">
 
                 <TextView
                     android:layout_width="0dp"

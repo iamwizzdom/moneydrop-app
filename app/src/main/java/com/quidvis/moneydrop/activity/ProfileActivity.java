@@ -279,6 +279,9 @@ public class ProfileActivity extends AppCompatActivity {
         } else if (id == R.id.email) {
             bundle.putString(ProfileOptionFragment.EDIT_TITLE, "Update Email");
             bundle.putString(ProfileOptionFragment.EDIT_OPTION, ProfileOptionFragment.EDIT_EMAIL);
+        } else if (id == R.id.gender) {
+            bundle.putString(ProfileOptionFragment.EDIT_TITLE, "Update Gender");
+            bundle.putString(ProfileOptionFragment.EDIT_OPTION, ProfileOptionFragment.EDIT_GENDER);
         } else if (id == R.id.dob) {
             bundle.putString(ProfileOptionFragment.EDIT_TITLE, "Update DOB");
             bundle.putString(ProfileOptionFragment.EDIT_OPTION, ProfileOptionFragment.EDIT_DOB);

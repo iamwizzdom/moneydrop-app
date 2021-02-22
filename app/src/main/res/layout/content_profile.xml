@@ -96,15 +96,6 @@
 
         </LinearLayout>
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/nav_profile_fragment"
-            android:name="androidx.navigation.fragment.NavHostFragment"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:background="@drawable/layout_background_rounded"
-            android:layout_marginTop="@dimen/margin_20"
-            app:defaultNavHost="true" />
-
         <TextView
             android:id="@+id/view_payments"
             android:layout_width="wrap_content"
@@ -118,6 +109,15 @@
             android:onClick="viewReviews"
             android:textSize="16sp"
             android:textStyle="bold"/>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/nav_profile_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:background="@drawable/layout_background_rounded"
+            android:layout_marginTop="@dimen/margin_10"
+            app:defaultNavHost="true" />
 
     </LinearLayout>
 

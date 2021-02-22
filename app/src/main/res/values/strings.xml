@@ -265,6 +265,9 @@
     <string name="copy_right">Copy right</string>
     <string name="edit_review">Edit Review</string>
     <string name="delete">Delete</string>
+    <string name="male">Male</string>
+    <string name="icon">Icon</string>
+    <string name="female">Female</string>
 
 
     <string-array name="interestType">

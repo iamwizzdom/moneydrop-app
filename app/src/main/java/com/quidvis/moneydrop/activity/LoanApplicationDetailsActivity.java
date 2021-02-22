@@ -78,8 +78,6 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        Log.e("applicationString", applicationString);
-
         try {
             JSONObject applicationObject = new JSONObject(applicationString);
             loanApplication = new LoanApplication(this, applicationObject);

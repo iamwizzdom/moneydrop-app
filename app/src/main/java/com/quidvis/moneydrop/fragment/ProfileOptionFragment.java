@@ -31,6 +31,7 @@ public class ProfileOptionFragment extends Fragment {
     public static final String EDIT_NAME = "edit_name";
     public static final String EDIT_PHONE = "edit_phone";
     public static final String EDIT_EMAIL = "edit_email";
+    public static final String EDIT_GENDER = "edit_gender";
     public static final String EDIT_DOB = "edit_dob";
     public static final String EDIT_BVN = "edit_bvn";
     public static final String EDIT_PASSWORD = "edit_password";
@@ -78,7 +79,7 @@ public class ProfileOptionFragment extends Fragment {
         TextView tvDob = view.findViewById(R.id.dob_text);
         TextView tvBvn = view.findViewById(R.id.bvn_text);
 
-        if (user == null) {
+        if (user == null || (user != null && user.isMe())) {
             DbHelper dbHelper = new DbHelper(activity);
             user = dbHelper.getUser();
         }

@@ -23,6 +23,7 @@ import com.android.volley.Request;
 import com.hbb20.CountryCodePicker;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.ProfileActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
@@ -50,7 +51,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
     private Activity activity;
     private String editOption, editTitle;
     private final ArrayMap<String, Object> editTexts = new ArrayMap<>();
-    private TextView tvDobError = null;
+    private TextView tvDobError = null, tvGenderError = null;
     private CircularProgressButton submitBtn;
     private DbHelper dbHelper;
     private User user;
@@ -124,6 +125,29 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                 etEmail.setText(user.getEmail());
                 editTexts.put("email", etEmail);
                 break;
+            case ProfileOptionFragment.EDIT_GENDER:
+                contentView = inflater.inflate(R.layout.fragment_profile_edit_gender, container, false);
+                LinearLayout maleGender = contentView.findViewById(R.id.male_gender);
+                LinearLayout femaleGender = contentView.findViewById(R.id.female_gender);
+                ImageView maleChecker = contentView.findViewById(R.id.male_checker);
+                ImageView femaleChecker = contentView.findViewById(R.id.female_checker);
+                tvGenderError = contentView.findViewById(R.id.tvGenderError);
+                maleChecker.setVisibility(user.getGender() == Constant.MALE ? View.VISIBLE : View.GONE);
+                femaleChecker.setVisibility(user.getGender() == Constant.FEMALE ? View.VISIBLE : View.GONE);
+                EditText etGender = new EditText(activity);
+                etGender.setText(String.valueOf(user.getGender()));
+                editTexts.put("gender", etGender);
+                maleGender.setOnClickListener(v -> {
+                    maleChecker.setVisibility(View.VISIBLE);
+                    femaleChecker.setVisibility(View.GONE);
+                    etGender.setText(String.valueOf(Constant.MALE));
+                });
+                femaleGender.setOnClickListener(v -> {
+                    maleChecker.setVisibility(View.GONE);
+                    femaleChecker.setVisibility(View.VISIBLE);
+                    etGender.setText(String.valueOf(Constant.FEMALE));
+                });
+                break;
             case ProfileOptionFragment.EDIT_DOB:
                 contentView = inflater.inflate(R.layout.fragment_profile_edit_dob, container, false);
                 EditText etDOB = contentView.findViewById(R.id.etDOB);
@@ -174,6 +198,9 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                 break;
             case ProfileOptionFragment.EDIT_EMAIL:
                 type = "email";
+                break;
+            case ProfileOptionFragment.EDIT_GENDER:
+                type = "gender";
                 break;
             case ProfileOptionFragment.EDIT_DOB:
                 type = "dob";
@@ -235,6 +262,8 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                 }
 
                 if (tvDobError != null) tvDobError.setVisibility(View.GONE);
+                else if (tvGenderError != null) tvGenderError.setVisibility(View.GONE);
+
                 submitBtn.startAnimation();
             }
 
@@ -318,6 +347,9 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                             if (tvDobError != null && key.equals("dob")) {
                                 tvDobError.setText(value);
                                 tvDobError.setVisibility(View.VISIBLE);
+                            } else if (tvGenderError != null && key.equals("gender")) {
+                                tvGenderError.setText(value);
+                                tvGenderError.setVisibility(View.VISIBLE);
                             } else if (editText != null) editText.setError(value);
                         }
                     }
