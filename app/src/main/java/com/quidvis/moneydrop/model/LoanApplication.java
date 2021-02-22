@@ -12,7 +12,7 @@ public class LoanApplication {
     private int id, userID;
     private double amount, repaidAmount, payableAmount;
     private String reference, loanID, dueDate, dueDateShort, date, dateShort, dateGranted, status;
-    private boolean repaid, hasGranted;
+    private boolean repaid, reviewed, hasGranted;
     private Loan loan;
     private User applicant;
     private final JSONObject applicationObject;
@@ -27,7 +27,9 @@ public class LoanApplication {
         this.setLoanID(applicationObject.getString("loan_id"));
         this.setUserID(applicationObject.getInt("user_id"));
         this.setStatus(applicationObject.getString("status_readable"));
+        this.setRepaid(applicationObject.getBoolean("is_reviewed"));
         this.setRepaid(applicationObject.getBoolean("is_repaid"));
+        this.setReviewed(applicationObject.getBoolean("is_reviewed"));
         this.setHasGranted(applicationObject.getBoolean("has_granted"));
         this.setDueDate(applicationObject.getString("due_date"));
         this.setDueDateShort(applicationObject.getString("due_date_short"));
@@ -174,6 +176,14 @@ public class LoanApplication {
 
     public void setRepaid(boolean repaid) {
         this.repaid = repaid;
+    }
+
+    public boolean isReviewed() {
+        return reviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        this.reviewed = reviewed;
     }
 
     public boolean isHasGranted() {

@@ -208,8 +208,12 @@ public class LoanApplicationDetailsActivity extends AppCompatActivity {
         if ((loan.isLoanRequest() && loan.isMine()) || (loan.isLoanOffer() && !loan.isMine())) return;
         User user = loan.isLoanOffer() ? loanApplication.getApplicant() : loan.getUser();
         if (user.isMe()) return;
-        Intent intent = new Intent(this, ReviewUserActivity.class);
-        intent.putExtra(ReviewUserActivity.LOAN_APPLICATION_OBJECT_KEY, loanApplication.getApplicationObject().toString());
+        Intent intent = new Intent(this, !loanApplication.isReviewed() ? ReviewUserActivity.class : ProfileActivity.class);
+        if (loanApplication.isReviewed()) {
+            intent.putExtra(ProfileActivity.USER_OBJECT_KEY, user.getUserObject().toString());
+        } else {
+            intent.putExtra(ReviewUserActivity.LOAN_APPLICATION_OBJECT_KEY, loanApplication.getApplicationObject().toString());
+        }
         startActivity(intent);
     }
 

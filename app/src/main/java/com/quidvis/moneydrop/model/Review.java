@@ -10,7 +10,7 @@ import org.json.JSONObject;
 public class Review {
 
     private int id;
-    private String review, date, dateFormatted;
+    private String uuid, review, date, dateFormatted;
     private User user, reviewer;
     private LoanApplication loanApplication;
     private final JSONObject reviewObject;
@@ -18,6 +18,7 @@ public class Review {
     public Review(Context context, JSONObject reviewObject) throws JSONException {
         this.reviewObject = reviewObject;
         this.setId(reviewObject.getInt("id"));
+        this.setUuid(reviewObject.getString("uuid"));
         this.setReview(reviewObject.getString("review"));
         this.setDate(reviewObject.getString("date"));
         this.setDateFormatted(reviewObject.getString("date_formatted"));
@@ -35,6 +36,14 @@ public class Review {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getReview() {

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -39,6 +40,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UserReviewsActivity extends AppCompatActivity {
 
     public static final String USER_OBJECT_KEY = "userObject";
+    public static final int REVIEW_REQUEST_KEY = 132;
     public final static String STATE_KEY = UserReviewsActivity.class.getName();
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en", "ng"));
     private User user, reviewUser;
@@ -120,6 +122,38 @@ public class UserReviewsActivity extends AppCompatActivity {
         getReviews(null);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK || data == null) {
+            Utility.toastMessage(this, "Failed to capture new review data.");
+            return;
+        }
+
+        if (requestCode == REVIEW_REQUEST_KEY) {
+
+            String reviewString = data.getStringExtra(UserSingleReviewActivity.REVIEW_OBJECT_KEY);
+            int position = data.getIntExtra(UserSingleReviewActivity.REVIEW_POSITION_KEY, 0);
+
+            if (reviewString == null) {
+                reviews.remove(position);
+                notifyView();
+                return;
+            }
+
+            try {
+                Review review = new Review(this, new JSONObject(reviewString));
+                reviews.set(position, review);
+                notifyView();
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Utility.toastMessage(this, "Invalid loan passed");
+                finish();
+            }
+        }
+    }
+
     public void viewReviewUser(View view) {
         if (reviewUser.isMe()) return;
         Intent intent = new Intent(this, ProfileActivity.class);
@@ -178,9 +212,12 @@ public class UserReviewsActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        notifyView();
+    }
 
+    private void notifyView() {
+        int size = this.reviews.size();
         setLoading(false, size > 0);
-        size = this.reviews.size();
         tvItemCount.setText((size > 0) ? String.format("%s %s", size, (size > 1 ? "records" : "record")) : getResources().getText(R.string.no_record));
         reviewAdapter.notifyDataSetChanged();
     }

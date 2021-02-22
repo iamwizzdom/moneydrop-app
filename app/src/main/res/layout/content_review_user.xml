@@ -88,7 +88,7 @@
                 style="@style/edit_text_stroked_style"
                 android:paddingTop="@dimen/padding_10"
                 android:paddingBottom="@dimen/padding_10"
-                android:inputType="text|textMultiLine"
+                android:inputType="text|textMultiLine|textCapSentences"
                 android:hint="@string/enter_review"
                 android:lines="8"
                 android:gravity="top"

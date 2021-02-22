@@ -153,6 +153,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/text_view_style"
+                    android:paddingStart="@dimen/padding_10"
+                    android:paddingEnd="@dimen/padding_10"
                     android:layout_marginTop="@dimen/margin_15"
                     android:gravity="start"
                     android:text="@string/review"
@@ -160,6 +162,14 @@
                     android:textStyle="bold" />
 
             </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/reviewProgress"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="@dimen/padding_40"
+                android:background="@color/colorBlackTransparent"
+                android:visibility="gone"/>
 
         </androidx.cardview.widget.CardView>
 

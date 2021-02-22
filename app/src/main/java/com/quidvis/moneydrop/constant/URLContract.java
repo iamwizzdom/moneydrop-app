@@ -11,9 +11,9 @@ public class URLContract {
     private static final String URL_HTTP_SCHEME = "http://";
     private static final String URL_HTTPS_SCHEME = "https://";
     public static final String URL_SCHEME = URL_HTTP_SCHEME;
-//    public static final String HOST_URL = "192.168.0.109:8000";
+    public static final String HOST_URL = "192.168.0.109:8000";
 //    public static final String HOST_URL = "10.101.186.108:8000";
-    public static final String HOST_URL = "3.124.177.82/moneydrop/server";
+//    public static final String HOST_URL = "3.124.177.82/moneydrop/server";
     public static final String BASE_URL = URL_SCHEME + HOST_URL;
     private static final String API_URL = BASE_URL + "/api/v1";
     public static final String LOGIN_URL = API_URL + "/auth/login";
@@ -53,5 +53,7 @@ public class URLContract {
     public static final String LOAN_REPAYMENT_HISTORY_URL = API_URL + "/loan/application/%s/repayment/history";
     public static final String LOAN_APPLICANT_REVIEW_URL = API_URL + "/loan/application/%s/review";
     public static final String USER_REVIEWS_URL = API_URL + "/user/%s/reviews";
+    public static final String EDIT_REVIEW_URL = API_URL + "/review/%s/edit";
+    public static final String DELETE_REVIEW_URL = API_URL + "/review/%s/delete";
 
 }

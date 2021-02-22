@@ -145,8 +145,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             parentViewHolder.container.setOnClickListener(v -> {
                 Intent intent = new Intent(activity, UserSingleReviewActivity.class);
+                intent.putExtra(UserSingleReviewActivity.REVIEW_POSITION_KEY, position);
                 intent.putExtra(UserSingleReviewActivity.REVIEW_OBJECT_KEY, review.getReviewObject().toString());
-                activity.startActivity(intent);
+                activity.startActivityForResult(intent, UserReviewsActivity.REVIEW_REQUEST_KEY);
             });
 
         } else if (holder instanceof LoadingViewHolder) {

@@ -197,12 +197,12 @@ public class LoanDetailsActivity extends AppCompatActivity {
 
     public void applyForLoan(Loan loan, CircularProgressButton applyBtn) {
 
-        CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(LoanDetailsActivity.this);
-        alertDialog.addView(View.inflate(this, R.layout.loan_apply_confirmation_layout, null));
-        alertDialog.setIcon(R.drawable.ic_remove);
-        alertDialog.setMessage("Are you sure you want to apply for this loan?");
-        alertDialog.setNegativeButton("No, cancel");
-        alertDialog.setPositiveButton("Yes, apply", (v, d) -> {
+        CustomBottomAlertDialog dialog = new CustomBottomAlertDialog(LoanDetailsActivity.this);
+        dialog.addView(View.inflate(this, R.layout.loan_apply_confirmation_layout, null));
+        dialog.setIcon(R.drawable.ic_remove);
+        dialog.setMessage("Are you sure you want to apply for this loan?");
+        dialog.setNegativeButton("No, cancel");
+        dialog.setPositiveButton("Yes, apply", (v, d) -> {
             EditText etAmount = d.findViewById(R.id.amount);
             EditText etNote = d.findViewById(R.id.note);
             String amount = etAmount.getText().toString();
@@ -213,12 +213,12 @@ public class LoanDetailsActivity extends AppCompatActivity {
             }
             sendLoanApplyRequest(loan, applyBtn, amount, note);
         });
-        EditText etAmount = alertDialog.getDialogView().findViewById(R.id.amount);
+        EditText etAmount = dialog.getDialogView().findViewById(R.id.amount);
         if (!loan.isFundRaiser()) {
             etAmount.setText(String.valueOf(loan.getAmount()));
             Utility.disableEditText(etAmount);
         }
-        alertDialog.display();
+        dialog.display();
     }
 
     public void sendLoanApplyRequest(Loan loan, CircularProgressButton applyBtn, String amount, String note) {

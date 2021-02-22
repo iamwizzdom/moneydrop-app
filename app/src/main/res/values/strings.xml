@@ -263,6 +263,8 @@
     <string name="interest_rate">Interest Rate</string>
     <string name="revoke_loan">Revoke loan</string>
     <string name="copy_right">Copy right</string>
+    <string name="edit_review">Edit Review</string>
+    <string name="delete">Delete</string>
 
 
     <string-array name="interestType">

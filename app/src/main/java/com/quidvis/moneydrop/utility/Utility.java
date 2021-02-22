@@ -781,15 +781,34 @@ public class Utility {
         return (TextUtils.isEmpty(value = castNull(value)) ? defaultValue : value);
     }
 
+    public static void fadeIn(Activity activity, View view) {
+        fadeIn(activity, view, null);
+    }
+
     public static void fadeOut(Activity activity, View view) {
         fadeOut(activity, view, null);
+    }
+
+    public static void fadeIn(Activity activity, View view, Runnable callback) {
+        view.setVisibility(View.VISIBLE);
+        view.setAlpha(.1f);
+        view.animate()
+                .alpha(10f)
+                .setDuration(activity.getResources().getInteger(
+                        android.R.integer.config_longAnimTime))
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (callback != null) callback.run();
+                    }
+                });
     }
 
     public static void fadeOut(Activity activity, View view, Runnable callback) {
         view.animate()
                 .alpha(0f)
                 .setDuration(activity.getResources().getInteger(
-                        android.R.integer.config_shortAnimTime))
+                        android.R.integer.config_mediumAnimTime))
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {

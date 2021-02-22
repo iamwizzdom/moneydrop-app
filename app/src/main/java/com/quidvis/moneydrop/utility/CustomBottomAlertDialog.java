@@ -1,5 +1,6 @@
 package com.quidvis.moneydrop.utility;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -53,7 +54,6 @@ public class CustomBottomAlertDialog {
     }
 
     public void setMessage(@Nullable CharSequence message) {
-        dialogMessage.setVisibility(View.VISIBLE);
         dialogMessage.setText(message);
     }
 

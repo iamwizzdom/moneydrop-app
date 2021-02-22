@@ -3,6 +3,7 @@
     <color name="colorPrimary">#e04805</color>
     <color name="colorPrimaryDark">#e04805</color>
     <color name="colorPrimaryTransparent">#85E04805</color>
+    <color name="colorBlackTransparent">#34000000</color>
     <color name="colorAccent">#e04805</color>
     <color name="colorAccentLight">#DF6530</color>
 
