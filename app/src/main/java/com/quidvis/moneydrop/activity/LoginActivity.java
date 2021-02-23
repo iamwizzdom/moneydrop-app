@@ -103,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
 
         forgotPassword.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class)));
 
-        signUpBtn.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, VerificationActivity.class)));
+        signUpBtn.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, VerifyEmailActivity.class)));
 
         loginBtn.setOnClickListener(v -> login());
     }
@@ -233,7 +233,7 @@ public class LoginActivity extends AppCompatActivity {
                     dialog.display();
 
 
-                    JSONObject errors = object.getJSONObject("error");
+                    JSONObject errors = object.getJSONObject("errors");
 
                     if (errors.length() > 0) {
                         for (Iterator<String> it = errors.keys(); it.hasNext(); ) {

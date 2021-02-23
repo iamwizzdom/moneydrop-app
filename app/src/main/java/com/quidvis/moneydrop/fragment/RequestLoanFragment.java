@@ -329,8 +329,8 @@ public class RequestLoanFragment extends CustomFragment {
 
                     dialog.setTitle(object.getString("title"));
                     String message;
-                    if (object.has("error") && object.getJSONObject("error").length() > 0) {
-                        message = Utility.serializeObject(object.getJSONObject("error"));
+                    if (object.has("errors") && object.getJSONObject("errors").length() > 0) {
+                        message = Utility.serializeObject(object.getJSONObject("errors"));
                     } else message = object.getString("message");
                     dialog.setMessage(message);
                     dialog.setPositiveButton("Ok", Dialog::dismiss);

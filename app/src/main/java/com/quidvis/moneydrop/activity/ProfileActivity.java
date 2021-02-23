@@ -389,8 +389,8 @@ public class ProfileActivity extends AppCompatActivity {
                     AwesomeAlertDialog dialog = new AwesomeAlertDialog(ProfileActivity.this);
 
                     dialog.setTitle(object.getString("title"));
-                    JSONObject errors = object.getJSONObject("error");
-                    dialog.setMessage(object.has("error") && errors.length() > 0 ? Utility.serializeObject(errors) : object.getString("message"));
+                    JSONObject errors = object.getJSONObject("errors");
+                    dialog.setMessage(object.has("errors") && errors.length() > 0 ? Utility.serializeObject(errors) : object.getString("message"));
                     dialog.setPositiveButton("Ok");
                     dialog.display();
 

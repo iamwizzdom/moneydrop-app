@@ -55,7 +55,6 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
     private CircularProgressButton submitBtn;
     private DbHelper dbHelper;
     private User user;
-    private ImageView backBtn;
     private final Calendar calendar = Calendar.getInstance();
     private final DateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", new java.util.Locale("en","ng"));
@@ -91,9 +90,6 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
         title.setText(editTitle);
 
         activity = getActivity();
-
-        backBtn = view.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(view12 -> ((ProfileActivity) activity).loadEditFragment(view12));
 
         dbHelper = new DbHelper(activity);
         user = dbHelper.getUser();
@@ -314,7 +310,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
                         if (user.update()) {
                             Utility.toastMessage(activity, object.getString("message"));
-                            backBtn.callOnClick();
+                            activity.onBackPressed();
                         } else {
                             Utility.toastMessage(activity, "Failed to update user info locally. Please try again later.");
                         }
@@ -345,7 +341,7 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                     dialog.setPositiveButton("Ok");
                     dialog.display();
 
-                    JSONObject errors = object.getJSONObject("error");
+                    JSONObject errors = object.getJSONObject("errors");
 
                     if (errors.length() > 0) {
                         for (Iterator<String> it = errors.keys(); it.hasNext(); ) {

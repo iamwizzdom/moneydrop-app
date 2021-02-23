@@ -2,6 +2,7 @@ package com.quidvis.moneydrop.activity;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -47,8 +48,9 @@ import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 public class RegistrationActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     public static final String EMAIL = "email";
+    public static final String PHONE = "phone";
 
-    private String email;
+    private String email, phone;
     private EditText etFirstname;
     private EditText etLastname;
     private EditText etPhone;
@@ -81,7 +83,11 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
         }
 
         Intent intent = getIntent();
-        email = intent.getStringExtra(EMAIL);
+
+        if (intent != null) {
+            email = intent.getStringExtra(EMAIL);
+            phone = intent.getStringExtra(PHONE);
+        }
 
         etFirstname = findViewById(R.id.etFirstname);
         etLastname = findViewById(R.id.etLastname);
@@ -97,8 +103,17 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
 
         signupBtn = findViewById(R.id.signUpBtn);
 
-        etEmail.setText(email);
-        Utility.disableEditText(etEmail);
+        if (!TextUtils.isEmpty(email)) {
+            etEmail.setText(email);
+            Utility.disableEditText(etEmail);
+        }
+
+        if (!TextUtils.isEmpty(phone)) {
+            ccp.setFullNumber(phone);
+            ccp.setCcpClickable(false);
+            ccp.setContentColor(Color.GRAY);
+            Utility.disableEditText(etPhone);
+        }
 
         etDOB.setOnClickListener(v -> setDate());
 
@@ -301,8 +316,8 @@ public class RegistrationActivity extends AppCompatActivity implements DatePicke
             dialog.display();
 
 
-            if (object.has("error")) {
-                JSONObject errors = object.getJSONObject("error");
+            if (object.has("errors")) {
+                JSONObject errors = object.getJSONObject("errors");
 
                 if (errors.length() > 0) {
                     for (Iterator<String> it = errors.keys(); it.hasNext(); ) {

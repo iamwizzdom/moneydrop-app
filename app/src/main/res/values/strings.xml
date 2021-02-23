@@ -18,13 +18,15 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="verification_fragment">Verification Fragment</string>
     <string name="registration">Registration</string>
-    <string name="registration_note">Enter your email address, we will send you OTP to verify later.</string>
+    <string name="email_verification_note">Enter your email address, we will send you OTP to verify it.</string>
+    <string name="phone_verification_note">Enter your phone number, we will send you OTP to verify it.</string>
+    <string name="resend_otp">Didn\'t get OTP? Resend Code</string>
     <string name="email_hint">Enter your email address</string>
     <string name="agreement_notice">By clicking start you agree to our</string>
     <string name="privacy_policy_and_terms">Privacy Policy and Terms</string>
     <string name="start_using">Start using</string>
     <string name="verification">Verification</string>
-    <string name="verification_note">Enter the 4 digit code we sent you</string>
+    <string name="verification_note">Enter the 5 digit code we sent you</string>
     <string name="resend_code">Resend code</string>
     <string name="continues">Continue</string>
     <string name="button">Button</string>
@@ -268,6 +270,8 @@
     <string name="male">Male</string>
     <string name="icon">Icon</string>
     <string name="female">Female</string>
+    <string name="verify">Verify</string>
+    <string name="send">Send</string>
 
 
     <string-array name="interestType">

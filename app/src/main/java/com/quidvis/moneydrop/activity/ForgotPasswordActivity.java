@@ -153,7 +153,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     dialog.display();
 
 
-                    JSONObject errors = object.getJSONObject("error");
+                    JSONObject errors = object.getJSONObject("errors");
 
                     if (errors.length() > 0) {
                         for (Iterator<String> it = errors.keys(); it.hasNext(); ) {

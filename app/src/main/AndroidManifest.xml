@@ -8,12 +8,13 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".network.VolleySingleton"
-        android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:hardwareAccelerated="true"
@@ -21,12 +22,12 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:logo="@drawable/ic_launcher"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="UnusedAttribute">
-
         <activity
             android:name=".activity.SplashActivity"
             android:label="@string/app_name"
@@ -41,6 +42,14 @@
         </activity>
         <activity
             android:name=".activity.GetStartedActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.VerifyEmailActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activity.VerifyPhoneActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -79,71 +88,58 @@
             android:name=".activity.ImagePreviewActivity"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.Transparent" />
-
         <activity
             android:name=".activity.UserLoanActivity"
             android:label="@string/title_activity_loan_request"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.TransactionsActivity"
             android:label="@string/transactions"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.CardsActivity"
             android:label="@string/cards"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.LoanApplicantsActivity"
             android:label="@string/loan_applicants"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.LoanDetailsActivity"
             android:label="@string/loan_details"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.LoanApprovedActivity"
             android:label="@string/loan_approved"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.LoanApplicationDetailsActivity"
             android:label="@string/application_details"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.LoanRepaymentTransactionsActivity"
             android:label="@string/repayment_history"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.ReviewUserActivity"
             android:label="@string/review"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.UserReviewsActivity"
             android:label="@string/reviews"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.UserSingleReviewActivity"
             android:label="@string/review"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.BankAccountsActivity"
             android:label="@string/accounts"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.TransactionReceiptActivity"
             android:label="@string/accounts"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -155,14 +151,16 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <meta-data android:name="co.paystack.android.PublicKey"
-            android:value="pk_test_2e24e05994f91052031815f4f3e31edbcaedf4ce"/>
+        <meta-data
+            android:name="co.paystack.android.PublicKey"
+            android:value="pk_test_2e24e05994f91052031815f4f3e31edbcaedf4ce" />
 
-        <service android:name=".utility.FirebaseMessageReceiver"
+        <service
+            android:name=".utility.FirebaseMessageReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
     </application>

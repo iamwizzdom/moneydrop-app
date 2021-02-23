@@ -7,30 +7,30 @@
     android:paddingStart="@dimen/activity_vertical_padding"
     android:paddingEnd="@dimen/activity_vertical_padding"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".fragment.VerificationFragment">
+    tools:context=".activity.VerifyPhoneActivity">
 
     <!-- TODO: Update blank fragment layout -->
 
     <TextView
-        android:id="@+id/registration"
+        android:id="@+id/verification"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/text_view_style"
         android:gravity="start"
-        android:text="@string/registration"
+        android:text="@string/verification"
         android:textStyle="bold"
         android:textColor="@color/colorAccent"
         android:textSize="26sp"/>
 
     <TextView
-        android:id="@+id/registration_note"
+        android:id="@+id/phone_verification_note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/text_view_style"
-        android:layout_below="@+id/registration"
+        android:layout_below="@+id/verification"
         android:gravity="start"
         android:textColor="@color/colorBlack"
-        android:text="@string/registration_note"
+        android:text="@string/phone_verification_note"
         android:textSize="15sp"/>
 
     <LinearLayout
@@ -38,35 +38,48 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_below="@id/registration_note"
+        android:layout_below="@id/phone_verification_note"
         android:layout_gravity="bottom"
-        android:layout_marginTop="@dimen/activity_vertical_margin_max">
+        android:paddingTop="@dimen/padding_30"
+        android:paddingBottom="@dimen/padding_30">
 
-
-        <com.google.android.material.textfield.TextInputLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/email">
+            android:gravity="center_vertical"
+            style="@style/edit_text_style"
+            android:layout_marginTop="@dimen/activity_vertical_margin">
+
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/ccp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:ccp_autoDetectCountry="true"
+                app:ccp_defaultNameCode="NG"
+                app:ccp_showFlag="false"
+                app:ccp_countryPreference="NG,US"
+                app:ccp_showNameCode="false" />
 
             <EditText
-                android:id="@+id/etEmail"
+                android:id="@+id/etPhone"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 style="@style/edit_text_style"
-                android:inputType="textEmailAddress"
-                android:focusableInTouchMode="true"
-                tools:ignore="LabelFor"
-                android:importantForAutofill="no" />
+                android:backgroundTint="@color/colorTransparent"
+                android:hint="@string/phone"
+                android:nextFocusDown="@id/etPassword"
+                android:inputType="phone"
+                android:importantForAutofill="no"
+                tools:ignore="LabelFor" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="bottom"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="@dimen/activity_vertical_margin_max">
+            android:layout_gravity="bottom">
 
             <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
                 android:id="@+id/verifyBtn"
@@ -77,30 +90,13 @@
                 android:layout_marginBottom="10dp"
                 android:layout_gravity="center"
                 android:background="@drawable/circular_border_shape"
-                android:text="@string/start_using"
+                android:text="@string/send"
                 android:textAllCaps="false"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:spinning_bar_width="4dp"
                 app:spinning_bar_color="@color/colorWhite"
                 app:spinning_bar_padding="6dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/text_view_style"
-                android:gravity="center"
-                android:textColor="@color/colorBlack"
-                android:text="@string/agreement_notice"
-                android:textSize="14sp"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/text_view_link_style"
-                android:gravity="center"
-                android:text="@string/privacy_policy_and_terms"
-                android:textSize="14sp"/>
 
 
         </LinearLayout>

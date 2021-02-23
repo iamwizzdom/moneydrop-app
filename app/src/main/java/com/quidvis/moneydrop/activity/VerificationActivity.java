@@ -1,87 +1,284 @@
 package com.quidvis.moneydrop.activity;
 
+import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.res.ResourcesCompat;
 
-import android.os.Handler;
-import android.os.Looper;
+import android.os.CountDownTimer;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.chaos.view.PinView;
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.fragment.VerificationFragment;
-import com.quidvis.moneydrop.fragment.VerificationOTPFragment;
+import com.quidvis.moneydrop.constant.URLContract;
+import com.quidvis.moneydrop.interfaces.HttpRequestParams;
+import com.quidvis.moneydrop.network.HttpRequest;
+import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
+import com.quidvis.moneydrop.utility.Utility;
+import com.quidvis.moneydrop.utility.Validator;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+
+import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
 public class VerificationActivity extends AppCompatActivity {
 
-    public static String CURRENT_TAG = null;
-    public static final String TAG_VERIFICATION = "VERIFICATION", TAG_OTP = "OTP";
-    private Handler mHandler;
+    public static final String COUNT_DOWN_TIME = "countDownTime",
+            VERIFICATION_TYPE = "verificationType",
+            VERIFICATION_DATA = "verificationData",
+            VERIFIED = "verified";
+
+    private CountDownTimer countDownTimer;
+    private static final String FORMAT = "Resend code in %s:%s";
+    private boolean verified = false;
+
+    private PinView pvOTP;
+    private TextView tvResend;
+    private CircularProgressButton submitBtn;
+    private AwesomeAlertDialog dialog;
+
+    private String data, type;
+    private int countDownTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verification);
-        mHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
-        loadFragment(TAG_VERIFICATION);
+
+        Intent intent = getIntent();
+
+        if (intent == null) {
+            Utility.toastMessage(this, "No data passed to verification activity");
+            finish();
+            return;
+        }
+
+        type = intent.getStringExtra(VERIFICATION_TYPE);
+        data = intent.getStringExtra(VERIFICATION_DATA);
+        countDownTime = intent.getIntExtra(COUNT_DOWN_TIME, 0);
+
+        if (type == null || data == null) {
+            Utility.toastMessage(this, "Invalid passed to verification activity");
+            finish();
+            return;
+        }
+
+        dialog = new AwesomeAlertDialog(VerificationActivity.this);
+
+        pvOTP = findViewById(R.id.otp);
+        TextView tvMessage = findViewById(R.id.message);
+        tvResend = findViewById(R.id.resend_otp);
+        submitBtn = findViewById(R.id.submit);
+
+        submitBtn.setOnClickListener(v -> verify());
+
+        tvMessage.setText(String.format("Enter the 5 digit OTP we sent your %s at %s", type, data));
+
+        startCountDown();
+    }
+
+    private void verify() {
+
+        final String otp = Objects.requireNonNull(pvOTP.getText()).toString();
+
+        if (type.equals("phone") && !Validator.isValidPhone(data)) {
+            Utility.toastMessage(this, "Please enter a valid phone number");
+            return;
+        } else if (type.equals("email") && !Validator.isValidEmail(data)) {
+            Utility.toastMessage(this, "Please enter a valid email address");
+            return;
+        }
+
+        if (otp.length() < 5) {
+            Utility.toastMessage(this, "Please enter a complete OTP");
+            return;
+        }
+
+        HttpRequest httpRequest = new HttpRequest(this, type.equals("phone") ? URLContract.VERIFY_PHONE_URL : URLContract.VERIFY_EMAIL_URL,
+                Request.Method.POST, new HttpRequestParams() {
+            @Override
+            public Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put(type, data);
+                params.put("code", otp);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                return null;
+            }
+
+            @Override
+            public byte[] getBody() {
+                return null;
+            }
+        }) {
+            @Override
+            protected void onRequestStarted() {
+                Utility.clearFocus(pvOTP, VerificationActivity.this);
+                Utility.disableEditText(pvOTP);
+                submitBtn.startAnimation();
+            }
+
+            @Override
+            protected void onRequestCompleted(boolean onError) {
+
+                submitBtn.revertAnimation();
+                Utility.enableEditText(pvOTP);
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
+                try {
+
+                    JSONObject object = new JSONObject(response);
+                    verified = object.getBoolean("status");
+                    dialog.setTitle(object.getString("title"));
+                    if (verified && countDownTimer != null) countDownTimer.cancel();
+                    dialog.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_success, null));
+                    dialog.setMessage(object.getString("message"));
+                    dialog.setCancelable(false);
+                    dialog.setPositiveButton("Ok", dialog1 -> {
+                        dialog1.dismiss();
+                        onBackPressed();
+                    });
+                    dialog.setOnDismissListener(dialog -> {
+                        dialog.dismiss();
+                        onBackPressed();
+                    });
+                    dialog.display();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(VerificationActivity.this, "Something unexpected happened. Please try that again.");
+                }
+            }
+
+            @Override
+            protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(error);
+
+                    dialog.setTitle(object.getString("title"));
+
+                    JSONObject errors = object.getJSONObject("errors");
+
+                    if (errors.length() > 0) dialog.setMessage(Utility.serializeObject(errors));
+                    else dialog.setMessage(object.getString("message"));
+
+                    if (statusCode == HttpURLConnection.HTTP_CONFLICT) {
+                        if (countDownTimer != null) countDownTimer.cancel();
+                        dialog.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_success, null));
+                        dialog.setCancelable(false);
+                        dialog.setPositiveButton("Ok", dialog1 -> {
+                            dialog1.dismiss();
+                            onBackPressed();
+                        });
+                        dialog.setOnDismissListener(dialog -> {
+                            dialog.dismiss();
+                            onBackPressed();
+                        });
+                        verified = true;
+                    } else dialog.setPositiveButton("Ok");
+
+                    dialog.display();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(VerificationActivity.this, statusCode == 503 ? error :
+                            "Something unexpected happened. Please try that again.");
+                }
+            }
+
+            @Override
+            protected void onRequestCancelled() {
+
+            }
+
+        };
+        httpRequest.send();
+    }
+
+    private void startCountDown() {
+
+        countDownTimer = new CountDownTimer(countDownTime * 1000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+                int seconds = (int) (millisUntilFinished / 1000);
+                int minutes = seconds / 60;
+                seconds = seconds % 60;
+
+                String time = String.format(FORMAT, minutes > 9 ? minutes : "0" + minutes, seconds > 9 ? seconds : "0" + seconds);
+
+                String resentTxt = ("Didn't get OTP? " + time);
+                int start = resentTxt.indexOf("in") + 2, end = resentTxt.length();
+                SpannableString spannableString = new SpannableString(resentTxt);
+                spannableString.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new android.text.style.RelativeSizeSpan(1.1f), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new android.text.style.ForegroundColorSpan(getResources().getColor(R.color.colorAccent)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                tvResend.setText(spannableString);
+            }
+
+            @Override
+            public void onFinish() {
+
+                String resentTxt = "Didn't get OTP? Resend code";
+                int start = resentTxt.indexOf("?") + 2, end = resentTxt.length();
+                SpannableString spannableString = new SpannableString(resentTxt);
+                spannableString.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new android.text.style.RelativeSizeSpan(1.1f), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new android.text.style.ForegroundColorSpan(getResources().getColor(R.color.colorAccent)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ClickableSpan clickHandler = new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View v) {
+                        onBackPressed();
+                    }
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint tp) {
+                        super.updateDrawState(tp);
+                        tp.setUnderlineText(false);
+                    }
+                };
+                spannableString.setSpan(clickHandler, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                tvResend.setText(spannableString);
+                tvResend.setMovementMethod(LinkMovementMethod.getInstance());
+
+            }
+        };
+
+        countDownTimer.start();
     }
 
     @Override
     public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra(VERIFIED, verified);
+        setResult(RESULT_OK, intent);
         super.onBackPressed();
     }
 
-    private Fragment getFragment(String fragmentTag) {
-
-        switch (fragmentTag) {
-            case TAG_VERIFICATION:
-                // verification
-                return VerificationFragment.newInstance();
-            case TAG_OTP:
-            default:
-                return VerificationOTPFragment.newInstance();
-        }
-    }
-
-    /**
-     *
-     * @param tag
-     */
-    public void loadFragment(String tag) {
-        loadFragment(tag, null);
-    }
-
-    /***
-     * Returns respected fragment that user
-     * selected from navigation menu
-     */
-    public void loadFragment(final String tag, final Bundle bundle) {
-        // Sometimes, when fragment has huge data, screen seems hanging
-        // when switching between navigation menus
-        // So using runnable, the fragment is loaded with cross fade effect
-
-        Runnable mPendingRunnable = () -> {
-            // update the main content by replacing fragments
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            Fragment currentFragment = getFragment(CURRENT_TAG = tag);
-            if (bundle != null) currentFragment.setArguments(bundle);
-            fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-            fragmentTransaction.replace(R.id.content_main, currentFragment, tag);
-            fragmentTransaction.commitAllowingStateLoss();
-        };
-
-        // If mPendingRunnable is not null, then add to the message queue
-        mHandler.postDelayed(mPendingRunnable, 300);
-    }
-
     public void onBackPressed(View view) {
-        if (Objects.equals(CURRENT_TAG, TAG_VERIFICATION)) onBackPressed();
-        else loadFragment(TAG_VERIFICATION);
+        onBackPressed();
     }
 }

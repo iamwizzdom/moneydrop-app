@@ -198,9 +198,11 @@ public class LoanDetailsActivity extends AppCompatActivity {
     public void applyForLoan(Loan loan, CircularProgressButton applyBtn) {
 
         CustomBottomAlertDialog dialog = new CustomBottomAlertDialog(LoanDetailsActivity.this);
+        View view = View.inflate(this, R.layout.loan_apply_confirmation_icon_layout, null);
+        TextView tv = view.findViewById(R.id.dialog_message);
+        tv.setText("Are you sure you want to apply for this loan?");
+        dialog.addView(view);
         dialog.addView(View.inflate(this, R.layout.loan_apply_confirmation_layout, null));
-        dialog.setIcon(R.drawable.ic_remove);
-        dialog.setMessage("Are you sure you want to apply for this loan?");
         dialog.setNegativeButton("No, cancel");
         dialog.setPositiveButton("Yes, apply", (v, d) -> {
             EditText etAmount = d.findViewById(R.id.amount);
@@ -341,8 +343,8 @@ public class LoanDetailsActivity extends AppCompatActivity {
 
                     dialog.setTitle(object.getString("title"));
                     String message;
-                    if (object.has("error") && object.getJSONObject("error").length() > 0) {
-                        message = Utility.serializeObject(object.getJSONObject("error"));
+                    if (object.has("errors") && object.getJSONObject("errors").length() > 0) {
+                        message = Utility.serializeObject(object.getJSONObject("errors"));
                     } else message = object.getString("message");
                     dialog.setMessage(message);
                     dialog.setPositiveButton("Ok", Dialog::dismiss);

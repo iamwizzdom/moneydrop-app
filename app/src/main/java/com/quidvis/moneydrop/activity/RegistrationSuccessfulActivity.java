@@ -28,6 +28,7 @@ public class RegistrationSuccessfulActivity extends AppCompatActivity {
         boolean isLoggedIn = session.isLoggedIn();
         Intent intent = new Intent(this, isLoggedIn ? MainActivity.class : LoginActivity.class);
         if (!isLoggedIn && email != null) intent.putExtra(LoginActivity.EMAIL, email);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
     }

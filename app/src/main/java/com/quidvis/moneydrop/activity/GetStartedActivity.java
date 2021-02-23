@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -33,7 +32,7 @@ public class GetStartedActivity extends AppCompatActivity {
 
         createAcctBtn.setOnClickListener(v -> {
             session.setFirstTimeLaunch(false);
-            startActivity(new Intent(GetStartedActivity.this, VerificationActivity.class));
+            startActivity(new Intent(GetStartedActivity.this, VerifyEmailActivity.class));
             finish();
         });
 
