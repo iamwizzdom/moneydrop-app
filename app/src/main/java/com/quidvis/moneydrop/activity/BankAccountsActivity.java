@@ -5,30 +5,28 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
 import com.quidvis.moneydrop.model.Bank;
 import com.quidvis.moneydrop.model.BankAccount;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
-import com.quidvis.moneydrop.utility.CustomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
 import com.quidvis.moneydrop.utility.Utility;
@@ -46,7 +44,7 @@ import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
-public class BankAccountsActivity extends AppCompatActivity {
+public class BankAccountsActivity extends CustomCompatActivity {
 
     private CircularProgressButton addBankBtn;
     private DbHelper dbHelper;
@@ -207,7 +205,8 @@ public class BankAccountsActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", user.getToken()));
+                params.put("JWT_AUTH", user.getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 
@@ -320,7 +319,8 @@ public class BankAccountsActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", user.getToken()));
+                params.put("JWT_AUTH", user.getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 
@@ -433,7 +433,8 @@ public class BankAccountsActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", user.getToken()));
+                params.put("JWT_AUTH", user.getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 

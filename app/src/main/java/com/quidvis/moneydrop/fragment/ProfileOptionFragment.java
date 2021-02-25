@@ -15,13 +15,14 @@ import androidx.fragment.app.Fragment;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.ProfileActivity;
 import com.quidvis.moneydrop.database.DbHelper;
+import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.utility.Utility;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ProfileOptionFragment extends Fragment {
+public class ProfileOptionFragment extends CustomCompatFragment {
 
     private User user;
     private Activity activity;

@@ -4,18 +4,20 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
+import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.fragment.LoanOffersFragment;
@@ -41,7 +43,7 @@ import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
-public class LoanDetailsActivity extends AppCompatActivity {
+public class LoanDetailsActivity extends CustomCompatActivity {
 
     public static final String LOAN_POSITION_KEY = "loanPositionKey";
     public static final String LOAN_OBJECT_KEY = "loanObject";
@@ -239,7 +241,8 @@ public class LoanDetailsActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 

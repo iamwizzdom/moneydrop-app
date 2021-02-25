@@ -2,9 +2,14 @@ package com.quidvis.moneydrop.fragment;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +28,14 @@ import com.android.volley.Request;
 import com.hbb20.CountryCodePicker;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.ProfileActivity;
+import com.quidvis.moneydrop.activity.VerificationActivity;
+import com.quidvis.moneydrop.activity.VerifyEmailActivity;
+import com.quidvis.moneydrop.activity.VerifyPhoneActivity;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
+import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
@@ -35,6 +45,7 @@ import com.quidvis.moneydrop.utility.Utility;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.HttpURLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,7 +57,9 @@ import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
-public class ProfileEditFragment extends Fragment implements DatePickerDialog.OnDateSetListener {
+import static android.app.Activity.RESULT_OK;
+
+public class ProfileEditFragment extends CustomCompatFragment implements DatePickerDialog.OnDateSetListener {
 
     private Activity activity;
     private String editOption, editTitle;
@@ -60,6 +73,9 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
             "yyyy-MM-dd", new java.util.Locale("en","ng"));
     private LayoutInflater inflater;
     private ViewGroup container;
+
+    public final static int VERIFY_EMAIL_KEY = 132;
+    public final static int VERIFY_PHONE_KEY = 142;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,6 +101,9 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
         View contentView = null;
 
         LinearLayout content = view.findViewById(R.id.content);
+
+        ImageView backBtn = view.findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(view12 -> activity.onBackPressed());
 
         TextView title = view.findViewById(R.id.title);
         title.setText(editTitle);
@@ -189,6 +208,37 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK || data == null) {
+            Utility.toastMessage(activity, "Failed to capture verification data.");
+            return;
+        }
+
+        if (requestCode != VERIFY_EMAIL_KEY && requestCode != VERIFY_PHONE_KEY) {
+            Utility.toastMessage(activity, "Failed to capture verification data.");
+            return;
+        }
+
+        boolean verified = data.getBooleanExtra(VerificationActivity.VERIFIED, false);
+        if (verified) {
+
+            Map<String, String> params = getUpdateParams();
+
+            if (requestCode == VERIFY_EMAIL_KEY) user.setEmail(params.get("email"));
+            else user.setPhone(params.get("phone"));
+
+            if (user.update()) {
+                ((ProfileActivity) activity).setUser(user);
+                Utility.toastMessage(activity, String.format("%s updated successfully.", requestCode == VERIFY_EMAIL_KEY ? "Email address" : "Phone number"));
+                new Handler(Looper.myLooper()).postDelayed(() -> activity.onBackPressed(), 200);
+            } else Utility.toastMessage(activity, "Failed to update user info locally. Please try again later.");
+
+        } else Utility.toastMessage(activity, String.format("%s verification failed.", requestCode == VERIFY_EMAIL_KEY ? "Email" : "Phone"));
+    }
+
     private String getUpdateUriType() {
         String type = null;
         switch (editOption) {
@@ -235,18 +285,25 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
     private void update() {
 
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
-                String.format( URLContract.PROFILE_UPDATE_REQUEST_URL, getUpdateUriType()),
+        String uriType = getUpdateUriType(), url = String.format( URLContract.PROFILE_UPDATE_REQUEST_URL, uriType);
+
+        if (uriType.equals("email")) url = URLContract.VERIFY_EMAIL_REQUEST_URL;
+        else if (uriType.equals("phone")) url = URLContract.VERIFY_PHONE_REQUEST_URL;
+
+        Map<String, String> params = getUpdateParams();
+
+        HttpRequest httpRequest = new HttpRequest(this, url,
                 Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
-                return getUpdateParams();
+                return params;
             }
 
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", user.getToken()));
+               if (!uriType.equals("email") && !uriType.equals("phone")) params.put("JWT_AUTH", user.getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 
@@ -261,8 +318,8 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                 for (Map.Entry<String, Object> entry : editTexts.entrySet()) {
                     EditText editText = getEditText(entry.getValue());
                     if (editText != null) {
-                        Utility.disableEditText(editText);
                         Utility.clearFocus(editText, activity);
+                        Utility.disableEditText(editText);
                     }
                 }
 
@@ -275,6 +332,10 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
             @Override
             protected void onRequestCompleted(boolean onError) {
 
+                for (Map.Entry<String, Object> entry : editTexts.entrySet()) {
+                    EditText editText = getEditText(entry.getValue());
+                    if (editText != null) Utility.enableEditText(editText);
+                }
                 submitBtn.revertAnimation();
             }
 
@@ -285,44 +346,65 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
 
                     JSONObject object = new JSONObject(response);
 
-                    JSONObject userData = object.getJSONObject("response");
+                    if (uriType.equals("email") || uriType.equals("phone")) {
 
-                    if (userData.has("user")) {
+                        if (object.getBoolean("status")) {
 
-                        JSONObject userObject = userData.getJSONObject("user");
-
-                        user.setFirstname(userObject.getString("firstname"));
-                        user.setMiddlename(userObject.getString("middlename"));
-                        user.setLastname(userObject.getString("lastname"));
-                        user.setPhone(userObject.getString("phone"));
-                        user.setEmail(userObject.getString("email"));
-                        user.setBvn(userObject.getString("bvn"));
-                        user.setPicture(userObject.getString("picture"));
-                        user.setDob(userObject.getString("dob"));
-                        user.setGender(Integer.parseInt(Utility.castNull(userObject.getString("gender"), "0")));
-                        user.setAddress(userObject.getString("address"));
-                        user.setCountry(userObject.getString("country"));
-                        user.setState(userObject.getString("state"));
-                        user.setStatus(userObject.getInt("status"));
-                        JSONObject verified = userObject.getJSONObject("verified");
-                        user.setVerifiedEmail(verified.getBoolean("email"));
-                        user.setVerifiedPhone(verified.getBoolean("phone"));
-
-                        if (user.update()) {
+                            Intent intent = new Intent(activity, VerificationActivity.class);
+                            intent.putExtra(VerificationActivity.VERIFICATION_DATA, params.get(uriType));
+                            intent.putExtra(VerificationActivity.VERIFICATION_TYPE, uriType);
+                            intent.putExtra(VerificationActivity.COUNT_DOWN_TIME, object.getInt("expire"));
+                            intent.putExtra(VerificationActivity.OLD_DATA, uriType.equals("email") ? user.getEmail() : user.getPhone());
+                            startActivityForResult(intent, uriType.equals("email") ? VERIFY_EMAIL_KEY : VERIFY_PHONE_KEY);
                             Utility.toastMessage(activity, object.getString("message"));
-                            activity.onBackPressed();
+
                         } else {
-                            Utility.toastMessage(activity, "Failed to update user info locally. Please try again later.");
+                            AwesomeAlertDialog dialog = new AwesomeAlertDialog(activity);
+                            dialog.setTitle(object.getString("title"));
+                            dialog.setMessage(object.getString("message"));
+                            dialog.setPositiveButton("Ok", Dialog::dismiss);
+                            dialog.display();
+                        }
+
+                    } else {
+
+                        JSONObject userData = object.getJSONObject("response");
+
+                        if (userData.has("user")) {
+
+                            JSONObject userObject = userData.getJSONObject("user");
+
+                            user.setFirstname(userObject.getString("firstname"));
+                            user.setMiddlename(userObject.getString("middlename"));
+                            user.setLastname(userObject.getString("lastname"));
+                            user.setPhone(userObject.getString("phone"));
+                            user.setEmail(userObject.getString("email"));
+                            user.setBvn(userObject.getString("bvn"));
+                            user.setPicture(userObject.getString("picture"));
+                            user.setDob(userObject.getString("dob"));
+                            user.setGender(Integer.parseInt(Utility.castNull(userObject.getString("gender"), "0")));
+                            user.setAddress(userObject.getString("address"));
+                            user.setCountry(userObject.getString("country"));
+                            user.setState(userObject.getString("state"));
+                            user.setStatus(userObject.getInt("status"));
+                            JSONObject verified = userObject.getJSONObject("verified");
+                            user.setVerifiedEmail(verified.getBoolean("email"));
+                            user.setVerifiedPhone(verified.getBoolean("phone"));
+
+                            if (user.update()) {
+                                Utility.toastMessage(activity, object.getString("message"));
+                                ((ProfileActivity) activity).setUser(user);
+                                activity.onBackPressed();
+                            } else {
+                                Utility.toastMessage(activity, "Failed to update user info locally. Please try again later.");
+                            }
+
                         }
 
                     }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    for (Map.Entry<String, Object> entry : editTexts.entrySet()) {
-                        EditText editText = getEditText(entry.getValue());
-                        if (editText != null) Utility.enableEditText(editText);
-                    }
                     Utility.toastMessage(activity, "Something unexpected happened. Please try that again.");
                 }
 
@@ -336,26 +418,33 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                     JSONObject object = new JSONObject(error);
                     AwesomeAlertDialog dialog = new AwesomeAlertDialog(activity);
 
-                    dialog.setTitle(object.getString("title"));
-                    dialog.setMessage(object.getString("message"));
-                    dialog.setPositiveButton("Ok");
-                    dialog.display();
+                    if ((uriType.equals("email") || uriType.equals("phone")) && statusCode == HttpURLConnection.HTTP_CONFLICT) {
 
-                    JSONObject errors = object.getJSONObject("errors");
+                        Utility.toastMessage(activity, object.getString("message"));
 
-                    if (errors.length() > 0) {
-                        for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
-                            String key = it.next();
-                            String value = errors.getString(key);
-                            if (TextUtils.isEmpty(value)) continue;
-                            EditText editText = getEditText(editTexts.get(key));
-                            if (tvDobError != null && key.equals("dob")) {
-                                tvDobError.setText(value);
-                                tvDobError.setVisibility(View.VISIBLE);
-                            } else if (tvGenderError != null && key.equals("gender")) {
-                                tvGenderError.setText(value);
-                                tvGenderError.setVisibility(View.VISIBLE);
-                            } else if (editText != null) editText.setError(value);
+                    } else {
+
+                        dialog.setTitle(object.getString("title"));
+                        dialog.setMessage(object.getString("message"));
+                        dialog.setPositiveButton("Ok");
+                        dialog.display();
+
+                        JSONObject errors = object.getJSONObject("errors");
+
+                        if (errors.length() > 0) {
+                            for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
+                                String key = it.next();
+                                String value = errors.getString(key);
+                                if (TextUtils.isEmpty(value)) continue;
+                                EditText editText = getEditText(editTexts.get(key));
+                                if (tvDobError != null && key.equals("dob")) {
+                                    tvDobError.setText(value);
+                                    tvDobError.setVisibility(View.VISIBLE);
+                                } else if (tvGenderError != null && key.equals("gender")) {
+                                    tvGenderError.setText(value);
+                                    tvGenderError.setVisibility(View.VISIBLE);
+                                } else if (editText != null) editText.setError(value);
+                            }
                         }
                     }
 
@@ -363,11 +452,6 @@ public class ProfileEditFragment extends Fragment implements DatePickerDialog.On
                     e.printStackTrace();
                     Utility.toastMessage(activity, statusCode == 503 ? error :
                                     "Something unexpected happened. Please try that again.");
-                }
-
-                for (Map.Entry<String, Object> entry : editTexts.entrySet()) {
-                    EditText editText = getEditText(entry.getValue());
-                    if (editText != null) Utility.enableEditText(editText);
                 }
             }
 

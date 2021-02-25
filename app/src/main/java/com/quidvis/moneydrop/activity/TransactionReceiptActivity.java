@@ -12,12 +12,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.model.Card;
 import com.quidvis.moneydrop.model.Transaction;
 import com.quidvis.moneydrop.utility.Utility;
@@ -32,7 +32,7 @@ import java.util.Objects;
 
 import static com.quidvis.moneydrop.constant.Constant.FILE_PATH;
 
-public class TransactionReceiptActivity extends AppCompatActivity {
+public class TransactionReceiptActivity extends CustomCompatActivity {
 
     public static final String TRANSACTION_KEY = "transObject";
     private Transaction transaction;

@@ -13,7 +13,7 @@ public class Constant {
     /**
      * Apache server credential
      */
-    public static final String SERVER_CREDENTIAL = "WizzdomWasHere:SuperSonicBrain@91";
+    public static final String SERVER_CREDENTIAL = "Wizzdom007WasHere:PWBi2x4WKTSuperSonicBrain@91ga7bHWnKfr";
 
     public static final String FILE_PATH = String.format("%s/MoneyDrop", Environment.getExternalStorageDirectory().getPath());
 

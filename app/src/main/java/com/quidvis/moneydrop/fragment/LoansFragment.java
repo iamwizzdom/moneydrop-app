@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import android.util.Base64;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -28,10 +29,13 @@ import com.google.android.material.tabs.TabLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.UserLoanActivity;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.adapter.LoanAdapter;
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
+import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.Loan;
@@ -48,14 +52,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class LoansFragment extends Fragment {
+public class LoansFragment extends CustomCompatFragment {
 
     private View view;
     private FragmentActivity activity;
     private final ArrayList<CustomFragment> fragments = new ArrayList<>();
     private boolean refresh = false;
-    private LoanAdapter loanAdapter;
-    private RecyclerView recyclerView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -157,11 +159,11 @@ public class LoansFragment extends Fragment {
         view.setBackgroundTintList(null);
     }
 
-    public static void revokeLoan(Activity activity, LoanAdapter loanAdapter, Loan loan, boolean detach) {
+    public static void revokeLoan(Fragment fragment, LoanAdapter loanAdapter, Loan loan, boolean detach) {
 
-        User user = (new DbHelper(activity)).getUser();
+        User user = (new DbHelper(fragment.getContext())).getUser();
 
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
+        HttpRequest httpRequest = new HttpRequest(fragment,
                 String.format(URLContract.LOAN_REVOKE_URL, loan.getUuid()),
                 Request.Method.POST, new HttpRequestParams() {
 
@@ -173,7 +175,8 @@ public class LoansFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", user.getToken()));
+                params.put("JWT_AUTH", user.getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 
@@ -185,7 +188,7 @@ public class LoansFragment extends Fragment {
             @Override
             protected void onRequestStarted() {
                 loanAdapter.fadeItem(loanAdapter.getPosition(), true);
-                Utility.toastMessage(activity, "Revoking loan, please wait.");
+                Utility.toastMessage(fragment.getContext(), "Revoking loan, please wait.");
             }
 
             @Override
@@ -210,7 +213,7 @@ public class LoansFragment extends Fragment {
                         if (detach) loanAdapter.removeItem(loanAdapter.getPosition());
                         else {
                             JSONObject loanObj = respObj.getJSONObject("loan");
-                            Loan loan = new Loan(activity, loanObj);
+                            Loan loan = new Loan(fragment.getContext(), loanObj);
                             loanAdapter.setItem(loanAdapter.getPosition(), loan);
                         }
 
@@ -244,11 +247,11 @@ public class LoansFragment extends Fragment {
 
                     }
 
-                    Utility.toastMessage(activity, object.getString("message"));
+                    Utility.toastMessage(fragment.getContext(), object.getString("message"));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(activity, "Something unexpected happened. Please try that again.");
+                    Utility.toastMessage(fragment.getContext(), "Something unexpected happened. Please try that again.");
                 }
 
             }
@@ -259,11 +262,11 @@ public class LoansFragment extends Fragment {
                 try {
 
                     JSONObject object = new JSONObject(error);
-                    Utility.toastMessage(activity, object.getString("message"));
+                    Utility.toastMessage(fragment.getContext(), object.getString("message"));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Utility.toastMessage(activity, statusCode == 503 ? error :
+                    Utility.toastMessage(fragment.getContext(), statusCode == 503 ? error :
                             "Something unexpected happened. Please try that again.");
                 }
             }

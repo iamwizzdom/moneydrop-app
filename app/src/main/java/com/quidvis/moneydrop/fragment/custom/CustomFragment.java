@@ -1,10 +1,8 @@
 package com.quidvis.moneydrop.fragment.custom;
 
-import androidx.fragment.app.Fragment;
-
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
 
-public abstract class CustomFragment extends Fragment {
+public abstract class CustomFragment extends CustomCompatFragment {
 
     private int position;
     private String title, subtitle;

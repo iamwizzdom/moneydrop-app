@@ -1,16 +1,15 @@
 package com.quidvis.moneydrop.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.preference.Session;
 
-public class GetStartedActivity extends AppCompatActivity {
+public class GetStartedActivity extends CustomCompatActivity {
 
     private Session session;
     @Override

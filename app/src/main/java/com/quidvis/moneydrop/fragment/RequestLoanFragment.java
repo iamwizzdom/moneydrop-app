@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,8 @@ import androidx.fragment.app.Fragment;
 import com.android.volley.Request;
 import com.cottacush.android.currencyedittext.CurrencyEditText;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
@@ -225,7 +228,7 @@ public class RequestLoanFragment extends CustomFragment {
     }
 
     private void submitLoanRequest(View view) {
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
+        HttpRequest httpRequest = new HttpRequest(this,
                 URLContract.LOAN_REQUEST_URL, Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
@@ -243,7 +246,8 @@ public class RequestLoanFragment extends CustomFragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", user.getToken()));
+                params.put("JWT_AUTH", user.getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 
@@ -353,7 +357,7 @@ public class RequestLoanFragment extends CustomFragment {
     }
 
     private void getLoanConst() {
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
+        HttpRequest httpRequest = new HttpRequest(this,
                 URLContract.LOAN_CONSTANTS_URL, Request.Method.GET, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
@@ -363,7 +367,8 @@ public class RequestLoanFragment extends CustomFragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", user.getToken()));
+                params.put("JWT_AUTH", user.getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 

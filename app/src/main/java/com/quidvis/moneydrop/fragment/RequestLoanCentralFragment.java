@@ -15,8 +15,9 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
+import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
 
-public class RequestLoanCentralFragment extends Fragment {
+public class RequestLoanCentralFragment extends CustomCompatFragment {
 
     private Activity activity;
     private NavController navController;

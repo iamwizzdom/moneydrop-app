@@ -7,6 +7,7 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
@@ -16,6 +17,8 @@ import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.toolbox.StringRequest;
 import com.quidvis.moneydrop.activity.MainActivity;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -42,6 +45,7 @@ public abstract class HttpRequest {
     private final int method;
     private HttpRequestParams httpRequestParams;
     private StringRequest stringRequest;
+    private final Fragment fragment;
     private final AppCompatActivity activity;
     private Map<String, String> headers;
     private int statusCode;
@@ -50,27 +54,59 @@ public abstract class HttpRequest {
     private final LoaderManager loaderManager;
 
     public HttpRequest(AppCompatActivity activity, String url, int method) {
-        requestID = (centralRequestID = (centralRequestID + 1));
+        requestID = ++centralRequestID;
         this.url = url;
         this.method = method;
+        this.fragment = null;
         this.activity = activity;
         loaderManager = LoaderManager.getInstance(this.activity);
     }
 
     public HttpRequest(AppCompatActivity activity, String url, int method, HttpRequestParams httpRequestParams) {
-        requestID = (centralRequestID = (centralRequestID + 1));
+        requestID = ++centralRequestID;
         this.url = url;
         this.method = method;
+        this.fragment = null;
         this.activity = activity;
         this.httpRequestParams = httpRequestParams;
         loaderManager = LoaderManager.getInstance(this.activity);
     }
 
     public HttpRequest(AppCompatActivity activity, String url, HttpRequestParams httpRequestParams) {
-        requestID = (centralRequestID = (centralRequestID + 1));
+        requestID = ++centralRequestID;
         this.url = url;
         this.method = Method.POST;
+        this.fragment = null;
         this.activity = activity;
+        this.httpRequestParams = httpRequestParams;
+        loaderManager = LoaderManager.getInstance(this.activity);
+    }
+
+    public HttpRequest(Fragment fragment, String url, int method) {
+        requestID = ++centralRequestID;
+        this.url = url;
+        this.method = method;
+        this.fragment = fragment;
+        this.activity = (AppCompatActivity) fragment.requireActivity();
+        loaderManager = LoaderManager.getInstance(this.activity);
+    }
+
+    public HttpRequest(Fragment fragment, String url, int method, HttpRequestParams httpRequestParams) {
+        requestID = ++centralRequestID;
+        this.url = url;
+        this.method = method;
+        this.fragment = fragment;
+        this.activity = (AppCompatActivity) fragment.requireActivity();
+        this.httpRequestParams = httpRequestParams;
+        loaderManager = LoaderManager.getInstance(this.activity);
+    }
+
+    public HttpRequest(Fragment fragment, String url, HttpRequestParams httpRequestParams) {
+        requestID = ++centralRequestID;
+        this.url = url;
+        this.method = Method.POST;
+        this.fragment = fragment;
+        this.activity = (AppCompatActivity) fragment.requireActivity();
         this.httpRequestParams = httpRequestParams;
         loaderManager = LoaderManager.getInstance(this.activity);
     }
@@ -106,6 +142,12 @@ public abstract class HttpRequest {
         Response.Listener<String> listener = response -> {
             // Give back the response string.
 
+            if (this.fragment instanceof CustomCompatFragment) {
+                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(requestID);
+            } else if (this.activity instanceof CustomCompatActivity) {
+                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(requestID);
+            }
+
             setOngoingTask(false);
 
             response = response.trim();
@@ -128,6 +170,12 @@ public abstract class HttpRequest {
         };
 
         Response.ErrorListener errorListener = error -> {
+
+            if (this.fragment instanceof CustomCompatFragment) {
+                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(requestID);
+            } else if (this.activity instanceof CustomCompatActivity) {
+                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(requestID);
+            }
 
             setOngoingTask(false);
 
@@ -299,6 +347,23 @@ public abstract class HttpRequest {
                 cancel();
             }
         }));
+
+        if (this.fragment instanceof CustomCompatFragment) {
+
+            ((CustomCompatFragment) this.fragment).setOnStopFragmentListener(requestID, () -> {
+                onRequestCompleted(false);
+                cancel();
+                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(requestID);
+            });
+
+        } else if (this.activity instanceof CustomCompatActivity) {
+
+            ((CustomCompatActivity) this.activity).setOnStopActivityListener(requestID, () -> {
+                onRequestCompleted(false);
+                cancel();
+                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(requestID);
+            });
+        }
     }
 
     public final void cancel() {

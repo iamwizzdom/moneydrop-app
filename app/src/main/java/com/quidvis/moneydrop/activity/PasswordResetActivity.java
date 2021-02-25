@@ -1,23 +1,20 @@
 package com.quidvis.moneydrop.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.ImageView;
 
 import com.android.volley.Request;
 import com.google.android.material.textfield.TextInputLayout;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.interfaces.OnAwesomeDialogClickListener;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.Utility;
@@ -33,7 +30,7 @@ import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
-public class PasswordResetActivity extends AppCompatActivity {
+public class PasswordResetActivity extends CustomCompatActivity {
 
     private TextInputLayout emailHolder;
     private EditText etEmail, etOTP;

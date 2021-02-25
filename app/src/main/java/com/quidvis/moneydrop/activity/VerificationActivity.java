@@ -5,7 +5,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
 import android.os.CountDownTimer;
@@ -15,12 +14,15 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Base64;
 import android.view.View;
 import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.chaos.view.PinView;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.network.HttpRequest;
@@ -38,12 +40,12 @@ import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
-public class VerificationActivity extends AppCompatActivity {
+public class VerificationActivity extends CustomCompatActivity {
 
     public static final String COUNT_DOWN_TIME = "countDownTime",
             VERIFICATION_TYPE = "verificationType",
             VERIFICATION_DATA = "verificationData",
-            VERIFIED = "verified";
+            VERIFIED = "verified", OLD_DATA = "oldData";
 
     private CountDownTimer countDownTimer;
     private static final String FORMAT = "Resend code in %s:%s";
@@ -54,7 +56,7 @@ public class VerificationActivity extends AppCompatActivity {
     private CircularProgressButton submitBtn;
     private AwesomeAlertDialog dialog;
 
-    private String data, type;
+    private String oldData, data, type;
     private int countDownTime;
 
     @Override
@@ -70,8 +72,9 @@ public class VerificationActivity extends AppCompatActivity {
             return;
         }
 
-        type = intent.getStringExtra(VERIFICATION_TYPE);
+        oldData = intent.getStringExtra(OLD_DATA);
         data = intent.getStringExtra(VERIFICATION_DATA);
+        type = intent.getStringExtra(VERIFICATION_TYPE);
         countDownTime = intent.getIntExtra(COUNT_DOWN_TIME, 0);
 
         if (type == null || data == null) {
@@ -116,6 +119,7 @@ public class VerificationActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
+                if (oldData != null) params.put("old_" + type, oldData);
                 params.put(type, data);
                 params.put("code", otp);
                 return params;
@@ -123,7 +127,9 @@ public class VerificationActivity extends AppCompatActivity {
 
             @Override
             public Map<String, String> getHeaders() {
-                return null;
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
+                return params;
             }
 
             @Override
@@ -177,6 +183,7 @@ public class VerificationActivity extends AppCompatActivity {
 
                 try {
 
+                    System.out.println(error);
                     JSONObject object = new JSONObject(error);
 
                     dialog.setTitle(object.getString("title"));

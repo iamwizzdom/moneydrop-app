@@ -9,12 +9,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.model.LoanApplication;
 import com.quidvis.moneydrop.model.User;
@@ -25,7 +24,7 @@ import org.json.JSONObject;
 
 import java.text.NumberFormat;
 
-public class LoanApprovedActivity extends AppCompatActivity {
+public class LoanApprovedActivity extends CustomCompatActivity {
 
     public static final String LOAN_APPLICATION_KEY = "loanObject";
     public static final String LOAN_APPROVAL_MESSAGE_KEY = "approvalMessage";

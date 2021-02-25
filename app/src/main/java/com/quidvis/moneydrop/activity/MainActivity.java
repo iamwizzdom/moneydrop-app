@@ -2,13 +2,9 @@ package com.quidvis.moneydrop.activity;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,14 +15,11 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.constant.FirebaseConfig;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.fragment.MainFragment;
@@ -40,17 +33,13 @@ import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
 import com.quidvis.moneydrop.network.HttpRequest;
-import com.quidvis.moneydrop.utility.FirebaseMessageReceiver;
-import com.quidvis.moneydrop.utility.NotificationIntent;
 import com.quidvis.moneydrop.utility.NotificationUtils;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.model.BottomSheetLayoutModel;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
@@ -69,7 +58,7 @@ import java.util.Objects;
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends CustomCompatActivity {
 
     public final static String START_FRAGMENT = "startFragment";
     public final static String STATE_KEY = MainActivity.class.getName();
@@ -490,7 +479,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 
@@ -784,7 +774,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 

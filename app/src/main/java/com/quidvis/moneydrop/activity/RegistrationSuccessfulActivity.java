@@ -1,15 +1,14 @@
 package com.quidvis.moneydrop.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.preference.Session;
 
-public class RegistrationSuccessfulActivity extends AppCompatActivity {
+public class RegistrationSuccessfulActivity extends CustomCompatActivity {
 
     public static final String USER_EMAIL = "USER_EMAIL";
     private String email;

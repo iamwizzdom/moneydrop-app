@@ -3,6 +3,7 @@ package com.quidvis.moneydrop.utility;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.FirebaseConfig;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
@@ -177,7 +179,8 @@ public class FirebaseMessageReceiver extends FirebaseMessagingService {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 

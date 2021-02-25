@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +25,11 @@ import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.TransactionReceiptActivity;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
+import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.Transaction;
 import com.quidvis.moneydrop.model.User;
@@ -43,7 +47,7 @@ import java.util.Objects;
 
 import static com.quidvis.moneydrop.utility.Utility.getTheme;
 
-public class WalletFragment extends Fragment {
+public class WalletFragment extends CustomCompatFragment {
 
     public final static String STATE_KEY = WalletFragment.class.getName();
     private Activity activity;
@@ -211,7 +215,7 @@ public class WalletFragment extends Fragment {
 
     private void getWalletData() {
 
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
+        HttpRequest httpRequest = new HttpRequest(this,
                 URLContract.DASHBOARD_REQUEST_URL, Request.Method.GET, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
@@ -221,7 +225,8 @@ public class WalletFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", user.getToken()));
+                params.put("JWT_AUTH", user.getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 

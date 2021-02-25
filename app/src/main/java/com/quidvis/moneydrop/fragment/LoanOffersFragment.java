@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.Base64;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -24,8 +25,10 @@ import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.UserLoanActivity;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.adapter.LoanAdapter;
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
@@ -178,11 +181,11 @@ public class LoanOffersFragment extends CustomFragment {
         if (item.getItemId() == R.id.revoke_loan_offer) {
             Loan loan = loanAdapter.getItem(loanAdapter.getPosition());
             if (loan != null) {
-                CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog((AppCompatActivity) activity);
+                CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog((CustomCompatActivity) activity);
                 alertDialog.setIcon(R.drawable.ic_remove);
                 alertDialog.setMessage("Are you sure you want to revoke this loan?");
                 alertDialog.setNegativeButton("No, cancel");
-                alertDialog.setPositiveButton("Yes, proceed", vw -> LoansFragment.revokeLoan(activity, loanAdapter, loan, activity instanceof MainActivity));
+                alertDialog.setPositiveButton("Yes, proceed", vw -> LoansFragment.revokeLoan(this, loanAdapter, loan, activity instanceof MainActivity));
                 alertDialog.display();
             } else {
                 Utility.toastMessage(activity, "Invalid item selected");
@@ -292,7 +295,7 @@ public class LoanOffersFragment extends CustomFragment {
             return;
         }
 
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
+        HttpRequest httpRequest = new HttpRequest(this,
                 nextPage != null ? URLContract.BASE_URL + nextPage : (activity instanceof UserLoanActivity ?
                         URLContract.USER_LOAN_OFFERS_LIST_URL : URLContract.LOAN_OFFERS_LIST_URL),
                 Request.Method.GET, new HttpRequestParams() {
@@ -305,7 +308,8 @@ public class LoanOffersFragment extends CustomFragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 
@@ -425,7 +429,6 @@ public class LoanOffersFragment extends CustomFragment {
     public void mount() {
         if (recyclerView != null) {
             registerForContextMenu(recyclerView);
-            Log.e("mount", "mounted " + this);
         }
     }
 
@@ -433,7 +436,6 @@ public class LoanOffersFragment extends CustomFragment {
     public void dismount() {
         if (recyclerView != null) {
             unregisterForContextMenu(recyclerView);
-            Log.e("dismount", "dismounted " + this);
         }
     }
 }

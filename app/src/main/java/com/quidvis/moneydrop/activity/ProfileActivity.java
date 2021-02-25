@@ -18,7 +18,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -30,6 +29,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.quidvis.moneydrop.BuildConfig;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.fragment.ProfileOptionFragment;
@@ -53,7 +54,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.quidvis.moneydrop.utility.Utility.startRevealActivity;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends CustomCompatActivity {
 
     private NavController navController;
     private ProgressBar uploadProgressBar;
@@ -323,7 +324,8 @@ public class ProfileActivity extends AppCompatActivity {
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String, String> params = new HashMap<>();
-                        params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                        params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                        params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                         return params;
                     }
 
@@ -433,7 +435,8 @@ public class ProfileActivity extends AppCompatActivity {
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String, String> params = new HashMap<>();
-                        params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                        params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                        params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                         return params;
                     }
 

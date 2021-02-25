@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
 import com.quidvis.moneydrop.fragment.LoanOffersFragment;
 import com.quidvis.moneydrop.fragment.LoanRequestsFragment;
@@ -21,7 +21,7 @@ import com.quidvis.moneydrop.utility.Utility;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class UserLoanActivity extends AppCompatActivity {
+public class UserLoanActivity extends CustomCompatActivity {
 
     public final static String STATE_KEY = UserLoanActivity.class.getName();
     private final ArrayList<CustomFragment> fragments = new ArrayList<>();

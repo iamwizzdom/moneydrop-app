@@ -4,19 +4,17 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.preference.Session;
 
 import java.util.Calendar;
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends CustomCompatActivity {
 
     private static boolean isFirstTimeSplash = true;
     private Session session;

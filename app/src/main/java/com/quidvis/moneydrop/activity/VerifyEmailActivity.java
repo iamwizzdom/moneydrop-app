@@ -1,17 +1,19 @@
 package com.quidvis.moneydrop.activity;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
 import com.android.volley.Request;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.network.HttpRequest;
@@ -28,7 +30,7 @@ import java.util.Map;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
-public class VerifyEmailActivity extends AppCompatActivity {
+public class VerifyEmailActivity extends CustomCompatActivity {
 
     public final static int VERIFY_EMAIL_KEY = 110;
     private AwesomeAlertDialog dialog;
@@ -110,7 +112,9 @@ public class VerifyEmailActivity extends AppCompatActivity {
 
             @Override
             public Map<String, String> getHeaders() {
-                return null;
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
+                return params;
             }
 
             @Override

@@ -1,6 +1,8 @@
 package com.quidvis.moneydrop.fragment;
 
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +20,12 @@ import com.android.volley.Request;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.adapter.HistoryAdapter;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
+import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.LoanApplication;
 import com.quidvis.moneydrop.network.HttpRequest;
@@ -40,7 +45,7 @@ import java.util.Objects;
  * Use the {@link HistoryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HistoryFragment extends Fragment {
+public class HistoryFragment extends CustomCompatFragment {
 
     // TODO: Rename parameter arguments, choose names that match
 
@@ -220,7 +225,7 @@ public class HistoryFragment extends Fragment {
             return;
         }
 
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity,
+        HttpRequest httpRequest = new HttpRequest(this,
                 nextPage != null ? (URLContract.BASE_URL + nextPage) : URLContract.HISTORY_URL,
                 Request.Method.GET, new HttpRequestParams() {
 
@@ -232,7 +237,8 @@ public class HistoryFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 

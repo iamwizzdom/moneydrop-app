@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +28,11 @@ import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.LoanDetailsActivity;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.TransactionReceiptActivity;
+import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
+import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.model.Transaction;
@@ -47,7 +51,7 @@ import java.util.Objects;
 
 import static com.quidvis.moneydrop.utility.Utility.getTheme;
 
-public class MainFragment extends Fragment {
+public class MainFragment extends CustomCompatFragment {
 
     public final static String STATE_KEY = MainFragment.class.getName();
     private Activity activity;
@@ -309,7 +313,7 @@ public class MainFragment extends Fragment {
 
     private void getDashboardData() {
 
-        HttpRequest httpRequest = new HttpRequest((AppCompatActivity) activity, URLContract.DASHBOARD_REQUEST_URL,
+        HttpRequest httpRequest = new HttpRequest(this, URLContract.DASHBOARD_REQUEST_URL,
                 Request.Method.GET, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
@@ -319,7 +323,8 @@ public class MainFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", String.format("Bearer %s", dbHelper.getUser().getToken()));
+                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
 

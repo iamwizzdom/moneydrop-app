@@ -17,10 +17,11 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.MainActivity;
+import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
 
 import java.util.Objects;
 
-public class OfferLoanCentralFragment extends Fragment {
+public class OfferLoanCentralFragment extends CustomCompatFragment {
 
     private Activity activity;
     private NavController navController;
