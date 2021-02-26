@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -23,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.bumptech.glide.Glide;
@@ -57,6 +59,7 @@ import static com.quidvis.moneydrop.utility.Utility.startRevealActivity;
 public class ProfileActivity extends CustomCompatActivity {
 
     private NavController navController;
+    private SwipeRefreshLayout refreshLayout;
     private ProgressBar uploadProgressBar;
     private RatingBar ratingBar;
     private DbHelper dbHelper;
@@ -65,6 +68,7 @@ public class ProfileActivity extends CustomCompatActivity {
     private static File camImage;
     private CircleImageView profilePic;
     private Bundle startDestinationBundle;
+    private boolean refreshing = false;
 
     public static final String USER_OBJECT_KEY = "userObject";
 
@@ -95,10 +99,13 @@ public class ProfileActivity extends CustomCompatActivity {
         navController = getNavController();
         navController.setGraph(R.navigation.profile_navigation, startDestinationBundle);
 
+        refreshLayout = findViewById(R.id.swipe_refresh_layout);
         uploadProgressBar = findViewById(R.id.upload_photo_progress_bar);
         imagePicker = findViewById(R.id.image_picker);
 
-        if (user.isMe()) imagePicker.setOnClickListener(v -> selectImage());
+        boolean isMe = user.isMe();
+
+        if (isMe) imagePicker.setOnClickListener(v -> selectImage());
         else imagePicker.setVisibility(View.GONE);
 
         profilePic = findViewById(R.id.profile_pic);
@@ -113,6 +120,9 @@ public class ProfileActivity extends CustomCompatActivity {
         ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
             if (fromUser) rateUser(rating);
         });
+
+        refreshLayout.setEnabled(isMe);
+        if (isMe) refreshLayout.setOnRefreshListener(this::getUserData);
 
         setUser();
     }
@@ -185,6 +195,15 @@ public class ProfileActivity extends CustomCompatActivity {
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         camImage = File.createTempFile("profile-photo", ".jpg", storageDir);
         return camImage;
+    }
+
+    public boolean isRefreshing() {
+        return refreshing;
+    }
+
+    public void setRefreshing(boolean refreshing) {
+        this.refreshing = refreshing;
+        refreshLayout.setRefreshing(refreshing);
     }
 
     @Override
@@ -307,6 +326,114 @@ public class ProfileActivity extends CustomCompatActivity {
         Intent intent = new Intent(this, UserReviewsActivity.class);
         intent.putExtra(UserReviewsActivity.USER_OBJECT_KEY, user.getUserObject().toString());
         startActivity(intent);
+    }
+
+    private void getUserData() {
+
+        HttpRequest httpRequest = new HttpRequest(this, URLContract.PROFILE_INFO_REQUEST_URL,
+                Request.Method.GET, new HttpRequestParams() {
+
+            @Override
+            public Map<String, String> getParams() {
+                return null;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("JWT_AUTH", user.getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
+                return params;
+            }
+
+            @Override
+            public byte[] getBody() {
+                return null;
+            }
+        }) {
+            @Override
+            protected void onRequestStarted() {
+
+                setRefreshing(true);
+            }
+
+            @Override
+            protected void onRequestCompleted(boolean onError) {
+                setRefreshing(false);
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(response);
+
+                    if (object.getBoolean("status")) {
+
+                        JSONObject userData = object.getJSONObject("response");
+
+                        if (userData.has("user")) {
+
+                            JSONObject userObject = userData.getJSONObject("user");
+
+                            user.setFirstname(userObject.getString("firstname"));
+                            user.setMiddlename(userObject.getString("middlename"));
+                            user.setLastname(userObject.getString("lastname"));
+                            user.setPhone(userObject.getString("phone"));
+                            user.setEmail(userObject.getString("email"));
+                            user.setBvn(userObject.getString("bvn"));
+                            user.setPicture(userObject.getString("picture"));
+                            user.setDob(userObject.getString("dob"));
+                            user.setGender(Integer.parseInt(Utility.castNull(userObject.getString("gender"), "0")));
+                            user.setAddress(userObject.getString("address"));
+                            user.setCountry(userObject.getString("country"));
+                            user.setState(userObject.getString("state"));
+                            user.setStatus(userObject.getInt("status"));
+                            JSONObject verified = userObject.getJSONObject("verified");
+                            user.setVerifiedEmail(verified.getBoolean("email"));
+                            user.setVerifiedPhone(verified.getBoolean("phone"));
+
+                            if (user.update()) {
+                                ProfileActivity.this.setUser();
+                                Utility.toastMessage(ProfileActivity.this, object.getString("message"));
+                            } else {
+                                Utility.toastMessage(ProfileActivity.this, "Failed to update user info locally. Please try again later.");
+                            }
+
+                        } else Utility.toastMessage(ProfileActivity.this, "Failed to retrieve user info");
+
+                    } else Utility.toastMessage(ProfileActivity.this, object.getString("message"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(ProfileActivity.this, "Something unexpected happened. Please try that again.");
+                }
+
+            }
+
+            @Override
+            protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(error);
+                    Utility.toastMessage(ProfileActivity.this, object.getString("message"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(ProfileActivity.this, statusCode == 503 ? error :
+                            "Something unexpected happened. Please try that again.");
+                }
+            }
+
+            @Override
+            protected void onRequestCancelled() {
+
+            }
+        };
+        httpRequest.send();
+
     }
 
     private void updatePhoto(String imageString) {

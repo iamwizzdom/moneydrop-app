@@ -221,7 +221,7 @@ public class DbHelper extends SQLiteOpenHelper {
      */
     public boolean updateUser(User user) {
 
-        if (user.getId() <= 0) return false;
+        if (user.getId() <= 0 || !user.isMe()) return false;
 
         SQLiteDatabase database = this.getWritableDatabase();
 
@@ -240,7 +240,7 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.USER_COUNTY, user.getCountry());
         contentValues.put(DbContract.USER_STATE, user.getState());
         contentValues.put(DbContract.USER_BVN, user.getBvn());
-        contentValues.put(DbContract.USER_TOKEN, user.getToken());
+        if (user.getToken() != null) contentValues.put(DbContract.USER_TOKEN, user.getToken());
         contentValues.put(DbContract.USER_STATUS, user.getStatus());
         contentValues.put(DbContract.USER_VERIFIED_EMAIL, user.isVerifiedEmail());
         contentValues.put(DbContract.USER_VERIFIED_PHONE, user.isVerifiedPhone());

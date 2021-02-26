@@ -1,125 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    android:scrollbars="none"
     tools:context=".activity.ProfileActivity"
-    tools:showIn="@layout/activity_profile">
+    tools:showIn="@layout/activity_profile"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <!-- TODO: Update blank fragment layout -->
-
-    <LinearLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="@dimen/activity_vertical_padding"
-        android:paddingEnd="@dimen/activity_vertical_padding"
-        android:paddingBottom="@dimen/padding_20">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <ScrollView
+            android:id="@+id/content_profile"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:scrollbars="none">
 
-            <RelativeLayout
+            <!-- TODO: Update blank fragment layout -->
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/activity_vertical_padding"
+                android:paddingEnd="@dimen/activity_vertical_padding"
+                android:paddingBottom="@dimen/padding_20">
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/profile_pic"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
-                    android:layout_marginTop="@dimen/margin_30"
-                    android:layout_centerInParent="true"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/unisex"
-                    app:civ_border_color="@color/imageBorder"
-                    app:civ_border_width="8dp" />
-
-                <ProgressBar
-                    android:id="@+id/upload_photo_progress_bar"
-                    style="?android:attr/progressBarStyle"
-                    android:layout_width="30dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:visibility="gone" />
+                    android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/image_picker"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_camera"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
-                    android:layout_marginBottom="@dimen/padding_20"
-                    android:layout_marginEnd="@dimen/margin_5"
-                    android:layout_alignBottom="@id/profile_pic"
-                    android:layout_alignEnd="@id/profile_pic"
-                    android:background="@drawable/layout_background_rounded_accent"
-                    android:contentDescription="@string/select_image" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
-            </RelativeLayout>
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/profile_pic"
+                            android:layout_width="160dp"
+                            android:layout_height="160dp"
+                            android:layout_marginTop="@dimen/margin_30"
+                            android:layout_centerInParent="true"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/unisex"
+                            app:civ_border_color="@color/imageBorder"
+                            app:civ_border_width="8dp" />
 
-            <TextView
-                android:id="@+id/account_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/text_view_style"
-                android:text="@string/user_name"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:textColor="@color/titleColorGray"
-                android:textStyle="bold"
-                android:textSize="20sp"/>
+                        <ProgressBar
+                            android:id="@+id/upload_photo_progress_bar"
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="30dp"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/account_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/text_view_style"
-                android:text="@string/email_address_hint"
-                android:textColor="@color/colorBlack" />
+                        <ImageView
+                            android:id="@+id/image_picker"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_camera"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:paddingTop="5dp"
+                            android:paddingBottom="5dp"
+                            android:layout_marginBottom="@dimen/padding_20"
+                            android:layout_marginEnd="@dimen/margin_5"
+                            android:layout_alignBottom="@id/profile_pic"
+                            android:layout_alignEnd="@id/profile_pic"
+                            android:background="@drawable/layout_background_rounded_accent"
+                            android:contentDescription="@string/select_image" />
 
-            <RatingBar
-                android:id="@+id/ratingBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/margin_5"
-                android:numStars="5"
-                android:rating="0" />
+                    </RelativeLayout>
 
-        </LinearLayout>
+                    <TextView
+                        android:id="@+id/account_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/text_view_style"
+                        android:text="@string/user_name"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:textColor="@color/titleColorGray"
+                        android:textStyle="bold"
+                        android:textSize="20sp"/>
 
-        <TextView
-            android:id="@+id/view_payments"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padding_10"
-            android:layout_marginTop="@dimen/margin_10"
-            android:layout_gravity="center|bottom"
-            style="@style/text_view_style"
-            android:textColor="@color/colorAccent"
-            android:text="@string/view_reviews"
-            android:onClick="viewReviews"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/account_email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/text_view_style"
+                        android:text="@string/email_address_hint"
+                        android:textColor="@color/colorBlack" />
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/nav_profile_fragment"
-            android:name="androidx.navigation.fragment.NavHostFragment"
-            android:layout_width="match_parent"
-            android:layout_height="350dp"
-            android:background="@drawable/layout_background_rounded"
-            android:layout_marginTop="@dimen/margin_10"
-            app:defaultNavHost="true" />
+                    <RatingBar
+                        android:id="@+id/ratingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/margin_5"
+                        android:numStars="5"
+                        android:rating="0" />
 
-    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/view_payments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/padding_10"
+                    android:layout_marginTop="@dimen/margin_10"
+                    android:layout_gravity="center|bottom"
+                    style="@style/text_view_style"
+                    android:textColor="@color/colorAccent"
+                    android:text="@string/view_reviews"
+                    android:onClick="viewReviews"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/nav_profile_fragment"
+                    android:name="androidx.navigation.fragment.NavHostFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="350dp"
+                    android:background="@drawable/layout_background_rounded"
+                    android:layout_marginTop="@dimen/margin_10"
+                    app:defaultNavHost="true" />
+
+            </LinearLayout>
 
 
-</ScrollView>
+        </ScrollView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
