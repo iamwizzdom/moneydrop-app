@@ -246,7 +246,7 @@ public class RequestLoanFragment extends CustomFragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", user.getToken());
+                params.put("Auth-Token", user.getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
@@ -367,7 +367,7 @@ public class RequestLoanFragment extends CustomFragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", user.getToken());
+                params.put("Auth-Token", user.getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }

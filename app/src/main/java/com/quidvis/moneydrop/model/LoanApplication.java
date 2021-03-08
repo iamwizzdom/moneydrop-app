@@ -10,7 +10,7 @@ import org.json.JSONObject;
 public class LoanApplication {
 
     private int id, userID;
-    private double amount, repaidAmount, payableAmount;
+    private double amount, repaidAmount, payableAmount, unpaidAmount;
     private String reference, loanID, dueDate, dueDateShort, date, dateShort, dateGranted, status;
     private boolean repaid, reviewed, hasGranted;
     private Loan loan;
@@ -24,6 +24,7 @@ public class LoanApplication {
         this.setAmount(applicationObject.getDouble("amount"));
         this.setPayableAmount(applicationObject.getDouble("amount_payable"));
         this.setRepaidAmount(applicationObject.getDouble("repaid_amount"));
+        this.setUnpaidAmount(applicationObject.getDouble("unpaid_amount"));
         this.setLoanID(applicationObject.getString("loan_id"));
         this.setUserID(applicationObject.getInt("user_id"));
         this.setStatus(applicationObject.getString("status_readable"));
@@ -91,7 +92,11 @@ public class LoanApplication {
     }
 
     public double getUnpaidAmount() {
-        return getPayableAmount() - getRepaidAmount();
+        return unpaidAmount;
+    }
+
+    public void setUnpaidAmount(double unpaidAmount) {
+        this.unpaidAmount = unpaidAmount;
     }
 
     public String getLoanID() {
@@ -106,8 +111,26 @@ public class LoanApplication {
         return loan;
     }
 
+    public void setLoan(Loan loan) {
+        try {
+            applicationObject.put("loan", loan.getLoanObject());
+            this.loan = loan;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public User getApplicant() {
         return applicant;
+    }
+
+    public void setApplicant(User applicant) {
+        try {
+            applicationObject.put("applicant", applicant.getUserObject());
+            this.applicant = applicant;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getDueDate() {

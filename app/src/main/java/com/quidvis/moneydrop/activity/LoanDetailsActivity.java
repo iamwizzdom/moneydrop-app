@@ -139,7 +139,9 @@ public class LoanDetailsActivity extends CustomCompatActivity {
                 .error(loanUser.getDefaultPicture())
                 .into(ivUserPic);
 
-        tvType.setText(String.format("Loan %s", loan.getLoanType()));
+        String type = String.format("Loan %s", loan.getLoanType());
+        if (loan.isMine()) type += " (Me)";
+        tvType.setText(type);
         tvFundRaiser.setText(loan.isFundRaiser() ? "Yes" : "No");
         tvAmount.setText(format.format(loan.getAmount()));
         tvReference.setText(loan.getUuid());
@@ -241,7 +243,7 @@ public class LoanDetailsActivity extends CustomCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Auth-Token", dbHelper.getUser().getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }

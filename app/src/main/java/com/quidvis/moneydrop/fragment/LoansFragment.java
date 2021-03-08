@@ -57,7 +57,6 @@ public class LoansFragment extends CustomCompatFragment {
     private View view;
     private FragmentActivity activity;
     private final ArrayList<CustomFragment> fragments = new ArrayList<>();
-    private boolean refresh = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -175,7 +174,7 @@ public class LoansFragment extends CustomCompatFragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", user.getToken());
+                params.put("Auth-Token", user.getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
@@ -288,22 +287,5 @@ public class LoansFragment extends CustomCompatFragment {
             fragment.onDestroyView();
         }
         super.onDestroyView();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        refresh = true;
-    }
-
-    @Override
-    public void onResume() {
-        if (refresh) {
-            refresh = false;
-            for (CustomFragment fragment : fragments) {
-                fragment.refresh();
-            }
-        }
-        super.onResume();
     }
 }

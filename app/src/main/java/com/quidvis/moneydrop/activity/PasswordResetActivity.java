@@ -202,29 +202,31 @@ public class PasswordResetActivity extends CustomCompatActivity {
                     dialog.setPositiveButton("Ok");
                     dialog.display();
 
+                    if (object.has("errors")) {
 
-                    JSONObject errors = object.getJSONObject("errors");
+                        JSONObject errors = object.getJSONObject("errors");
 
-                    if (errors.length() > 0) {
-                        for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
-                            String key = it.next();
-                            String value = errors.getString(key);
-                            if (TextUtils.isEmpty(value)) continue;
-                            switch (key) {
-                                case "email":
-                                    Utility.toastMessage(PasswordResetActivity.this, value);
-                                    break;
-                                case "otp":
-                                    etOTP.setError(value);
-                                    break;
-                                case "password":
-                                    etPassword.setError(value);
-                                    break;
-                                case "password_confirmation":
-                                    etConfirmPassword.setError(value);
-                                    break;
-                                default:
-                                    break;
+                        if (errors.length() > 0) {
+                            for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
+                                String key = it.next();
+                                String value = errors.getString(key);
+                                if (TextUtils.isEmpty(value)) continue;
+                                switch (key) {
+                                    case "email":
+                                        Utility.toastMessage(PasswordResetActivity.this, value);
+                                        break;
+                                    case "otp":
+                                        etOTP.setError(value);
+                                        break;
+                                    case "password":
+                                        etPassword.setError(value);
+                                        break;
+                                    case "password_confirmation":
+                                        etConfirmPassword.setError(value);
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
                         }
                     }

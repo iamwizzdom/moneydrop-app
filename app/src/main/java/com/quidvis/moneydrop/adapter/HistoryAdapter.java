@@ -1,8 +1,9 @@
 package com.quidvis.moneydrop.adapter;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +14,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.LoanApplicationDetailsActivity;
+import com.quidvis.moneydrop.fragment.HistoryFragment;
 import com.quidvis.moneydrop.interfaces.OnLoadMoreListener;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.model.LoanApplication;
@@ -46,14 +49,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private int lastVisibleItem, totalItemCount;
     private final RecyclerView recyclerView;
     private final RecyclerView.OnScrollListener mOnScrollListener;
-    private final Activity activity;
+    private final Fragment fragment;
+    private final Context context;
     private final List<LoanApplication> applications;
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en", "ng"));
 
     //Constructor
-    public HistoryAdapter(RecyclerView recyclerView, Activity activity, List<LoanApplication> applications) {
+    public HistoryAdapter(RecyclerView recyclerView, Fragment fragment, List<LoanApplication> applications) {
 
-        this.activity = activity;
+        this.fragment = fragment;
+        this.context = fragment.getContext();
         this.applications = applications;
         this.recyclerView = recyclerView;
 
@@ -96,19 +101,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (viewType == VIEW_TYPE_ITEM) {
 
             return new ParentViewHolder(
-                    LayoutInflater.from(activity).inflate(R.layout.history_layout, parent, false)
+                    LayoutInflater.from(context).inflate(R.layout.history_layout, parent, false)
             );
 
         } else if (viewType == VIEW_TYPE_LOADING) {
 
             return new LoadingViewHolder(
-                    LayoutInflater.from(activity).inflate(R.layout.loader, parent, false)
+                    LayoutInflater.from(context).inflate(R.layout.loader, parent, false)
             );
 
         }
 
         return new NoMoreRecordViewHolder(
-                LayoutInflater.from(activity).inflate(R.layout.no_more_record, parent, false)
+                LayoutInflater.from(context).inflate(R.layout.no_more_record, parent, false)
         );
     }
 
@@ -132,9 +137,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             ArrayMap<String, Integer> theme = getTheme(application.getStatus(), true);
 
-            parentViewHolder.mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
-            parentViewHolder.tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-            parentViewHolder.tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
+            parentViewHolder.mvIcon.setImageDrawable(ContextCompat.getDrawable(context, Objects.requireNonNull(theme.get("icon"))));
+            parentViewHolder.tvAmount.setTextColor(context.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
+            parentViewHolder.tvStatus.setTextAppearance(context, Objects.requireNonNull(theme.get("badge")));
             parentViewHolder.tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
             int size = getItemCount();
@@ -143,9 +148,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 parentViewHolder.container.setBackgroundResource(R.drawable.layout_underline);
 
             parentViewHolder.container.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, LoanApplicationDetailsActivity.class);
+                Intent intent = new Intent(context, LoanApplicationDetailsActivity.class);
+                intent.putExtra(LoanApplicationDetailsActivity.LOAN_APPLICATION_POSITION_KEY, position);
                 intent.putExtra(LoanApplicationDetailsActivity.LOAN_APPLICATION_OBJECT_KEY, application.getApplicationObject().toString());
-                activity.startActivity(intent);
+                this.fragment.startActivityForResult(intent, HistoryFragment.LOAN_HISTORY_REQUEST_KEY);
             });
 
         } else if (holder instanceof LoadingViewHolder) {

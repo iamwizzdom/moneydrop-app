@@ -243,13 +243,7 @@ public class MainFragment extends CustomCompatFragment {
         TextView tvAmount = view.findViewById(R.id.transaction_amount);
         TextView tvStatus = view.findViewById(R.id.transaction_status);
 
-        String type = transaction.getType();
-
-        if (type.equals("offer") || type.equals("request")) {
-            type = String.format("Loan %s (Me)", type);
-        }
-
-        tvType.setText(type);
+        tvType.setText(transaction.getType());
         tvDate.setText(transaction.getDate());
         tvAmount.setText(format.format(transaction.getAmount()));
         tvStatus.setText(Utility.ucFirst(transaction.getStatus()));
@@ -323,7 +317,7 @@ public class MainFragment extends CustomCompatFragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Auth-Token", dbHelper.getUser().getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }

@@ -302,7 +302,7 @@ public class ProfileEditFragment extends CustomCompatFragment implements DatePic
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-               if (!uriType.equals("email") && !uriType.equals("phone")) params.put("JWT_AUTH", user.getToken());
+               if (!uriType.equals("email") && !uriType.equals("phone")) params.put("Auth-Token", user.getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
@@ -429,25 +429,27 @@ public class ProfileEditFragment extends CustomCompatFragment implements DatePic
                         dialog.setPositiveButton("Ok");
                         dialog.display();
 
-                        JSONObject errors = object.getJSONObject("errors");
+                        if (object.has("errors")) {
 
-                        if (errors.length() > 0) {
-                            for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
-                                String key = it.next();
-                                String value = errors.getString(key);
-                                if (TextUtils.isEmpty(value)) continue;
-                                EditText editText = getEditText(editTexts.get(key));
-                                if (tvDobError != null && key.equals("dob")) {
-                                    tvDobError.setText(value);
-                                    tvDobError.setVisibility(View.VISIBLE);
-                                } else if (tvGenderError != null && key.equals("gender")) {
-                                    tvGenderError.setText(value);
-                                    tvGenderError.setVisibility(View.VISIBLE);
-                                } else if (editText != null) editText.setError(value);
+                            JSONObject errors = object.getJSONObject("errors");
+
+                            if (errors.length() > 0) {
+                                for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
+                                    String key = it.next();
+                                    String value = errors.getString(key);
+                                    if (TextUtils.isEmpty(value)) continue;
+                                    EditText editText = getEditText(editTexts.get(key));
+                                    if (tvDobError != null && key.equals("dob")) {
+                                        tvDobError.setText(value);
+                                        tvDobError.setVisibility(View.VISIBLE);
+                                    } else if (tvGenderError != null && key.equals("gender")) {
+                                        tvGenderError.setText(value);
+                                        tvGenderError.setVisibility(View.VISIBLE);
+                                    } else if (editText != null) editText.setError(value);
+                                }
                             }
                         }
                     }
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Utility.toastMessage(activity, statusCode == 503 ? error :

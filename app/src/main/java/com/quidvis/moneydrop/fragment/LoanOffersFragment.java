@@ -172,7 +172,6 @@ public class LoanOffersFragment extends CustomFragment {
     @Override
     public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenu.ContextMenuInfo menuInfo) {
         activity.getMenuInflater().inflate(R.menu.loan_offer_option, menu);
-        Log.e("onCreateContextMenu", "I ran onCreateContextMenu in " + this);
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
@@ -308,7 +307,7 @@ public class LoanOffersFragment extends CustomFragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Auth-Token", dbHelper.getUser().getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }

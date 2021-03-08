@@ -1,6 +1,9 @@
 package com.quidvis.moneydrop.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,7 +13,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,8 +21,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.android.volley.Request;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.LoanApplicationDetailsActivity;
 import com.quidvis.moneydrop.activity.MainActivity;
-import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.adapter.HistoryAdapter;
 import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
@@ -39,6 +41,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,6 +68,8 @@ public class HistoryFragment extends CustomCompatFragment {
     private TextView tvNoContent;
     private ShimmerFrameLayout shimmerFrameLayout;
     private RecyclerView recyclerView;
+
+    public static final int LOAN_HISTORY_REQUEST_KEY = 123;
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -109,7 +115,7 @@ public class HistoryFragment extends CustomCompatFragment {
 
         recyclerView = view.findViewById(R.id.history_list);
 
-        historyAdapter = new HistoryAdapter(recyclerView, activity, loanApplications);
+        historyAdapter = new HistoryAdapter(recyclerView, this, loanApplications);
         recyclerView.setAdapter(historyAdapter);
         historyAdapter.setOnLoadMoreListener(() -> {
             historyAdapter.setLoading(true);
@@ -119,10 +125,49 @@ public class HistoryFragment extends CustomCompatFragment {
         ((MainActivity) activity).setCustomTitle(getResources().getString(R.string.history));
         ((MainActivity) activity).setCustomSubtitle(getResources().getString(R.string.no_record));
 
-        start();
+        setUp();
     }
 
-    private void start() {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK || data == null) {
+            Utility.toastMessage(activity, "Failed to capture new history data.");
+            return;
+        }
+
+        if (requestCode == LOAN_HISTORY_REQUEST_KEY) {
+
+            int historyKey = data.getIntExtra(LoanApplicationDetailsActivity.LOAN_APPLICATION_POSITION_KEY, 0);
+            String historyString = data.getStringExtra(LoanApplicationDetailsActivity.LOAN_APPLICATION_OBJECT_KEY);
+
+            if (historyString == null) {
+                Utility.toastMessage(activity, "No history data passed");
+                return;
+            }
+
+            new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> {
+                try {
+
+                    JSONObject historyObject = new JSONObject(historyString);
+                    historyObject.put("amount", historyObject.getDouble("amount") + 100);
+                    LoanApplication loanApplication = new LoanApplication(activity, historyObject);
+                    loanApplications.set(historyKey, loanApplication);
+                    historyAdapter.notifyDataSetChanged();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(activity, "Invalid history passed");
+                }
+
+            }, 200);
+
+        } else Utility.toastMessage(activity, "Invalid request code");
+
+    }
+
+    private void setUp() {
 
         if (started) return;
 
@@ -141,7 +186,7 @@ public class HistoryFragment extends CustomCompatFragment {
         if (data != null) {
 
             try {
-                setNotifications(data.getJSONArray("applications"), false);
+                setHistory(data.getJSONArray("applications"), false);
             } catch (JSONException e) {
                 getHistory(Objects.requireNonNull(state).getString("nextPage"));
                 e.printStackTrace();
@@ -173,7 +218,7 @@ public class HistoryFragment extends CustomCompatFragment {
         }
     }
 
-    private void setNotifications(JSONArray applications, boolean addUp) {
+    private void setHistory(JSONArray applications, boolean addUp) {
 
         int size = applications.length();
 
@@ -237,7 +282,7 @@ public class HistoryFragment extends CustomCompatFragment {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                params.put("Auth-Token", dbHelper.getUser().getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
@@ -265,7 +310,7 @@ public class HistoryFragment extends CustomCompatFragment {
                 try {
 
                     JSONObject object = new JSONObject(response);
-                    setNotifications(object.getJSONArray("applications"), data != null);
+                    setHistory(object.getJSONArray("applications"), data != null);
                     state.putString("nextPage", object.getJSONObject("pagination").getString("nextPage"));
                     if (data == null) data = object;
 
@@ -343,7 +388,7 @@ public class HistoryFragment extends CustomCompatFragment {
     @Override
     public void onResume() {
         super.onResume();
-        start();
+        setUp();
     }
 
     @Override

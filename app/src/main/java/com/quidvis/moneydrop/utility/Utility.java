@@ -270,6 +270,7 @@ public class Utility {
                 theme.put("background", R.drawable.tag_warning);
                 break;
             case "granted":
+            case "completed":
             case "successful":
                 theme.put("icon", isIncoming ? R.drawable.ic_incoming_success : R.drawable.ic_outgoing_success);
                 theme.put("color", R.color.successColor);

@@ -312,6 +312,7 @@ public class RegistrationActivity extends CustomCompatActivity implements DatePi
 
 
             if (object.has("errors")) {
+
                 JSONObject errors = object.getJSONObject("errors");
 
                 if (errors.length() > 0) {

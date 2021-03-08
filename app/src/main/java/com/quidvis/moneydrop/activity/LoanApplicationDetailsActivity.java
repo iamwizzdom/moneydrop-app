@@ -10,6 +10,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.ArrayMap;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -51,12 +52,14 @@ import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
 public class LoanApplicationDetailsActivity extends CustomCompatActivity {
 
+    public static final String LOAN_APPLICATION_POSITION_KEY = "historyPositionKey";
     public static final String LOAN_APPLICATION_OBJECT_KEY = "applicationObject";
     public static final int LOAN_APPLICATION_REQUEST_KEY = 134;
     private NumberFormat format;
     private User user;
     private LoanApplication loanApplication;
     private Loan loan;
+    private int loanApplicationKey;
 
     private ImageView ivProfilePic, ivUserPic;
     private TextView tvUsername, tvLoanType, tvLoanAmount, tvAmountPaid, tvAmountUnpaid, tvReference,
@@ -71,6 +74,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
 
         Intent intent = getIntent();
 
+        loanApplicationKey = intent.getIntExtra(LOAN_APPLICATION_POSITION_KEY, 0);
         String applicationString = intent.getStringExtra(LOAN_APPLICATION_OBJECT_KEY);
 
         if (applicationString == null) {
@@ -129,7 +133,9 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
 
     public void setLoanView() {
 
-        tvLoanType.setText(String.format("Loan %s", loan.getLoanType()));
+        String type = String.format("Loan %s", loan.getLoanType());
+        if (loan.isMine()) type += " (Me)";
+        tvLoanType.setText(type);
         tvLoanDate.setText(loan.getDate());
         tvLoanAmount.setText(format.format(loan.getAmount()));
         tvLoanStatus.setText(Utility.ucFirst(loan.getStatus()));
@@ -193,14 +199,15 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         tvApplicationStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
         tvApplicationStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
-        if (loanApplication.getApplicant().isMe() || (loan.isLoanRequest() && loan.isMine())) {
-            paymentBtnHolder.setVisibility(loanApplication.isGranted() ? View.VISIBLE : View.GONE);
-            cancelApplicationBtn.setVisibility(loanApplication.isGranted() ? View.GONE : View.VISIBLE);
-        }
+        if (loanApplication.getApplicant().isMe()) cancelApplicationBtn.setVisibility(loanApplication.isGranted() ? View.GONE : View.VISIBLE);
 
-        if (loan.isLoanOffer() && loan.getUser().isMe()) payBtn.setVisibility(View.GONE);
-        else if (loan.isLoanRequest() && !loanApplication.getApplicant().isMe()) payBtn.setVisibility(View.GONE);
-        else if (loanApplication.isRepaid()) Utility.disableButton(payBtn);
+        paymentBtnHolder.setVisibility(loanApplication.isGranted() ? View.VISIBLE : View.GONE);
+
+        if (loanApplication.isGranted()) {
+            if (loan.isLoanOffer() && loan.getUser().isMe()) payBtn.setVisibility(View.GONE);
+            else if (loan.isLoanRequest() && loanApplication.getApplicant().isMe()) payBtn.setVisibility(View.GONE);
+            else if (loanApplication.isRepaid()) Utility.disableButton(payBtn);
+        }
     }
 
     public void reviewRecipient(View view) {
@@ -267,7 +274,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         submitBtn.setOnClickListener(v -> {
             String amount = tvAmount.getText().toString();
             double dAmount;
-            if (amount.isEmpty() || (dAmount = Double.parseDouble(amount)) < 1) {
+            if (amount.isEmpty() || (dAmount = Double.parseDouble(amount)) <= 0) {
                 Utility.toastMessage(LoanApplicationDetailsActivity.this, "Please enter a valid amount");
                 return;
             }
@@ -301,7 +308,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", user.getToken());
+                params.put("Auth-Token", user.getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
@@ -334,6 +341,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
                         JSONObject respObj = object.getJSONObject("response");
                         JSONObject applicationObj = respObj.getJSONObject("application");
                         loanApplication = new LoanApplication(LoanApplicationDetailsActivity.this, applicationObj);
+                        setLoanView();
                         setLoanApplicationView();
 
                         double balance = respObj.getDouble("balance");
@@ -431,7 +439,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", user.getToken());
+                params.put("Auth-Token", user.getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
@@ -541,6 +549,15 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
             }
         };
         httpRequest.send();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra(LOAN_APPLICATION_POSITION_KEY, loanApplicationKey);
+        intent.putExtra(LOAN_APPLICATION_OBJECT_KEY, loanApplication.getApplicationObject().toString());
+        setResult(RESULT_OK, intent);
+        super.onBackPressed();
     }
 
     public void onBackPressed(View view) {

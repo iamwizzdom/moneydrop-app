@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -239,7 +241,8 @@ public class ProfileActivity extends CustomCompatActivity {
 
                 Uri uri = data.getData();
                 if (uri == null) throw new IOException("Failed");
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), uri);
+                Bitmap bitmap = ImageDecoder.decodeBitmap(source);
                 Matrix matrix = new Matrix();
                 matrix.postRotate(0);
                 bitmap = Utility.getResizedBitmap(bitmap, 7);
@@ -341,7 +344,7 @@ public class ProfileActivity extends CustomCompatActivity {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> params = new HashMap<>();
-                params.put("JWT_AUTH", user.getToken());
+                params.put("Auth-Token", user.getToken());
                 params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                 return params;
             }
@@ -451,7 +454,7 @@ public class ProfileActivity extends CustomCompatActivity {
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String, String> params = new HashMap<>();
-                        params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                        params.put("Auth-Token", dbHelper.getUser().getToken());
                         params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                         return params;
                     }
@@ -518,8 +521,11 @@ public class ProfileActivity extends CustomCompatActivity {
                     AwesomeAlertDialog dialog = new AwesomeAlertDialog(ProfileActivity.this);
 
                     dialog.setTitle(object.getString("title"));
-                    JSONObject errors = object.getJSONObject("errors");
-                    dialog.setMessage(object.has("errors") && errors.length() > 0 ? Utility.serializeObject(errors) : object.getString("message"));
+                    if (object.has("errors")) {
+                        JSONObject errors = object.getJSONObject("errors");
+                        if (errors.length() > 0) dialog.setMessage(Utility.serializeObject(errors));
+                        else dialog.setMessage(object.getString("message"));
+                    } else dialog.setMessage(object.getString("message"));
                     dialog.setPositiveButton("Ok");
                     dialog.display();
 
@@ -562,7 +568,7 @@ public class ProfileActivity extends CustomCompatActivity {
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String, String> params = new HashMap<>();
-                        params.put("JWT_AUTH", dbHelper.getUser().getToken());
+                        params.put("Auth-Token", dbHelper.getUser().getToken());
                         params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
                         return params;
                     }

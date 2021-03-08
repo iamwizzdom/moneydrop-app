@@ -178,9 +178,11 @@ public class VerifyEmailActivity extends CustomCompatActivity {
                     } else {
 
                         dialog.setTitle(object.getString("title"));
-                        JSONObject errors = object.getJSONObject("errors");
-                        if (errors.length() > 0) dialog.setMessage(Utility.serializeObject(errors));
-                        else dialog.setMessage(object.getString("message"));
+                        if (object.has("errors")) {
+                            JSONObject errors = object.getJSONObject("errors");
+                            if (errors.length() > 0) dialog.setMessage(Utility.serializeObject(errors));
+                            else dialog.setMessage(object.getString("message"));
+                        } else dialog.setMessage(object.getString("message"));
                         dialog.setPositiveButton("Ok");
                         dialog.display();
 

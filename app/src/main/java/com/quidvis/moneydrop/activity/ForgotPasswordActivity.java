@@ -147,16 +147,18 @@ public class ForgotPasswordActivity extends CustomCompatActivity {
 
                     dialog.display();
 
+                    if (object.has("errors")) {
 
-                    JSONObject errors = object.getJSONObject("errors");
+                        JSONObject errors = object.getJSONObject("errors");
 
-                    if (errors.length() > 0) {
-                        for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
-                            String key = it.next();
-                            String value = errors.getString(key);
-                            if (TextUtils.isEmpty(value)) continue;
-                            if ("email".equals(key)) {
-                                etEmail.setError(value);
+                        if (errors.length() > 0) {
+                            for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
+                                String key = it.next();
+                                String value = errors.getString(key);
+                                if (TextUtils.isEmpty(value)) continue;
+                                if ("email".equals(key)) {
+                                    etEmail.setError(value);
+                                }
                             }
                         }
                     }
