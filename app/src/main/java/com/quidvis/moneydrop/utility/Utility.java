@@ -4,9 +4,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,6 +19,7 @@ import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -46,8 +49,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -298,7 +303,7 @@ public class Utility {
 
         int deviceWidth;
 
-        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             Point size = new Point();
             display.getSize(size);
             deviceWidth = size.x;
@@ -479,6 +484,145 @@ public class Utility {
         }
     }
 
+    public static Bitmap getBitmapFormUri(Activity ac, Uri uri) throws FileNotFoundException, IOException {
+        InputStream input = ac.getContentResolver().openInputStream(uri);
+        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
+        onlyBoundsOptions.inJustDecodeBounds = true;
+        onlyBoundsOptions.inDither = true;//optional
+        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
+        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
+        input.close();
+        int originalWidth = onlyBoundsOptions.outWidth;
+        int originalHeight = onlyBoundsOptions.outHeight;
+        if ((originalWidth == -1) || (originalHeight == -1))
+            return null;
+        //Image resolution is based on 480x800
+        float hh = 800f;//The height is set as 800f here
+        float ww = 480f;//Set the width here to 480f
+        //Zoom ratio. Because it is a fixed scale, only one data of height or width is used for calculation
+        int be = 1;//be=1 means no scaling
+        if (originalWidth > originalHeight && originalWidth > ww) {//If the width is large, scale according to the fixed size of the width
+            be = (int) (originalWidth / ww);
+        } else if (originalWidth < originalHeight && originalHeight > hh) {//If the height is high, scale according to the fixed size of the width
+            be = (int) (originalHeight / hh);
+        }
+        if (be <= 0) be = 1;
+        //Proportional compression
+        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+        bitmapOptions.inSampleSize = be;//Set scaling
+        bitmapOptions.inDither = true;//optional
+        bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;//optional
+        input = ac.getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
+        input.close();
+
+        return compressImage(bitmap);//Mass compression again
+    }
+
+    /**
+     * Mass compression method
+     *
+     * @param image
+     * @return
+     */
+    public static Bitmap compressImage(Bitmap image) {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//Quality compression method, here 100 means no compression, store the compressed data in the BIOS
+        int options = 100;
+        while (baos.toByteArray().length / 1024 > 200) {  //Cycle to determine if the compressed image is greater than 100kb, greater than continue compression
+            baos.reset();//Reset the BIOS to clear it
+            //First parameter: picture format, second parameter: picture quality, 100 is the highest, 0 is the worst, third parameter: save the compressed data stream
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos);//Here, the compression options are used to store the compressed data in the BIOS
+            options -= 10;//10 less each time
+        }
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//Store the compressed data in ByteArrayInputStream
+        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//Generate image from ByteArrayInputStream data
+        return bitmap;
+    }
+
+    /**
+     * Get file via Uri
+     *
+     * @param ac
+     * @param uri
+     * @return
+     */
+    public static File getFileFromMediaUri(Context ac, Uri uri) {
+        if (uri.getScheme().toString().compareTo("content") == 0) {
+            ContentResolver cr = ac.getContentResolver();
+            Cursor cursor = cr.query(uri, null, null, null, null);// Find from database according to Uri
+            if (cursor != null) {
+                cursor.moveToFirst();
+                String filePath = cursor.getString(cursor.getColumnIndex("_data"));// Get picture path
+                cursor.close();
+                if (filePath != null) return new File(filePath);
+            }
+        } else if (uri.getScheme().toString().compareTo("file") == 0) {
+            return new File(uri.toString().replace("file://", ""));
+        }
+        return null;
+    }
+
+    /**
+     * Read the rotation angle of the picture
+     *
+     * @param path Absolute path of picture
+     * @return Rotation angle of picture
+     */
+    public static int getBitmapDegree(String path) {
+        int degree = 0;
+        try {
+            // Read the picture from the specified path and obtain its EXIF information
+            ExifInterface exifInterface = new ExifInterface(path);
+            // Get rotation information for pictures
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return degree;
+    }
+
+    /**
+     * Rotate the picture at an angle
+     *
+     * @param bm     Pictures to rotate
+     * @param degree Rotation angle
+     * @return Rotated picture
+     */
+    public static Bitmap rotateBitmapByDegree(Bitmap bm, int degree) {
+
+        Bitmap bitmap = null;
+
+        // Generate rotation matrix according to rotation angle
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+
+        try {
+            // Rotate the original image according to the rotation matrix and get a new image
+            bitmap = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+        }
+
+        if (bitmap == null) bitmap = bm;
+
+        if (bm != bitmap) bm.recycle();
+
+        return bitmap;
+    }
+
     private static class InputStreamData {
         private boolean successful;
         private String fileName, error;
@@ -531,7 +675,7 @@ public class Utility {
      */
     public static byte[] toByteArray(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 75, stream);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
     }
 
@@ -643,7 +787,6 @@ public class Utility {
     }
 
     /**
-     *
      * @param source
      * @param watermark
      * @return
@@ -653,7 +796,6 @@ public class Utility {
     }
 
     /**
-     *
      * @param source
      * @param watermark
      * @param alpha
@@ -710,7 +852,6 @@ public class Utility {
     }
 
     /**
-     *
      * @param fieldName
      * @param className
      * @return

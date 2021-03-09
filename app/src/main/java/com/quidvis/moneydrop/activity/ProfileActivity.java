@@ -5,15 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageDecoder;
-import android.graphics.Matrix;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -214,57 +210,41 @@ public class ProfileActivity extends CustomCompatActivity {
 
         if (resultCode != RESULT_OK) {
             Utility.toastMessage(ProfileActivity.this, requestCode == 1 ? "Image capture failed." : "Image selection failed.");
+            if (requestCode == 1 && camImage != null) //noinspection ResultOfMethodCallIgnored
+                camImage.delete();
             return;
         }
 
-        if (requestCode == 1) {
+        Uri uri = null;
 
-            //Here you have the bitmap of the image from camera
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 7;
-            Bitmap bitmap = BitmapFactory.decodeFile(camImage.getAbsolutePath(), options);
+        if (requestCode == 1) uri = Uri.fromFile(camImage);
+        else if (requestCode == 2) uri = data.getData();
 
-            Matrix matrix = new Matrix();
-            matrix.postRotate(0);
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        try {
 
+            if (uri == null) throw new IOException("Failed");
+
+            Bitmap bitmap = Utility.getBitmapFormUri(this, uri);
+            File file = requestCode == 1 ? camImage : Utility.getFileFromMediaUri(this, uri);
+            int degree = Utility.getBitmapDegree(file.getAbsolutePath());
+            bitmap = Utility.rotateBitmapByDegree(bitmap, degree);
             String imageString = imageToBase64(bitmap);
-            camImage.delete();
 
-            if (imageString != null && !imageString.isEmpty()) {
-                updatePhoto(imageString);
-            }
+            if (imageString == null || imageString.isEmpty()) throw new IOException("Failed");
 
-        } else if (requestCode == 2) {
+            if (requestCode == 1 && camImage != null) //noinspection ResultOfMethodCallIgnored
+                camImage.delete();
 
-            try {
+            updatePhoto(imageString);
 
-                Uri uri = data.getData();
-                if (uri == null) throw new IOException("Failed");
-                ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), uri);
-                Bitmap bitmap = ImageDecoder.decodeBitmap(source);
-                Matrix matrix = new Matrix();
-                matrix.postRotate(0);
-                bitmap = Utility.getResizedBitmap(bitmap, 7);
-                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                String imageString = imageToBase64(bitmap);
-
-                if (imageString != null && !imageString.isEmpty()) {
-                    updatePhoto(imageString);
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                showDialogMessage("Update failed", "Sorry an unexpected error occurred, please try again later.");
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Utility.toastMessage(this, "Image upload failed, please try again.");
         }
     }
 
     private String imageToBase64(Bitmap bitmap) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] imgBytes = byteArrayOutputStream.toByteArray();
-        return Base64.encodeToString(imgBytes, Base64.DEFAULT);
+        return Base64.encodeToString(Utility.toByteArray(bitmap), Base64.DEFAULT);
     }
 
     private void progressToggle(boolean status) {

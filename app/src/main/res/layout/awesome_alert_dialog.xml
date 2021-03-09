@@ -77,6 +77,19 @@
         app:layout_constraintRight_toRightOf="parent">
 
         <Button
+            android:id="@+id/btn_negative"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/button_awesome_light_style"
+            android:textSize="14sp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:text="@string/negative"
+            tools:ignore="ButtonStyle"
+            android:visibility="gone" />
+
+        <Button
             android:id="@+id/btn_positive"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -86,19 +99,6 @@
             android:layout_marginEnd="30dp"
             android:layout_marginBottom="8dp"
             android:text="@string/positive"
-            tools:ignore="ButtonStyle"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/btn_negative"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/button_awesome_style"
-            android:textSize="14sp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:text="@string/negative"
             tools:ignore="ButtonStyle"
             android:visibility="gone" />
 

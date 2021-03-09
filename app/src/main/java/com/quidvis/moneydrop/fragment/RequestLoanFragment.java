@@ -228,12 +228,20 @@ public class RequestLoanFragment extends CustomFragment {
     }
 
     private void submitLoanRequest(View view) {
+
+        double amount = etAmount.getNumericValue();
+
+        if (amount < 5000) {
+            Utility.toastMessage(activity, "Amount must be at least 5000 NGN");
+            return;
+        }
+
         HttpRequest httpRequest = new HttpRequest(this,
                 URLContract.LOAN_REQUEST_URL, Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
-                params.put("amount", String.valueOf(etAmount.getNumericValue()));
+                params.put("amount", String.valueOf(amount));
                 String note = etNote.getText().toString();
                 if (!note.isEmpty()) params.put("note", note);
                 params.put("interest", String.valueOf(RequestLoanFragment.this.interestRate));
