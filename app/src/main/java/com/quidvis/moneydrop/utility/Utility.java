@@ -37,8 +37,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.quidvis.moneydrop.BuildConfig;
@@ -59,6 +62,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
@@ -275,6 +279,12 @@ public class Utility {
                 theme.put("background", R.drawable.tag_warning);
                 break;
             case "granted":
+                theme.put("icon", isIncoming ? R.drawable.ic_incoming_info : R.drawable.ic_outgoing_info);
+                theme.put("color", R.color.infoColor);
+                theme.put("badge", R.style.tag_info);
+                theme.put("background", R.drawable.tag_info);
+                break;
+            case "repaid":
             case "completed":
             case "successful":
                 theme.put("icon", isIncoming ? R.drawable.ic_incoming_success : R.drawable.ic_outgoing_success);
@@ -866,6 +876,21 @@ public class Utility {
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param activity
+     * @return
+     */
+    public static List<Fragment> getActivityNavFragments(AppCompatActivity activity) {
+        List<Fragment> fragments = activity.getSupportFragmentManager().getFragments();
+        for (Fragment fragment: fragments) {
+            if (fragment instanceof NavHostFragment) {
+                return fragment.getChildFragmentManager().getFragments();
             }
         }
         return null;

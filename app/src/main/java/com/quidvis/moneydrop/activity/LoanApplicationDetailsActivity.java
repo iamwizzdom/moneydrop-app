@@ -191,7 +191,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         tvAmountPaid.setText(format.format(loanApplication.getRepaidAmount()));
         tvAmountUnpaid.setText(format.format(loanApplication.getUnpaidAmount()));
         tvDateGranted.setText(loanApplication.getDateGranted());
-        tvDateDue.setText(loanApplication.isGranted() ? loanApplication.getDueDateShort() : "Unavailable");
+        tvDateDue.setText((loanApplication.isGranted() || loanApplication.isRepaid()) ? loanApplication.getDueDateShort() : "Unavailable");
         tvApplicationDate.setText(loanApplication.getDate());
         tvApplicationStatus.setText(Utility.ucFirst(loanApplication.getStatus()));
 
@@ -199,11 +199,11 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         tvApplicationStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
         tvApplicationStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
-        if (loanApplication.getApplicant().isMe()) cancelApplicationBtn.setVisibility(loanApplication.isGranted() ? View.GONE : View.VISIBLE);
+        if (loanApplication.getApplicant().isMe()) cancelApplicationBtn.setVisibility((loanApplication.isGranted() || loanApplication.isRepaid()) ? View.GONE : View.VISIBLE);
 
-        paymentBtnHolder.setVisibility(loanApplication.isGranted() ? View.VISIBLE : View.GONE);
+        paymentBtnHolder.setVisibility((loanApplication.isGranted() && !loanApplication.isRepaid()) ? View.VISIBLE : View.GONE);
 
-        if (loanApplication.isGranted()) {
+        if (loanApplication.isGranted() || loanApplication.isRepaid()) {
             if (loan.isLoanOffer() && loan.getUser().isMe()) payBtn.setVisibility(View.GONE);
             else if (loan.isLoanRequest() && loanApplication.getApplicant().isMe()) payBtn.setVisibility(View.GONE);
             else if (loanApplication.isRepaid()) Utility.disableButton(payBtn);

@@ -38,6 +38,9 @@ public class ProfileOptionFragment extends CustomCompatFragment {
     public static final String EDIT_BVN = "edit_bvn";
     public static final String EDIT_PASSWORD = "edit_password";
 
+    private LinearLayout dobHolder, bvnHolder, emailHolder, phoneHolder, chPassHolder;
+    private TextView tvName, tvPhone, tvEmail, tvGender, tvCountry, tvState, tvAddress, tvDob, tvBvn;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,25 +68,33 @@ public class ProfileOptionFragment extends CustomCompatFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        LinearLayout dobHolder = view.findViewById(R.id.dob);
-        LinearLayout bvnHolder = view.findViewById(R.id.bvn);
-        LinearLayout emailHolder = view.findViewById(R.id.email);
-        LinearLayout phoneHolder = view.findViewById(R.id.phone_number);
-        LinearLayout chPassHolder = view.findViewById(R.id.change_password);
+        dobHolder = view.findViewById(R.id.dob);
+        bvnHolder = view.findViewById(R.id.bvn);
+        emailHolder = view.findViewById(R.id.email);
+        phoneHolder = view.findViewById(R.id.phone_number);
+        chPassHolder = view.findViewById(R.id.change_password);
 
-        TextView tvName = view.findViewById(R.id.account_name_text);
-        TextView tvPhone = view.findViewById(R.id.phone_number_text);
-        TextView tvEmail = view.findViewById(R.id.email_text);
-        TextView tvGender = view.findViewById(R.id.gender_text);
-        TextView tvCountry = view.findViewById(R.id.country_text);
-        TextView tvState = view.findViewById(R.id.state_text);
-        TextView tvAddress = view.findViewById(R.id.address_text);
-        TextView tvDob = view.findViewById(R.id.dob_text);
-        TextView tvBvn = view.findViewById(R.id.bvn_text);
+        tvName = view.findViewById(R.id.account_name_text);
+        tvPhone = view.findViewById(R.id.phone_number_text);
+        tvEmail = view.findViewById(R.id.email_text);
+        tvGender = view.findViewById(R.id.gender_text);
+        tvCountry = view.findViewById(R.id.country_text);
+        tvState = view.findViewById(R.id.state_text);
+        tvAddress = view.findViewById(R.id.address_text);
+        tvDob = view.findViewById(R.id.dob_text);
+        tvBvn = view.findViewById(R.id.bvn_text);
 
+        setUser();
+    }
+
+    public void setUser() {
+        setUser(this.user);
+    }
+
+    public void setUser(User user) {
         if (user == null || (user != null && user.isMe())) {
             DbHelper dbHelper = new DbHelper(activity);
-            user = dbHelper.getUser();
+            this.user = user = dbHelper.getUser();
         }
 
         if (!user.isMe()) {

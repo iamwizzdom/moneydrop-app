@@ -12,9 +12,9 @@ public class URLContract {
     private static final String URL_HTTPS_SCHEME = "https://";
     public static final String URL_SCHEME = URL_HTTP_SCHEME;
 //    public static final String HOST_URL = "moneydrop.test";
-//    public static final String HOST_URL = "192.168.0.109";
+    public static final String HOST_URL = "192.168.0.109";
 //    public static final String HOST_URL = "10.101.184.225:8000";
-    public static final String HOST_URL = "3.124.177.82/moneydrop/server";
+//    public static final String HOST_URL = "3.124.177.82/moneydrop/server";
     public static final String BASE_URL = URL_SCHEME + HOST_URL;
     private static final String API_URL = BASE_URL + "/api/app/v1";
     public static final String LOGIN_URL = API_URL + "/auth/login";

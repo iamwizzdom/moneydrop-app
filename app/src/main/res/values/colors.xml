@@ -32,9 +32,15 @@
     <color name="danger">#f55f78</color>
     <color name="warning">#ffbd31</color>
     <color name="success">#39c9ac</color>
+    <color name="info">#39c9ac</color>
     <color name="pending">#555961</color>
 
     <!-- bootstrap colors -->
+    <color name="infoBackground">#a6d8ff</color>
+    <color name="infoBackgroundLight">#cbe8fd</color>
+    <color name="infoBorder">#a2d6fd</color>
+    <color name="infoColor">#36a3f7</color>
+
     <color name="successBackground">#b6dfc3</color>
     <color name="successBackgroundLight">#ddf2e4</color>
     <color name="successBorder">#AFDDBE</color>

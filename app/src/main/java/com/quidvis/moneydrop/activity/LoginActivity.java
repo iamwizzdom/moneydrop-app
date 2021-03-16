@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,6 +18,7 @@ import com.android.volley.Request;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
+import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
@@ -138,7 +141,9 @@ public class LoginActivity extends CustomCompatActivity {
 
             @Override
             public Map<String, String> getHeaders() {
-                return null;
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
+                return params;
             }
 
             @Override

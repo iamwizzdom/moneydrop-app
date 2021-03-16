@@ -32,11 +32,11 @@ public class LoanApplication {
         this.setRepaid(applicationObject.getBoolean("is_repaid"));
         this.setReviewed(applicationObject.getBoolean("is_reviewed"));
         this.setHasGranted(applicationObject.getBoolean("has_granted"));
-        this.setDueDate(applicationObject.getString("due_date"));
+        this.setDueDate(applicationObject.getString("due_at"));
         this.setDueDateShort(applicationObject.getString("due_date_short"));
         this.setDate(applicationObject.getString("date"));
         this.setDateShort(applicationObject.getString("date_short"));
-        this.setDateGranted(applicationObject.getString("date_granted"));
+        this.setDateGranted(Utility.castEmpty(applicationObject.getString("granted_date_short"), "Unavailable"));
         if (applicationObject.has("loan") && !Utility.castEmpty(applicationObject.getString("loan")).isEmpty())
             loan = new Loan(context, applicationObject.getJSONObject("loan"));
         if (applicationObject.has("applicant") && !Utility.castEmpty(applicationObject.getString("applicant")).isEmpty())

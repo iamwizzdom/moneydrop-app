@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -379,6 +380,14 @@ public class ProfileActivity extends CustomCompatActivity {
 
                             if (user.update()) {
                                 ProfileActivity.this.setUser();
+                                List<Fragment> fragments = Utility.getActivityNavFragments(ProfileActivity.this);
+                                for (Fragment fragment: fragments) {
+
+                                    if (fragment instanceof ProfileOptionFragment) {
+                                        ((ProfileOptionFragment) fragment).setUser(user);
+                                    }
+
+                                }
                                 Utility.toastMessage(ProfileActivity.this, object.getString("message"));
                             } else {
                                 Utility.toastMessage(ProfileActivity.this, "Failed to update user info locally. Please try again later.");
