@@ -60,7 +60,7 @@ public class MainFragment extends CustomCompatFragment {
     private LinearLayout loanView, transactionView;
     private TextView loanEmpty, transactionEmpty;
     private SwipeRefreshLayout swipeRefreshLayout;
-    ShimmerFrameLayout loanShimmerFrameLayout, transactionShimmerFrameLayout;
+    private ShimmerFrameLayout loanShimmerFrameLayout, transactionShimmerFrameLayout;
     public JSONObject data;
     private static boolean started = false;
 
@@ -409,6 +409,7 @@ public class MainFragment extends CustomCompatFragment {
     public void onPause() {
         super.onPause();
         started = false;
+        saveState();
     }
 
     @Override

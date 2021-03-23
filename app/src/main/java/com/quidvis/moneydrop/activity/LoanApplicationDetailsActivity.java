@@ -191,7 +191,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         tvAmountPaid.setText(format.format(loanApplication.getRepaidAmount()));
         tvAmountUnpaid.setText(format.format(loanApplication.getUnpaidAmount()));
         tvDateGranted.setText(loanApplication.getDateGranted());
-        tvDateDue.setText((loanApplication.isGranted() || loanApplication.isRepaid()) ? loanApplication.getDueDateShort() : "Unavailable");
+        tvDateDue.setText(Utility.castEmpty(loanApplication.getDueDateShort(), "Unavailable"));
         tvApplicationDate.setText(loanApplication.getDate());
         tvApplicationStatus.setText(Utility.ucFirst(loanApplication.getStatus()));
 
@@ -201,7 +201,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
 
         if (loanApplication.getApplicant().isMe()) cancelApplicationBtn.setVisibility((loanApplication.isGranted() || loanApplication.isRepaid()) ? View.GONE : View.VISIBLE);
 
-        paymentBtnHolder.setVisibility((loanApplication.isGranted() && !loanApplication.isRepaid()) ? View.VISIBLE : View.GONE);
+        paymentBtnHolder.setVisibility((loanApplication.isGranted() || loanApplication.isRepaid()) ? View.VISIBLE : View.GONE);
 
         if (loanApplication.isGranted() || loanApplication.isRepaid()) {
             if (loan.isLoanOffer() && loan.getUser().isMe()) payBtn.setVisibility(View.GONE);
@@ -341,6 +341,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
                         JSONObject respObj = object.getJSONObject("response");
                         JSONObject applicationObj = respObj.getJSONObject("application");
                         loanApplication = new LoanApplication(LoanApplicationDetailsActivity.this, applicationObj);
+                        loan = loanApplication.getLoan();
                         setLoanView();
                         setLoanApplicationView();
 

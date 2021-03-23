@@ -130,10 +130,19 @@ public class UserLoanActivity extends CustomCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        for (CustomFragment fragment : fragments) {
+            fragment.saveState();
+            fragment.onPause();
+        }
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
         for (CustomFragment fragment : fragments) {
             fragment.saveState();
-            fragment.onDestroyView();
+            fragment.onDestroy();
         }
         super.onDestroy();
     }

@@ -160,7 +160,7 @@ public class LoanRepaymentTransactionsActivity extends CustomCompatActivity {
         }
 
         HttpRequest httpRequest = new HttpRequest(this,
-                nextPage != null ? URLContract.BASE_URL + nextPage : String.format(URLContract.LOAN_REPAYMENT_HISTORY_URL, applicationReference),
+                nextPage != null ? nextPage : String.format(URLContract.LOAN_REPAYMENT_HISTORY_URL, applicationReference),
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override

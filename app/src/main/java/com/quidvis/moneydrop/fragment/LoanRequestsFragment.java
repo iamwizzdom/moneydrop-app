@@ -286,7 +286,7 @@ public class LoanRequestsFragment extends CustomFragment {
     private void getLoanRequests(String nextPage) {
 
         HttpRequest httpRequest = new HttpRequest(this,
-                nextPage != null ? URLContract.BASE_URL + nextPage : (activity instanceof UserLoanActivity ?
+                nextPage != null ? nextPage : (activity instanceof UserLoanActivity ?
                         URLContract.USER_LOAN_REQUEST_LIST_URL : URLContract.LOAN_REQUEST_LIST_URL),
                 Request.Method.GET, new HttpRequestParams() {
 

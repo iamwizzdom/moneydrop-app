@@ -226,7 +226,7 @@ public class NotificationFragment extends CustomCompatFragment {
         }
 
         HttpRequest httpRequest = new HttpRequest(this,
-                nextPage != null ? (URLContract.BASE_URL + nextPage) : URLContract.NOTIFICATIONS_URL,
+                nextPage != null ? nextPage : URLContract.NOTIFICATIONS_URL,
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override

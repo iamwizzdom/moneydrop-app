@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import com.quidvis.moneydrop.activity.LoanApplicantsActivity;
 import com.quidvis.moneydrop.activity.LoanApplicationDetailsActivity;
+import com.quidvis.moneydrop.activity.LoanDetailsActivity;
 import com.quidvis.moneydrop.activity.LoanRepaymentTransactionsActivity;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.TransactionReceiptActivity;
@@ -26,6 +27,9 @@ public class NotificationIntent {
                 break;
             case "transactionReceipt":
                 intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, payload);
+                break;
+            case "loanDetails":
+                intent.putExtra(LoanDetailsActivity.LOAN_OBJECT_KEY, payload);
                 break;
             case "loanApplicationDetails":
                 intent.putExtra(LoanApplicationDetailsActivity.LOAN_APPLICATION_OBJECT_KEY, payload);
@@ -52,6 +56,8 @@ public class NotificationIntent {
                 return LoanApplicantsActivity.class;
             case "transactionReceipt":
                 return TransactionReceiptActivity.class;
+            case "loanDetails":
+                return LoanDetailsActivity.class;
             case "loanApplicationDetails":
                 return LoanApplicationDetailsActivity.class;
             case "loanRepaymentTransaction":

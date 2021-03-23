@@ -236,7 +236,7 @@ public class UserReviewsActivity extends CustomCompatActivity {
         }
 
         HttpRequest httpRequest = new HttpRequest(this,
-                nextPage != null ? (URLContract.BASE_URL + nextPage) : String.format(URLContract.USER_REVIEWS_URL, reviewUser.getUuid()),
+                nextPage != null ? nextPage : String.format(URLContract.USER_REVIEWS_URL, reviewUser.getUuid()),
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override

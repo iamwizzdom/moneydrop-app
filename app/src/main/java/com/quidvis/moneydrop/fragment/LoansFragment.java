@@ -281,6 +281,15 @@ public class LoansFragment extends CustomCompatFragment {
     }
 
     @Override
+    public void onPause() {
+        for (CustomFragment fragment : fragments) {
+            fragment.saveState();
+            fragment.onPause();
+        }
+        super.onPause();
+    }
+
+    @Override
     public void onDestroyView() {
         for (CustomFragment fragment : fragments) {
             fragment.saveState();

@@ -271,7 +271,7 @@ public class HistoryFragment extends CustomCompatFragment {
         }
 
         HttpRequest httpRequest = new HttpRequest(this,
-                nextPage != null ? (URLContract.BASE_URL + nextPage) : URLContract.HISTORY_URL,
+                nextPage != null ? nextPage : URLContract.HISTORY_URL,
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override

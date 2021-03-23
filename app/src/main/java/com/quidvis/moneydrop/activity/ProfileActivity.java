@@ -359,24 +359,7 @@ public class ProfileActivity extends CustomCompatActivity {
 
                         if (userData.has("user")) {
 
-                            JSONObject userObject = userData.getJSONObject("user");
-
-                            user.setFirstname(userObject.getString("firstname"));
-                            user.setMiddlename(userObject.getString("middlename"));
-                            user.setLastname(userObject.getString("lastname"));
-                            user.setPhone(userObject.getString("phone"));
-                            user.setEmail(userObject.getString("email"));
-                            user.setBvn(userObject.getString("bvn"));
-                            user.setPicture(userObject.getString("picture"));
-                            user.setDob(userObject.getString("dob"));
-                            user.setGender(Integer.parseInt(Utility.castNull(userObject.getString("gender"), "0")));
-                            user.setAddress(userObject.getString("address"));
-                            user.setCountry(userObject.getString("country"));
-                            user.setState(userObject.getString("state"));
-                            user.setStatus(userObject.getInt("status"));
-                            JSONObject verified = userObject.getJSONObject("verified");
-                            user.setVerifiedEmail(verified.getBoolean("email"));
-                            user.setVerifiedPhone(verified.getBoolean("phone"));
+                            user.setValues( userData.getJSONObject("user"));
 
                             if (user.update()) {
                                 ProfileActivity.this.setUser();

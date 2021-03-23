@@ -35,26 +35,7 @@ public class User {
 
     public User(Context context, JSONObject userObject) throws JSONException {
         this.dbHelper = new DbHelper(context);
-        this.userObject = userObject;
-        this.setUuid(userObject.getString("uuid"));
-        this.setFirstname(userObject.getString("firstname"));
-        this.setMiddlename(userObject.getString("middlename"));
-        this.setLastname(userObject.getString("lastname"));
-        this.setPhone(userObject.getString("phone"));
-        this.setEmail(userObject.getString("email"));
-        this.setBvn(userObject.getString("bvn"));
-        this.setPicture(userObject.getString("picture"));
-        this.setDob(userObject.getString("dob"));
-        this.setRating(userObject.getDouble("rating"));
-        this.setGender(userObject.getInt("gender"));
-        this.setAddress(userObject.getString("address"));
-        this.setCountry(userObject.getString("country"));
-        this.setState(userObject.getString("state"));
-        this.setStatus(userObject.getInt("status"));
-        JSONObject verified = userObject.getJSONObject("verified");
-        this.setVerifiedEmail(verified.getBoolean("email"));
-        this.setVerifiedPhone(verified.getBoolean("phone"));
-        if (userObject.has("token")) this.setToken(userObject.getString("token"));
+        setValues(userObject);
     }
 
     public int getId() {
@@ -219,6 +200,29 @@ public class User {
 
     public boolean isMe() {
         return getUuid().equals(dbHelper.getUser().getUuid());
+    }
+
+    public void setValues(JSONObject userObject) throws JSONException {
+        this.userObject = userObject;
+        this.setUuid(userObject.getString("uuid"));
+        this.setFirstname(userObject.getString("firstname"));
+        this.setMiddlename(userObject.getString("middlename"));
+        this.setLastname(userObject.getString("lastname"));
+        this.setPhone(userObject.getString("phone"));
+        this.setEmail(userObject.getString("email"));
+        this.setBvn(userObject.getString("bvn"));
+        this.setPicture(userObject.getString("picture"));
+        this.setDob(userObject.getString("dob"));
+        this.setRating(userObject.getDouble("rating"));
+        this.setGender(userObject.getInt("gender"));
+        this.setAddress(userObject.getString("address"));
+        this.setCountry(userObject.getString("country"));
+        this.setState(userObject.getString("state"));
+        this.setStatus(userObject.getInt("status"));
+        JSONObject verified = userObject.getJSONObject("verified");
+        this.setVerifiedEmail(verified.getBoolean("email"));
+        this.setVerifiedPhone(verified.getBoolean("phone"));
+        if (userObject.has("token")) this.setToken(userObject.getString("token"));
     }
 
     public JSONObject getUserObject() {

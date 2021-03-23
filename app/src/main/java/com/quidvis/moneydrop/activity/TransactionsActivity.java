@@ -153,7 +153,7 @@ public class TransactionsActivity extends CustomCompatActivity {
         }
 
         HttpRequest httpRequest = new HttpRequest(this,
-                nextPage != null ? URLContract.BASE_URL + nextPage : URLContract.TRANSACTION_LIST_URL,
+                nextPage != null ? nextPage : URLContract.TRANSACTION_LIST_URL,
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override

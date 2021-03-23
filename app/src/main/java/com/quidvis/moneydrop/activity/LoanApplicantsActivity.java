@@ -393,7 +393,7 @@ public class LoanApplicantsActivity extends CustomCompatActivity {
         }
 
         HttpRequest httpRequest = new HttpRequest(this,
-                nextPage != null ? (URLContract.BASE_URL + nextPage) : String.format(URLContract.LOAN_APPLICANTS_URL, loan.getUuid()),
+                nextPage != null ? nextPage : String.format(URLContract.LOAN_APPLICANTS_URL, loan.getUuid()),
                 Request.Method.GET, new HttpRequestParams() {
 
             @Override

@@ -42,5 +42,5 @@ public class Constant {
     /**
      * Pagination
      */
-    public static final int DEFAULT_RECORD_PER_VIEW = 20;
+    public static final int DEFAULT_RECORD_PER_VIEW = 30;
 }
