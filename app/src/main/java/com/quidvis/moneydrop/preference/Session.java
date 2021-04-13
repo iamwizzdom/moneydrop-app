@@ -36,6 +36,24 @@ public class Session {
         return prefs.getBoolean("loggedIn", false);
     }
 
+    public void setCompletedCountryImport(boolean status) {
+        this.editor.putBoolean("completedCountryImport", status);
+        this.editor.commit();
+    }
+
+    public boolean hasCompletedCountryImport() {
+        return prefs.getBoolean("completedCountryImport", false);
+    }
+
+    public void setCompletedStateImport(boolean status) {
+        this.editor.putBoolean("completedStateImport", status);
+        this.editor.commit();
+    }
+
+    public boolean hasCompletedStateImport() {
+        return prefs.getBoolean("completedStateImport", false);
+    }
+
     public void setFirstTimeLaunch(boolean launched) {
         this.editor.putBoolean("launched", launched);
         this.editor.commit();
@@ -82,7 +100,15 @@ public class Session {
         return prefs.getString("firebaseToken", "");
     }
 
-    public boolean clearAll() {
-        return editor.clear().commit();
+    public void clearAll() {
+        boolean isFirstTimeLaunch = isFirstTimeLaunch();
+        boolean hasCompletedCountryImport = hasCompletedCountryImport();
+        boolean hasCompletedStateImport = hasCompletedStateImport();
+        boolean cleared = editor.clear().commit();
+        if (cleared) {
+            setFirstTimeLaunch(isFirstTimeLaunch);
+            setCompletedCountryImport(hasCompletedCountryImport);
+            setCompletedStateImport(hasCompletedStateImport);
+        }
     }
 }

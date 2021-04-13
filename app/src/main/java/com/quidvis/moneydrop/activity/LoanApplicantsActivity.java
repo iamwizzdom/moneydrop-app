@@ -49,7 +49,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class LoanApplicantsActivity extends CustomCompatActivity {
 
-    public static final String LOAN_KEY = "loanObject";
+    public static final String LOAN_OBJECT = "loanObject";
     public final static String STATE_KEY = LoanApplicantsActivity.class.getName();
     private final NumberFormat format = NumberFormat.getCurrencyInstance(new java.util.Locale("en", "ng"));
     private User user;
@@ -75,9 +75,7 @@ public class LoanApplicantsActivity extends CustomCompatActivity {
 
         Intent intent = getIntent();
 
-        String loanString = intent.getStringExtra(LOAN_KEY);
-
-        Log.e("loanString", loanString);
+        String loanString = intent.getStringExtra(LOAN_OBJECT);
 
         if (loanString == null) {
             Utility.toastMessage(this, "No loan passed");

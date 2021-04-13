@@ -10,8 +10,15 @@ import com.quidvis.moneydrop.BuildConfig;
 import com.quidvis.moneydrop.constant.DbContract;
 import com.quidvis.moneydrop.model.Bank;
 import com.quidvis.moneydrop.model.BankAccount;
+import com.quidvis.moneydrop.model.BankStatement;
 import com.quidvis.moneydrop.model.Card;
+import com.quidvis.moneydrop.model.Country;
+import com.quidvis.moneydrop.model.State;
 import com.quidvis.moneydrop.model.User;
+import com.quidvis.moneydrop.utility.Utility;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -27,6 +34,28 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = BuildConfig.VERSION_CODE;
     private Context context = null;
 
+    private static final String CREATE_COUNTRIES_TABLE = "CREATE TABLE IF NOT EXISTS "
+            + DbContract.COUNTRIES_TABLE_NAME + "("
+            + DbContract.COUNTRY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + DbContract.COUNTRY_UID + " INTEGER NOT NULL,"
+            + DbContract.COUNTRY_NAME + " CHAR(200),"
+            + DbContract.COUNTRY_REGION + " CHAR(100) NOT NULL,"
+            + DbContract.COUNTRY_DIAL_CODE + " CHAR(10) NOT NULL,"
+            + DbContract.COUNTRY_ISO + " CHAR(10) NOT NULL,"
+            + DbContract.COUNTRY_ISO3 + " CHAR(10) NOT NULL,"
+            + DbContract.COUNTRY_CURRENCY_NAME + " CHAR(10) NOT NULL,"
+            + DbContract.COUNTRY_CURRENCY_CODE + " CHAR(10) NOT NULL"
+            +");";
+
+    private static final String CREATE_STATES_TABLE = "CREATE TABLE IF NOT EXISTS "
+            + DbContract.STATES_TABLE_NAME + "("
+            + DbContract.STATE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + DbContract.STATE_UID + " INTEGER NOT NULL,"
+            + DbContract.STATE_COUNTRY_ID + " INTEGER NOT NULL,"
+            + DbContract.STATE_NAME + " CHAR(200),"
+            + DbContract.STATE_ISO3166_2 + " CHAR(10)"
+            +");";
+
     private static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS "
             + DbContract.USERS_TABLE_NAME + "("
             + DbContract.USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -41,13 +70,14 @@ public class DbHelper extends SQLiteOpenHelper {
             + DbContract.USER_GENDER + " INT NOT NULL,"
             + DbContract.USER_RATING + " DOUBLE NOT NULL,"
             + DbContract.USER_ADDRESS + " CHAR(500) NOT NULL,"
-            + DbContract.USER_COUNTY + " CHAR(500) NOT NULL,"
-            + DbContract.USER_STATE + " CHAR(500) NOT NULL,"
+            + DbContract.USER_COUNTY + " TEXT,"
+            + DbContract.USER_STATE + " TEXT,"
             + DbContract.USER_STATUS + " INT NOT NULL,"
             + DbContract.USER_BVN + " CHAR(20) NOT NULL,"
             + DbContract.USER_TOKEN + " CHAR(500) NOT NULL,"
             + DbContract.USER_VERIFIED_EMAIL + " INT NOT NULL,"
-            + DbContract.USER_VERIFIED_PHONE + " INT NOT NULL"
+            + DbContract.USER_VERIFIED_PHONE + " INT NOT NULL,"
+            + DbContract.USER_BANK_STATEMENT + " TEXT"
             +");";
 
     private static final String CREATE_CARDS_TABLE = "CREATE TABLE IF NOT EXISTS "
@@ -55,7 +85,6 @@ public class DbHelper extends SQLiteOpenHelper {
             + DbContract.CARD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + DbContract.CARD_UUID + " CHAR(36) NOT NULL,"
             + DbContract.CARD_NAME + " CHAR(200),"
-            + DbContract.CARD_TYPE + " CHAR(100) NOT NULL,"
             + DbContract.CARD_BRAND + " CHAR(100) NOT NULL,"
             + DbContract.CARD_LAST_FOUR_DIGITS + " CHAR(10) NOT NULL,"
             + DbContract.CARD_EXP_MONTH + " CHAR(10) NOT NULL,"
@@ -77,9 +106,11 @@ public class DbHelper extends SQLiteOpenHelper {
             + DbContract.BANK_ACCOUNT_NAME + " CHAR(200),"
             + DbContract.BANK_ACCOUNT_BANK_NAME + " CHAR(200),"
             + DbContract.BANK_ACCOUNT_NUMBER + " CHAR(100) NOT NULL,"
-            + DbContract.BANK_ACCOUNT_RECIPIENT + " CHAR(200) NOT NULL"
+            + DbContract.BANK_ACCOUNT_RECIPIENT + " CHAR(200)"
             +");";
 
+    private static final String DROP_COUNTRIES_TABLE = "DROP TABLE IF EXISTS " + DbContract.COUNTRIES_TABLE_NAME;
+    private static final String DROP_STATES_TABLE = "DROP TABLE IF EXISTS " + DbContract.STATES_TABLE_NAME;
     private static final String DROP_USERS_TABLE = "DROP TABLE IF EXISTS " + DbContract.USERS_TABLE_NAME;
     private static final String DROP_CARDS_TABLE = "DROP TABLE IF EXISTS " + DbContract.CARDS_TABLE_NAME;
     private static final String DROP_BANKS_TABLE = "DROP TABLE IF EXISTS " + DbContract.BANKS_TABLE_NAME;
@@ -102,6 +133,8 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     public void dropTables(SQLiteDatabase db) {
+        db.execSQL(DROP_COUNTRIES_TABLE);
+        db.execSQL(DROP_STATES_TABLE);
         db.execSQL(DROP_USERS_TABLE);
         db.execSQL(DROP_CARDS_TABLE);
         db.execSQL(DROP_BANKS_TABLE);
@@ -109,10 +142,58 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     public void createTables(SQLiteDatabase db) {
+        db.execSQL(CREATE_COUNTRIES_TABLE);
+        db.execSQL(CREATE_STATES_TABLE);
         db.execSQL(CREATE_USERS_TABLE);
         db.execSQL(CREATE_CARDS_TABLE);
         db.execSQL(CREATE_BANKS_TABLE);
         db.execSQL(CREATE_BANK_ACCOUNTS_TABLE);
+    }
+
+    /**
+     * Store county details in SQLite Database
+     * @param country
+     * @return
+     */
+    public boolean saveCountry(Country country) {
+
+        if (countryExist(country.getUid())) return updateCountry(country);
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.COUNTRY_UID, country.getUid());
+        contentValues.put(DbContract.COUNTRY_NAME, country.getName());
+        contentValues.put(DbContract.COUNTRY_REGION, country.getRegion());
+        contentValues.put(DbContract.COUNTRY_DIAL_CODE, country.getDialCode());
+        contentValues.put(DbContract.COUNTRY_ISO, country.getIso());
+        contentValues.put(DbContract.COUNTRY_ISO3, country.getIso3());
+        contentValues.put(DbContract.COUNTRY_CURRENCY_NAME, country.getCurrencyName());
+        contentValues.put(DbContract.COUNTRY_CURRENCY_CODE, country.getCurrencyCode());
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        boolean result = database.insert(DbContract.COUNTRIES_TABLE_NAME, null, contentValues) > 0;
+        database.close();
+        return result;
+    }
+
+    /**
+     * Store county details in SQLite Database
+     * @param state
+     * @return
+     */
+    public boolean saveState(State state) {
+
+        if (stateExist(state.getUid())) return updateState(state);
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.STATE_UID, state.getUid());
+        contentValues.put(DbContract.STATE_COUNTRY_ID, state.getCountryId());
+        contentValues.put(DbContract.STATE_NAME, state.getName());
+        contentValues.put(DbContract.STATE_ISO3166_2, state.getIso3166_2());
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        boolean result = database.insert(DbContract.STATES_TABLE_NAME, null, contentValues) > 0;
+        database.close();
+        return result;
     }
 
     /**
@@ -134,13 +215,14 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.USER_RATING, user.getRating());
         contentValues.put(DbContract.USER_DOB, user.getDob());
         contentValues.put(DbContract.USER_ADDRESS, user.getAddress());
-        contentValues.put(DbContract.USER_COUNTY, user.getCountry());
-        contentValues.put(DbContract.USER_STATE, user.getState());
+        if (user.getCountry() != null) contentValues.put(DbContract.USER_COUNTY, user.getCountry().getCountryObject().toString());
+        if (user.getState() != null) contentValues.put(DbContract.USER_STATE, user.getState().getStateObject().toString());
         contentValues.put(DbContract.USER_BVN, user.getBvn());
         contentValues.put(DbContract.USER_TOKEN, user.getToken());
         contentValues.put(DbContract.USER_STATUS, user.getStatus());
         contentValues.put(DbContract.USER_VERIFIED_EMAIL, user.isVerifiedEmail());
         contentValues.put(DbContract.USER_VERIFIED_PHONE, user.isVerifiedPhone());
+        if (user.getBankStatement() != null) contentValues.put(DbContract.USER_BANK_STATEMENT, user.getBankStatement().getStatementObject().toString());
 
         SQLiteDatabase database = this.getReadableDatabase();
         boolean result = database.insert(DbContract.USERS_TABLE_NAME, null, contentValues) > 0;
@@ -161,7 +243,6 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.CARD_UUID, card.getUuid());
         contentValues.put(DbContract.CARD_NAME, card.getName());
         contentValues.put(DbContract.CARD_BRAND, card.getBrand());
-        contentValues.put(DbContract.CARD_TYPE, card.getCardType());
         contentValues.put(DbContract.CARD_EXP_MONTH, card.getExpMonth());
         contentValues.put(DbContract.CARD_EXP_YEAR, card.getExpYear());
         contentValues.put(DbContract.CARD_LAST_FOUR_DIGITS, card.getLastFourDigits());
@@ -215,6 +296,62 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Update country info in SQLite Database
+     * @param country
+     * @return
+     */
+    public boolean updateCountry(Country country) {
+
+        if (country.getId() <= 0) return false;
+
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.COUNTRY_UID, country.getUid());
+        contentValues.put(DbContract.COUNTRY_NAME, country.getName());
+        contentValues.put(DbContract.COUNTRY_REGION, country.getRegion());
+        contentValues.put(DbContract.COUNTRY_DIAL_CODE, country.getDialCode());
+        contentValues.put(DbContract.COUNTRY_ISO, country.getIso());
+        contentValues.put(DbContract.COUNTRY_ISO3, country.getIso3());
+        contentValues.put(DbContract.COUNTRY_CURRENCY_NAME, country.getCurrencyName());
+        contentValues.put(DbContract.COUNTRY_CURRENCY_CODE, country.getCurrencyCode());
+
+        if (contentValues.size() <= 0) return false;
+
+        String selection = DbContract.COUNTRY_ID + " = ? ";
+        String[] args = {String.valueOf(country.getId())};
+        int affectedRows = database.update(DbContract.USERS_TABLE_NAME, contentValues, selection, args);
+        database.close();
+        return affectedRows > 0;
+    }
+
+    /**
+     * Update country info in SQLite Database
+     * @param state
+     * @return
+     */
+    public boolean updateState(State state) {
+
+        if (state.getId() <= 0) return false;
+
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbContract.STATE_UID, state.getUid());
+        contentValues.put(DbContract.STATE_COUNTRY_ID, state.getCountryId());
+        contentValues.put(DbContract.STATE_NAME, state.getName());
+        contentValues.put(DbContract.STATE_ISO3166_2, state.getIso3166_2());
+
+        if (contentValues.size() <= 0) return false;
+
+        String selection = DbContract.STATE_ID + " = ? ";
+        String[] args = {String.valueOf(state.getId())};
+        int affectedRows = database.update(DbContract.STATES_TABLE_NAME, contentValues, selection, args);
+        database.close();
+        return affectedRows > 0;
+    }
+
+    /**
      * Update user info in SQLite Database
      * @param user
      * @return
@@ -237,13 +374,14 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.USER_RATING, user.getRating());
         contentValues.put(DbContract.USER_DOB, user.getDob());
         contentValues.put(DbContract.USER_ADDRESS, user.getAddress());
-        contentValues.put(DbContract.USER_COUNTY, user.getCountry());
-        contentValues.put(DbContract.USER_STATE, user.getState());
+        if (user.getCountry() != null) contentValues.put(DbContract.USER_COUNTY, user.getCountry().getCountryObject().toString());
+        if (user.getState() != null) contentValues.put(DbContract.USER_STATE, user.getState().getStateObject().toString());
         contentValues.put(DbContract.USER_BVN, user.getBvn());
         if (user.getToken() != null) contentValues.put(DbContract.USER_TOKEN, user.getToken());
         contentValues.put(DbContract.USER_STATUS, user.getStatus());
         contentValues.put(DbContract.USER_VERIFIED_EMAIL, user.isVerifiedEmail());
         contentValues.put(DbContract.USER_VERIFIED_PHONE, user.isVerifiedPhone());
+        if (user.getBankStatement() != null) contentValues.put(DbContract.USER_BANK_STATEMENT, user.getBankStatement().getStatementObject().toString());
 
         if (contentValues.size() <= 0) return false;
 
@@ -269,7 +407,6 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.CARD_UUID, card.getUuid());
         contentValues.put(DbContract.CARD_NAME, card.getName());
         contentValues.put(DbContract.CARD_BRAND, card.getBrand());
-        contentValues.put(DbContract.CARD_TYPE, card.getCardType());
         contentValues.put(DbContract.CARD_EXP_MONTH, card.getExpMonth());
         contentValues.put(DbContract.CARD_EXP_YEAR, card.getExpYear());
         contentValues.put(DbContract.CARD_LAST_FOUR_DIGITS, card.getLastFourDigits());
@@ -335,6 +472,92 @@ public class DbHelper extends SQLiteOpenHelper {
         return affectedRows > 0;
     }
 
+
+    /**
+     * Get country info from SQLite Database
+     * @return
+     */
+    public ArrayList<Country> getCountries() {
+
+        String[] projection = {
+                DbContract.COUNTRY_ID,
+                DbContract.COUNTRY_UID,
+                DbContract.COUNTRY_NAME,
+                DbContract.COUNTRY_REGION,
+                DbContract.COUNTRY_DIAL_CODE,
+                DbContract.COUNTRY_ISO,
+                DbContract.COUNTRY_ISO3,
+                DbContract.COUNTRY_CURRENCY_NAME,
+                DbContract.COUNTRY_CURRENCY_CODE
+        };
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor = database.query(DbContract.COUNTRIES_TABLE_NAME, projection,
+                null, null, null, null, "upper(" + DbContract.COUNTRY_NAME + ") ASC");
+
+        ArrayList<Country> countries = new ArrayList<>();
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                Country country = new Country(context);
+                country.setId(cursor.getInt(cursor.getColumnIndex(DbContract.COUNTRY_ID)));
+                country.setUid(cursor.getInt(cursor.getColumnIndex(DbContract.COUNTRY_UID)));
+                country.setName(cursor.getString(cursor.getColumnIndex(DbContract.COUNTRY_NAME)));
+                country.setRegion(cursor.getString(cursor.getColumnIndex(DbContract.COUNTRY_REGION)));
+                country.setDialCode(cursor.getString(cursor.getColumnIndex(DbContract.COUNTRY_DIAL_CODE)));
+                country.setIso(cursor.getString(cursor.getColumnIndex(DbContract.COUNTRY_ISO)));
+                country.setIso3(cursor.getString(cursor.getColumnIndex(DbContract.COUNTRY_ISO3)));
+                country.setCurrencyName(cursor.getString(cursor.getColumnIndex(DbContract.COUNTRY_CURRENCY_NAME)));
+                country.setCurrencyCode(cursor.getString(cursor.getColumnIndex(DbContract.COUNTRY_CURRENCY_CODE)));
+                countries.add(country);
+            }
+            cursor.close();
+        }
+
+        database.close();
+        return countries;
+    }
+
+
+    /**
+     * Get country info from SQLite Database
+     * @return
+     */
+    public ArrayList<State> getStates(Country country) {
+
+        String[] projection = {
+                DbContract.STATE_ID,
+                DbContract.STATE_UID,
+                DbContract.STATE_COUNTRY_ID,
+                DbContract.STATE_NAME,
+                DbContract.STATE_ISO3166_2,
+        };
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        String selection = country != null ? DbContract.STATE_COUNTRY_ID + " = ? " : null;
+        String[] args = {country != null ? String.valueOf(country.getUid()) : null};
+        Cursor cursor = database.query(DbContract.STATES_TABLE_NAME, projection,
+                selection, args[0] != null ? args : null, null, null, "upper(" + DbContract.STATE_NAME + ") ASC");
+
+        ArrayList<State> states = new ArrayList<>();
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                State state = new State(context);
+                state.setId(cursor.getInt(cursor.getColumnIndex(DbContract.STATE_ID)));
+                state.setUid(cursor.getInt(cursor.getColumnIndex(DbContract.STATE_UID)));
+                state.setCountryId(cursor.getInt(cursor.getColumnIndex(DbContract.STATE_COUNTRY_ID)));
+                state.setName(cursor.getString(cursor.getColumnIndex(DbContract.STATE_NAME)));
+                state.setIso3166_2(cursor.getString(cursor.getColumnIndex(DbContract.STATE_ISO3166_2)));
+                states.add(state);
+            }
+            cursor.close();
+        }
+
+        database.close();
+        return states;
+    }
+
     /**
      * Get user info from SQLite Database
      * @return
@@ -360,7 +583,8 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.USER_TOKEN,
                 DbContract.USER_VERIFIED_EMAIL,
                 DbContract.USER_VERIFIED_PHONE,
-                DbContract.USER_STATUS
+                DbContract.USER_STATUS,
+                DbContract.USER_BANK_STATEMENT
         };
 
         SQLiteDatabase database = this.getReadableDatabase();
@@ -382,13 +606,21 @@ public class DbHelper extends SQLiteOpenHelper {
             user.setRating(cursor.getDouble(cursor.getColumnIndex(DbContract.USER_RATING)));
             user.setPicture(cursor.getString(cursor.getColumnIndex(DbContract.USER_PICTURE)));
             user.setAddress(cursor.getString(cursor.getColumnIndex(DbContract.USER_ADDRESS)));
-            user.setCountry(cursor.getString(cursor.getColumnIndex(DbContract.USER_COUNTY)));
-            user.setState(cursor.getString(cursor.getColumnIndex(DbContract.USER_STATE)));
             user.setBvn(cursor.getString(cursor.getColumnIndex(DbContract.USER_BVN)));
             user.setToken(cursor.getString(cursor.getColumnIndex(DbContract.USER_TOKEN)));
             user.setVerifiedEmail(cursor.getInt(cursor.getColumnIndex(DbContract.USER_VERIFIED_EMAIL)) == 1);
             user.setVerifiedPhone(cursor.getInt(cursor.getColumnIndex(DbContract.USER_VERIFIED_PHONE)) == 1);
             user.setStatus(cursor.getInt(cursor.getColumnIndex(DbContract.USER_STATUS)));
+            try {
+                String country = cursor.getString(cursor.getColumnIndex(DbContract.USER_COUNTY));
+                String state = cursor.getString(cursor.getColumnIndex(DbContract.USER_STATE));
+                String bankStatement = cursor.getString(cursor.getColumnIndex(DbContract.USER_BANK_STATEMENT));
+                if (country != null && !Utility.castEmpty(country).isEmpty()) user.setCountry(new Country(context, new JSONObject(country)));
+                if (state != null && !Utility.castEmpty(state).isEmpty()) user.setState(new State(context, new JSONObject(state)));
+                if (bankStatement != null && !Utility.castEmpty(bankStatement).isEmpty()) user.setBankStatement(new BankStatement(new JSONObject(bankStatement)));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             cursor.close();
         }
 
@@ -408,7 +640,6 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.CARD_UUID,
                 DbContract.CARD_NAME,
                 DbContract.CARD_BRAND,
-                DbContract.CARD_TYPE,
                 DbContract.CARD_EXP_MONTH,
                 DbContract.CARD_EXP_YEAR,
                 DbContract.CARD_LAST_FOUR_DIGITS
@@ -427,7 +658,6 @@ public class DbHelper extends SQLiteOpenHelper {
                 card.setUuid(cursor.getString(cursor.getColumnIndex(DbContract.CARD_UUID)));
                 card.setName(cursor.getString(cursor.getColumnIndex(DbContract.CARD_NAME)));
                 card.setBrand(cursor.getString(cursor.getColumnIndex(DbContract.CARD_BRAND)));
-                card.setCardType(cursor.getString(cursor.getColumnIndex(DbContract.CARD_TYPE)));
                 card.setExpMonth(cursor.getString(cursor.getColumnIndex(DbContract.CARD_EXP_MONTH)));
                 card.setExpYear(cursor.getString(cursor.getColumnIndex(DbContract.CARD_EXP_YEAR)));
                 card.setLastFourDigits(cursor.getString(cursor.getColumnIndex(DbContract.CARD_LAST_FOUR_DIGITS)));
@@ -516,6 +746,68 @@ public class DbHelper extends SQLiteOpenHelper {
         return accounts;
     }
 
+
+    /**
+     * Count countries in SQLite Database
+     * @return
+     */
+    public boolean hasCountries() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + DbContract.COUNTRIES_TABLE_NAME, null);
+        return cursor.getCount() > 0;
+    }
+
+
+    /**
+     * Count countries in SQLite Database
+     * @return
+     */
+    public boolean hasStates() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + DbContract.STATES_TABLE_NAME, null);
+        return cursor.getCount() > 0;
+    }
+
+    /**
+     * check if card exist in SQLite Database
+     * @param countryUid
+     * @return
+     */
+    public boolean countryExist(int countryUid) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        int count = 0;
+        Cursor cursor = database.rawQuery("SELECT * FROM " + DbContract.COUNTRIES_TABLE_NAME + " WHERE "
+                + DbContract.COUNTRY_UID + " =?", new String[]{String.valueOf(countryUid)});
+
+        if (cursor != null) {
+            count = cursor.getCount();
+            cursor.close();
+            database.close();
+            return count > 0;
+        }
+        return false;
+    }
+
+    /**
+     * check if card exist in SQLite Database
+     * @param stateUid
+     * @return
+     */
+    public boolean stateExist(int stateUid) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        int count = 0;
+        Cursor cursor = database.rawQuery("SELECT * FROM " + DbContract.STATES_TABLE_NAME + " WHERE "
+                + DbContract.STATE_UID + " =?", new String[]{String.valueOf(stateUid)});
+
+        if (cursor != null) {
+            count = cursor.getCount();
+            cursor.close();
+            database.close();
+            return count > 0;
+        }
+        return false;
+    }
+
     /**
      * check if card exist in SQLite Database
      * @param cardUUID
@@ -574,6 +866,30 @@ public class DbHelper extends SQLiteOpenHelper {
             return count > 0;
         }
         return false;
+    }
+
+
+    /**
+     * Delete countries from SQLite Database
+     * @return
+     */
+    public boolean deleteCountries() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int affectedRows = db.delete(DbContract.COUNTRIES_TABLE_NAME, null, null);
+        db.close();
+        return affectedRows > 0;
+    }
+
+
+    /**
+     * Delete countries from SQLite Database
+     * @return
+     */
+    public boolean deleteStates() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int affectedRows = db.delete(DbContract.STATES_TABLE_NAME, null, null);
+        db.close();
+        return affectedRows > 0;
     }
 
 

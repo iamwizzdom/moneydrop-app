@@ -1,4 +1,4 @@
-package com.quidvis.moneydrop.utility;
+package com.quidvis.moneydrop.network;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -19,7 +19,7 @@ import java.util.Map;
  * A Simple request for making a Multi Part request whose response is retrieve as String
  */
 @SuppressWarnings("ALL")
-class VolleyMultipartRequest extends Request<NetworkResponse> {
+public class VolleyMultipartRequest extends Request<NetworkResponse> {
 
     private final String twoHyphens = "--";
     private final String lineEnd = "\r\n";
@@ -81,7 +81,7 @@ class VolleyMultipartRequest extends Request<NetworkResponse> {
      *
      * @return Map data part label with data byte
      */
-    private Map<String, DataPart> getByteData() {
+    public Map<String, DataPart> getByteData() {
         return null;
     }
 
@@ -147,7 +147,7 @@ class VolleyMultipartRequest extends Request<NetworkResponse> {
      */
     private void buildTextPart(DataOutputStream dataOutputStream, String parameterName, String parameterValue) throws IOException {
         dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd);
-        dataOutputStream.writeBytes("Content-Disposition: form-data; studentName=\"" + parameterName + "\"" + lineEnd);
+        dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"" + parameterName + "\"" + lineEnd);
         dataOutputStream.writeBytes(lineEnd);
         dataOutputStream.writeBytes(parameterValue + lineEnd);
     }
@@ -162,7 +162,7 @@ class VolleyMultipartRequest extends Request<NetworkResponse> {
      */
     private void buildDataPart(DataOutputStream dataOutputStream, DataPart dataFile, String inputName) throws IOException {
         dataOutputStream.writeBytes(twoHyphens + boundary + lineEnd);
-        dataOutputStream.writeBytes("Content-Disposition: form-data; studentName=\"" +
+        dataOutputStream.writeBytes("Content-Disposition: form-data; name=\"" +
                 inputName + "\"; filename=\"" + dataFile.getFileName() + "\"" + lineEnd);
         if (dataFile.getType() != null && !dataFile.getType().trim().isEmpty()) {
             dataOutputStream.writeBytes("Content-Type: " + dataFile.getType() + lineEnd);
@@ -188,7 +188,7 @@ class VolleyMultipartRequest extends Request<NetworkResponse> {
         dataOutputStream.writeBytes(lineEnd);
     }
 
-    class DataPart {
+    public class DataPart {
         private String fileName;
         private byte[] content;
         private String type;
@@ -196,9 +196,15 @@ class VolleyMultipartRequest extends Request<NetworkResponse> {
         public DataPart() {
         }
 
-        DataPart(String name, byte[] data) {
+        public DataPart(String name, byte[] data) {
             fileName = name;
             content = data;
+        }
+
+        public DataPart(String name, byte[] data, String type) {
+            fileName = name;
+            content = data;
+            this.type = type;
         }
 
         String getFileName() {

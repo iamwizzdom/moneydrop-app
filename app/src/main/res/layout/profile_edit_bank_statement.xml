@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:orientation="vertical"
+    android:padding="@dimen/padding_20">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorGrayExtraLight">
+
+            <LinearLayout
+                android:id="@+id/file_holder"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/pdf_placeholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="@dimen/padding_30"
+                    android:src="@drawable/ic_pdf"
+                    android:contentDescription="@string/icon" />
+
+                <com.github.barteksc.pdfviewer.PDFView
+                    android:id="@+id/pdf_viewer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/file_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/padding_5"
+                android:paddingEnd="@dimen/padding_5"
+                android:layout_alignBottom="@id/file_holder"
+                style="@style/text_view_style"
+                android:maxLines="1"
+                android:text="@string/no_file"
+                android:textSize="12sp"
+                android:textColor="@color/titleColorGray"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/file_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/text_view_style"
+            android:text="@string/select_file"
+            android:padding="@dimen/padding_15"
+            android:layout_margin="0dp"
+            android:background="@color/titleColorGray"/>
+
+        <TextView
+            android:id="@+id/tvBankStatementError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/text_view_style"
+            android:layout_marginTop="@dimen/margin_10"
+            android:paddingStart="@dimen/padding_10"
+            android:paddingEnd="@dimen/padding_10"
+            android:textColor="@color/danger"
+            android:text="@string/error"
+            android:textSize="12sp"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        android:id="@+id/submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_20"
+        android:layout_gravity="center"
+        android:background="@drawable/circular_border_shape"
+        android:text="@string/done"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorWhite"
+        android:textAllCaps="false"
+        app:spinning_bar_width="4dp"
+        app:spinning_bar_color="@color/colorWhite"
+        app:spinning_bar_padding="6dp" />
+
+</LinearLayout>

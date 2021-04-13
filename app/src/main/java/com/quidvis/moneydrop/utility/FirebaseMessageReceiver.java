@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class FirebaseMessageReceiver extends FirebaseMessagingService {
 
-    private static final String TAG = FirebaseMessageReceiver.class.getSimpleName();
+//    private static final String TAG = FirebaseMessageReceiver.class.getSimpleName();
     private NotificationUtils notificationUtils;
 
     @Override
@@ -48,7 +48,7 @@ public class FirebaseMessageReceiver extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
 
-        RemoteMessage.Notification notification = remoteMessage.getNotification();
+//        RemoteMessage.Notification notification = remoteMessage.getNotification();
 
         // Check if message contains a notification payload.
 //        if (notification != null) handleNotification(notification.getBody());

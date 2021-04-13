@@ -262,23 +262,24 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
 
     public void makePayment(View view) {
 
-        view = getLayoutInflater().inflate(R.layout.enter_amount_bottom_sheet_layout, null);
-        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
-        LinearLayout container = view.findViewById(R.id.container);
-        TextView tvTitle = view.findViewById(R.id.title);
-        EditText tvAmount = view.findViewById(R.id.amount);
-        TextView tvSuccess = view.findViewById(R.id.successful);
-        CircularProgressButton submitBtn = view.findViewById(R.id.submit_btn);
-        tvTitle.setText(String.format("Amount not greater then %s", format.format(loanApplication.getUnpaidAmount())));
-        submitBtn.setText(R.string.pay);
-        submitBtn.setOnClickListener(v -> {
-            String amount = tvAmount.getText().toString();
-            double dAmount;
-            if (amount.isEmpty() || (dAmount = Double.parseDouble(amount)) <= 0) {
-                Utility.toastMessage(LoanApplicationDetailsActivity.this, "Please enter a valid amount");
-                return;
-            }
-            sendRepaymentRequest(container, tvSuccess, submitBtn, bottomSheet, String.valueOf(dAmount));
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, R.layout.enter_amount_bottom_sheet_layout);
+        bottomSheet.setOnViewInflatedListener(view1 -> {
+            LinearLayout container = view1.findViewById(R.id.container);
+            TextView tvTitle = view1.findViewById(R.id.title);
+            EditText tvAmount = view1.findViewById(R.id.amount);
+            TextView tvSuccess = view1.findViewById(R.id.successful);
+            CircularProgressButton submitBtn = view1.findViewById(R.id.submit_btn);
+            tvTitle.setText(String.format("Amount not greater then %s", format.format(loanApplication.getUnpaidAmount())));
+            submitBtn.setText(R.string.pay);
+            submitBtn.setOnClickListener(v -> {
+                String amount = tvAmount.getText().toString();
+                double dAmount;
+                if (amount.isEmpty() || (dAmount = Double.parseDouble(amount)) <= 0) {
+                    Utility.toastMessage(LoanApplicationDetailsActivity.this, "Please enter a valid amount");
+                    return;
+                }
+                sendRepaymentRequest(container, tvSuccess, submitBtn, bottomSheet, String.valueOf(dAmount));
+            });
         });
         bottomSheet.show();
 

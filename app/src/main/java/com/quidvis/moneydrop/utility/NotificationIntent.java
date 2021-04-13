@@ -19,7 +19,7 @@ public class NotificationIntent {
         Intent intent = new Intent(context, getActivity(activityName));
         switch (activityName) {
             case "loanApplicant":
-                intent.putExtra(LoanApplicantsActivity.LOAN_KEY, payload);
+                intent.putExtra(LoanApplicantsActivity.LOAN_OBJECT, payload);
                 break;
             case "wallet":
             case "history":

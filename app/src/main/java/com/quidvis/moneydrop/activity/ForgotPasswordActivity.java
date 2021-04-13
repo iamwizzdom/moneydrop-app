@@ -39,9 +39,6 @@ public class ForgotPasswordActivity extends CustomCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
         etEmail = findViewById(R.id.etEmail);
         sendOTPBtn = findViewById(R.id.sendOTPBtn);
@@ -113,10 +110,12 @@ public class ForgotPasswordActivity extends CustomCompatActivity {
 
                     JSONObject object = new JSONObject(response);
                     Utility.toastMessage(ForgotPasswordActivity.this, object.getString("message"));
-                    etEmail.setText("");
-                    Intent intent = new Intent(ForgotPasswordActivity.this, PasswordResetActivity.class);
-                    intent.putExtra(PasswordResetActivity.EMAIL, email);
-                    startActivity(intent);
+
+                    if (object.getBoolean("status")) {
+                        Intent intent = new Intent(ForgotPasswordActivity.this, PasswordResetActivity.class);
+                        intent.putExtra(PasswordResetActivity.EMAIL, email);
+                        startActivity(intent);
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();

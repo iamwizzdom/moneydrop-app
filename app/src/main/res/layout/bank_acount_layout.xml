@@ -1,82 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:id="@+id/container"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/layout_rounded_style"
-    android:padding="@dimen/activity_vertical_margin"
-    android:weightSum="3">
+    android:layout_marginBottom="@dimen/margin_10"
+    android:padding="@dimen/padding_15">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="2.7"
-        android:layout_marginStart="15dp"
-        android:layout_gravity="center"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/account_number"
-            style="@style/text_view_style"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="start"
-            android:text="@string/account_number"
-            android:textSize="18sp"
-            android:textColor="@color/black" />
+        android:visibility="gone"
+        android:orientation="horizontal"
+        android:weightSum="3">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:layout_weight="2.7"
+            android:layout_marginStart="15dp"
+            android:layout_gravity="center"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/account_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:id="@+id/account_number"
                 style="@style/text_view_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="start"
-                android:maxLines="1"
-                android:textColor="@color/colorGrayDark"
-                android:text="@string/account_name"/>
+                android:text="@string/account_number"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
 
-            <TextView
-                android:id="@+id/bank_name"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                style="@style/text_view_style"
-                android:maxLines="1"
-                android:gravity="end"
-                android:textColor="@color/colorAccent"
-                android:text="@string/bank_name"/>
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:id="@+id/account_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.2"
+                    style="@style/text_view_style"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:textColor="@color/colorGrayDark"
+                    android:text="@string/account_name"/>
+
+                <TextView
+                    android:id="@+id/bank_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".8"
+                    style="@style/text_view_style"
+                    android:maxLines="1"
+                    android:gravity="end"
+                    android:textColor="@color/colorAccent"
+                    android:text="@string/bank_name"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/option"
+            android:layout_width="0dp"
+            android:layout_height="15dp"
+            android:layout_weight=".3"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_gravity="center|center_vertical"
+            android:src="@drawable/ic_more_option"
+            android:visibility="gone"
+            android:contentDescription="@string/options" />
+
+        <ImageView
+            android:id="@+id/check_mark"
+            android:layout_width="10dp"
+            android:layout_height="20dp"
+            android:layout_weight=".3"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_gravity="center|center_vertical"
+            android:src="@drawable/ic_check_mark"
+            android:visibility="gone"
+            android:contentDescription="@string/check_mark" />
+
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/option"
-        android:visibility="gone"
-        android:layout_width="0dp"
-        android:layout_height="15dp"
-        android:layout_weight=".3"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_gravity="center|center_vertical"
-        android:src="@drawable/ic_more_option"
-        android:contentDescription="@string/options" />
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/bank_shimmer_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:duration="800">
 
-    <ImageView
-        android:id="@+id/check_mark"
-        android:visibility="gone"
-        android:layout_width="10dp"
-        android:layout_height="20dp"
-        android:layout_weight=".3"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_gravity="center|center_vertical"
-        android:src="@drawable/ic_checkmark"
-        android:contentDescription="@string/check_mark" />
+        <!-- Adding placeholders -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <include layout="@layout/bank_list_placeholder" />
+        </LinearLayout>
+
+    </com.facebook.shimmer.ShimmerFrameLayout>
 
 </LinearLayout>

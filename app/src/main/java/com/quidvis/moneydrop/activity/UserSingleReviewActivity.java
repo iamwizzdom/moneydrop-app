@@ -119,7 +119,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
             ArrayList<BottomSheetLayoutModel> layoutModels = new ArrayList<>();
 
             BottomSheetLayoutModel sheetLayoutModel = new BottomSheetLayoutModel();
-            sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_edit, null));
+            sheetLayoutModel.setIconLeft(R.drawable.ic_edit, this);
             sheetLayoutModel.setText(getResources().getString(R.string.edit_review));
             sheetLayoutModel.setOnClickListener((sheet, v) -> {
                 CustomBottomAlertDialog dialog = new CustomBottomAlertDialog(UserSingleReviewActivity.this);
@@ -145,7 +145,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
             layoutModels.add(sheetLayoutModel);
 
             sheetLayoutModel = new BottomSheetLayoutModel();
-            sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_delete, null));
+            sheetLayoutModel.setIconLeft(R.drawable.ic_delete, this);
             sheetLayoutModel.setText(getResources().getString(R.string.delete));
             sheetLayoutModel.setOnClickListener((sheet, v) -> {
                 CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(UserSingleReviewActivity.this);

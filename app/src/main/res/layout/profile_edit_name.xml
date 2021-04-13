@@ -6,23 +6,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:orientation="vertical"
-    android:paddingStart="@dimen/padding_20"
-    android:paddingEnd="@dimen/padding_20"
-    android:paddingBottom="@dimen/padding_20"
-    android:paddingTop="@dimen/padding_20">
+    android:padding="@dimen/padding_20">
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:passwordToggleEnabled="true"
-        android:hint="@string/current_password">
+        android:theme="@style/edit_text_theme"
+        android:hint="@string/first_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etFirstname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences|textPersonName"
+            style="@style/edit_text_style"
+            tools:ignore="LabelFor" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:theme="@style/edit_text_theme"
+        android:hint="@string/middle_name">
 
         <EditText
-            android:id="@+id/etCurrentPassword"
+            android:id="@+id/etMiddlename"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/edit_text_style"
-            android:inputType="textPassword"
+            android:inputType="textCapSentences|textPersonName"
             android:importantForAutofill="no"
             tools:ignore="LabelFor" />
 
@@ -32,33 +46,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        app:passwordToggleEnabled="true"
-        android:hint="@string/create_new_password">
+        android:theme="@style/edit_text_theme"
+        android:hint="@string/last_name">
 
         <EditText
-            android:id="@+id/etNewPassword"
+            android:id="@+id/etLastname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/edit_text_style"
-            android:inputType="textPassword"
-            android:importantForAutofill="no"
-            tools:ignore="LabelFor" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        app:passwordToggleEnabled="true"
-        android:hint="@string/confirm_new_password">
-
-        <EditText
-            android:id="@+id/etConfirmPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/edit_text_style"
-            android:inputType="textPassword"
+            android:inputType="textCapSentences|textPersonName"
             android:importantForAutofill="no"
             tools:ignore="LabelFor" />
 

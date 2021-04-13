@@ -266,7 +266,7 @@ public class MainActivity extends CustomCompatActivity {
         ArrayList<BottomSheetLayoutModel> layoutModels = new ArrayList<>();
 
         BottomSheetLayoutModel sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_user, null));
+        sheetLayoutModel.setIconLeft(R.drawable.ic_user, this);
         sheetLayoutModel.setText(getResources().getString(R.string.user_account));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             sheet.dismiss();
@@ -276,7 +276,7 @@ public class MainActivity extends CustomCompatActivity {
         layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_loan, null));
+        sheetLayoutModel.setIconLeft(R.drawable.ic_loan, this);
         sheetLayoutModel.setText(getResources().getString(R.string.my_loans));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             sheet.dismiss();
@@ -286,7 +286,7 @@ public class MainActivity extends CustomCompatActivity {
         layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_transactions, null));
+        sheetLayoutModel.setIconLeft(R.drawable.ic_transactions, this);
         sheetLayoutModel.setText(getResources().getString(R.string.transactions));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             sheet.dismiss();
@@ -296,7 +296,7 @@ public class MainActivity extends CustomCompatActivity {
         layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_bank, null));
+        sheetLayoutModel.setIconLeft(R.drawable.ic_bank, this);
         sheetLayoutModel.setText(getResources().getString(R.string.bank_accounts));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             sheet.dismiss();
@@ -306,7 +306,7 @@ public class MainActivity extends CustomCompatActivity {
         layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_credit_card, null));
+        sheetLayoutModel.setIconLeft(R.drawable.ic_credit_card, this);
         sheetLayoutModel.setText(getResources().getString(R.string.cards));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             sheet.dismiss();
@@ -316,7 +316,7 @@ public class MainActivity extends CustomCompatActivity {
         layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_logout, null));
+        sheetLayoutModel.setIconLeft(R.drawable.ic_logout, this);
         sheetLayoutModel.setText(getResources().getString(R.string.logout));
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             sheet.dismiss();
@@ -334,7 +334,7 @@ public class MainActivity extends CustomCompatActivity {
         ArrayList<BottomSheetLayoutModel> layoutModels = new ArrayList<>();
 
         BottomSheetLayoutModel sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_credit_card, null));
+        sheetLayoutModel.setIconLeft(R.drawable.ic_credit_card, this);
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             sheet.dismiss();
             MainActivity.this.showTopUpAmountDialog();
@@ -344,7 +344,7 @@ public class MainActivity extends CustomCompatActivity {
         layoutModels.add(sheetLayoutModel);
 
         sheetLayoutModel = new BottomSheetLayoutModel();
-        sheetLayoutModel.setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_bank_transfer, null));
+        sheetLayoutModel.setIconLeft(R.drawable.ic_bank_transfer, this);
         sheetLayoutModel.setOnClickListener((sheet, v) -> {
             Utility.toastMessage(MainActivity.this, "This feature is coming soon.");
         });
@@ -358,80 +358,80 @@ public class MainActivity extends CustomCompatActivity {
     }
 
     public void showTopUpAmountDialog() {
-        View view = getLayoutInflater().inflate(R.layout.enter_amount_bottom_sheet_layout, null);
-        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
-        EditText tvAmount = view.findViewById(R.id.amount);
-        CircularProgressButton submitBtn = view.findViewById(R.id.submit_btn);
-        submitBtn.setOnClickListener(v -> {
-            String amount = tvAmount.getText().toString();
-            double dAmount;
-            if (amount.isEmpty() || (dAmount = Double.parseDouble(amount)) < 1000) {
-                Utility.toastMessage(MainActivity.this, "Please enter a valid amount");
-                return;
-            }
-            topUpAmount = (float) dAmount;
-            bottomSheet.dismiss();
-            showTopUpCardsDialog();
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, R.layout.enter_amount_bottom_sheet_layout);
+        bottomSheet.setOnViewInflatedListener(view -> {
+            EditText tvAmount = view.findViewById(R.id.amount);
+            CircularProgressButton submitBtn = view.findViewById(R.id.submit_btn);
+            submitBtn.setOnClickListener(v -> {
+                String amount = tvAmount.getText().toString();
+                double dAmount;
+                if (amount.isEmpty() || (dAmount = Double.parseDouble(amount)) < 1000) {
+                    Utility.toastMessage(MainActivity.this, "Please enter a valid amount");
+                    return;
+                }
+                topUpAmount = (float) dAmount;
+                bottomSheet.dismiss();
+                showTopUpCardsDialog();
+            });
         });
         bottomSheet.show();
     }
 
     public void showTopUpCardsDialog() {
-        View view = getLayoutInflater().inflate(R.layout.topup_card_bottom_sheet_layout, null);
-        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, R.layout.topup_card_bottom_sheet_layout);
+        bottomSheet.setOnViewInflatedListener(view -> {
+            LinearLayout cardsContainer = view.findViewById(R.id.cards_container);
+            TextView cardsEmpty = view.findViewById(R.id.cards_empty);
+            CircularProgressButton submitBtn = view.findViewById(R.id.submit_btn);
 
-        LinearLayout cardsContainer = view.findViewById(R.id.cards_container);
-        TextView cardsEmpty = view.findViewById(R.id.cards_empty);
-        CircularProgressButton submitBtn = view.findViewById(R.id.submit_btn);
+            ArrayList<Card> cards = dbHelper.getCards();
+            if (cards.size() > 0) {
 
-        ArrayList<Card> cards = dbHelper.getCards();
-        if (cards.size() > 0) {
+                cardsEmpty.setVisibility(View.GONE);
+                cardsContainer.setVisibility(View.VISIBLE);
 
-            cardsEmpty.setVisibility(View.GONE);
-            cardsContainer.setVisibility(View.VISIBLE);
+                final String[] selectCard = {null};
 
-            final String[] selectCard = {null};
-
-            for (Card card: cards) {
-                View cardView = getCardView(card);
-                cardView.setOnClickListener(v -> {
-                    for (int i = 0; i < cardsContainer.getChildCount(); i++) {
-                        View view2 = cardsContainer.getChildAt(i);
-                        if (cardView.getTag().equals(view2.getTag())) {
-                            selectCard[0] = (String) cardView.getTag();
-                            view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
-                        } else {
-                            view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
+                for (Card card: cards) {
+                    View cardView = getCardView(card);
+                    cardView.setOnClickListener(v -> {
+                        for (int i = 0; i < cardsContainer.getChildCount(); i++) {
+                            View view2 = cardsContainer.getChildAt(i);
+                            if (cardView.getTag().equals(view2.getTag())) {
+                                selectCard[0] = (String) cardView.getTag();
+                                view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
+                            } else {
+                                view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
+                            }
                         }
+                    });
+                    cardsContainer.addView(cardView);
+                }
+
+                submitBtn.setOnClickListener(v -> {
+
+                    if (topUpAmount < MIN_TOP_UP_AMOUNT) {
+                        Utility.toastMessage(MainActivity.this, String.format("Top up amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
+                        return;
                     }
+
+                    if (selectCard[0] == null) {
+                        Utility.toastMessage(MainActivity.this, "Please select a card");
+                        return;
+                    }
+                    topUp(selectCard[0], submitBtn, bottomSheet);
                 });
-                cardsContainer.addView(cardView);
+
+            } else {
+                cardsEmpty.setVisibility(View.VISIBLE);
+                cardsContainer.setVisibility(View.GONE);
+                submitBtn.setText(R.string.add_card);
+                submitBtn.setOnClickListener(v -> {
+                    bottomSheet.dismiss();
+                    startActivity(new Intent(MainActivity.this, CardsActivity.class));
+                });
             }
-
-            submitBtn.setOnClickListener(v -> {
-
-                if (topUpAmount < MIN_TOP_UP_AMOUNT) {
-                    Utility.toastMessage(MainActivity.this, String.format("Top up amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
-                    return;
-                }
-
-                if (selectCard[0] == null) {
-                    Utility.toastMessage(MainActivity.this, "Please select a card");
-                    return;
-                }
-                topUp(selectCard[0], submitBtn, bottomSheet);
-            });
-
-        } else {
-            cardsEmpty.setVisibility(View.VISIBLE);
-            cardsContainer.setVisibility(View.GONE);
-            submitBtn.setText(R.string.add_card);
-            submitBtn.setOnClickListener(v -> {
-                bottomSheet.dismiss();
-                startActivity(new Intent(MainActivity.this, CardsActivity.class));
-            });
-        }
-
+        });
         bottomSheet.show();
     }
 
@@ -682,81 +682,81 @@ public class MainActivity extends CustomCompatActivity {
     }
 
     public void showCashoutAmountDialog(View vw) {
-        View view = getLayoutInflater().inflate(R.layout.cashout_amount_bottom_sheet_layout, null);
-        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
-        EditText tvAmount = view.findViewById(R.id.amount);
-        Button btnCashout = view.findViewById(R.id.cash_out_btn);
-        btnCashout.setOnClickListener(v -> {
-            String amount = tvAmount.getText().toString();
-            double mAmount;
-            if (amount.isEmpty() || (mAmount = Double.parseDouble(amount)) < 1000) {
-                Utility.toastMessage(MainActivity.this, "Please enter a valid amount");
-                return;
-            }
-            cashOutAmount = (float) mAmount;
-            bottomSheet.dismiss();
-            showCashOutAccountsDialog();
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, R.layout.cashout_amount_bottom_sheet_layout);
+        bottomSheet.setOnViewInflatedListener(view -> {
+            EditText tvAmount = view.findViewById(R.id.amount);
+            Button btnCashout = view.findViewById(R.id.cash_out_btn);
+            btnCashout.setOnClickListener(v -> {
+                String amount = tvAmount.getText().toString();
+                double mAmount;
+                if (amount.isEmpty() || (mAmount = Double.parseDouble(amount)) < 1000) {
+                    Utility.toastMessage(MainActivity.this, "Please enter a valid amount");
+                    return;
+                }
+                cashOutAmount = (float) mAmount;
+                bottomSheet.dismiss();
+                showCashOutAccountsDialog();
+            });
         });
         bottomSheet.show();
     }
 
     public void showCashOutAccountsDialog() {
-        View view = getLayoutInflater().inflate(R.layout.cashout_bank_accounts_bottom_sheet_layout, null);
-        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, view);
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this, R.layout.cashout_bank_accounts_bottom_sheet_layout);
+        bottomSheet.setOnViewInflatedListener(view -> {
+            LinearLayout accountsContainer = view.findViewById(R.id.accounts_container);
+            TextView accountsEmpty = view.findViewById(R.id.accounts_empty);
+            CircularProgressButton btnCashOut = view.findViewById(R.id.cash_out_btn);
 
-        LinearLayout accountsContainer = view.findViewById(R.id.accounts_container);
-        TextView accountsEmpty = view.findViewById(R.id.accounts_empty);
-        CircularProgressButton btnCashOut = view.findViewById(R.id.cash_out_btn);
+            ArrayList<BankAccount> accounts = dbHelper.getBankAccounts();
 
-        ArrayList<BankAccount> accounts = dbHelper.getBankAccounts();
+            if (accounts.size() > 0) {
 
-        if (accounts.size() > 0) {
+                accountsEmpty.setVisibility(View.GONE);
+                accountsContainer.setVisibility(View.VISIBLE);
 
-            accountsEmpty.setVisibility(View.GONE);
-            accountsContainer.setVisibility(View.VISIBLE);
-
-            final String[] selectAccount = {null};
-            for (BankAccount account: accounts) {
-                View view1 = getAccountView(account);
-                view1.setOnClickListener(v -> {
-                    for (int i = 0; i < accountsContainer.getChildCount(); i++) {
-                        View view2 = accountsContainer.getChildAt(i);
-                        if (view1.getTag().equals(view2.getTag())) {
-                            selectAccount[0] = (String) view1.getTag();
-                            view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
-                        } else {
-                            view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
+                final String[] selectAccount = {null};
+                for (BankAccount account: accounts) {
+                    View view1 = getAccountView(account);
+                    view1.setOnClickListener(v -> {
+                        for (int i = 0; i < accountsContainer.getChildCount(); i++) {
+                            View view2 = accountsContainer.getChildAt(i);
+                            if (view1.getTag().equals(view2.getTag())) {
+                                selectAccount[0] = (String) view1.getTag();
+                                view2.findViewById(R.id.check_mark).setVisibility(View.VISIBLE);
+                            } else {
+                                view2.findViewById(R.id.check_mark).setVisibility(View.GONE);
+                            }
                         }
+                    });
+                    accountsContainer.addView(view1);
+                }
+
+                btnCashOut.setOnClickListener(v -> {
+
+                    if (cashOutAmount < MIN_TOP_UP_AMOUNT) {
+                        Utility.toastMessage(MainActivity.this, String.format("Cash out amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
+                        return;
                     }
+
+                    if (selectAccount[0] == null) {
+                        Utility.toastMessage(MainActivity.this, "Please select a bank account");
+                        return;
+                    }
+                    cashOut(selectAccount[0], btnCashOut, bottomSheet);
                 });
-                accountsContainer.addView(view1);
+
+            } else {
+
+                accountsEmpty.setVisibility(View.VISIBLE);
+                accountsContainer.setVisibility(View.GONE);
+                btnCashOut.setText(R.string.add_account);
+                btnCashOut.setOnClickListener(v -> {
+                    bottomSheet.dismiss();
+                    startActivity(new Intent(MainActivity.this, BankAccountsActivity.class));
+                });
             }
-
-            btnCashOut.setOnClickListener(v -> {
-
-                if (cashOutAmount < MIN_TOP_UP_AMOUNT) {
-                    Utility.toastMessage(MainActivity.this, String.format("Cash out amount must be greater than %s.", MIN_TOP_UP_AMOUNT));
-                    return;
-                }
-
-                if (selectAccount[0] == null) {
-                    Utility.toastMessage(MainActivity.this, "Please select a bank account");
-                    return;
-                }
-                cashOut(selectAccount[0], btnCashOut, bottomSheet);
-            });
-
-        } else {
-
-            accountsEmpty.setVisibility(View.VISIBLE);
-            accountsContainer.setVisibility(View.GONE);
-            btnCashOut.setText(R.string.add_account);
-            btnCashOut.setOnClickListener(v -> {
-                bottomSheet.dismiss();
-                startActivity(new Intent(MainActivity.this, BankAccountsActivity.class));
-            });
-        }
-
+        });
         bottomSheet.show();
     }
 
@@ -993,7 +993,7 @@ public class MainActivity extends CustomCompatActivity {
         acctName.setText(account.getAccountName());
         bankName.setText(Utility.castEmpty(account.getBankName(), "Unknown Bank"));
 
-        accountView.setTag(account.getRecipientCode());
+        accountView.setTag(account.getUuid());
         return accountView;
     }
 

@@ -29,56 +29,77 @@ import java.util.Objects;
 public class CustomBottomSheet extends BottomSheetDialogFragment {
 
     private final AppCompatActivity activity;
-    private final ArrayList<BottomSheetLayoutModel> layoutModels;
-    private final FragmentStatePagerAdapter pagerAdapter;
-    private final View view;
-    private String title;
+    private ArrayList<BottomSheetLayoutModel> layoutModels;
+    private FragmentStatePagerAdapter pagerAdapter;
+    private LayoutInflater inflater;
+    private int resource;
+    private LinearLayout sheetContainerLayout, sheetViewLayout;
+    private String title, message;
+    private OnViewInflatedListener onViewInflatedListener;
+    private int titleGravity, messageGravity;
     private OnViewPagerMountedListener onViewPagerMountedListener;
 
     public static CustomBottomSheet newInstance(AppCompatActivity activity) {
         return new CustomBottomSheet(activity);
     }
 
-    public static CustomBottomSheet newInstance(AppCompatActivity activity, View view) {
-        return new CustomBottomSheet(activity, view);
+    public static CustomBottomSheet newInstance(AppCompatActivity activity, int resource) {
+        return new CustomBottomSheet(activity, resource);
     }
 
-    public static CustomBottomSheet newInstance(AppCompatActivity activity,
-                                                ArrayList<BottomSheetLayoutModel> layoutModels) {
+    public static CustomBottomSheet newInstance(AppCompatActivity activity, ArrayList<BottomSheetLayoutModel> layoutModels) {
         return new CustomBottomSheet(activity, layoutModels);
     }
 
-    public static CustomBottomSheet newInstance(AppCompatActivity activity,
-                                                FragmentStatePagerAdapter pagerAdapter) {
+    public static CustomBottomSheet newInstance(AppCompatActivity activity, FragmentStatePagerAdapter pagerAdapter) {
         return new CustomBottomSheet(activity, pagerAdapter);
     }
 
     public CustomBottomSheet(AppCompatActivity activity) {
         this.activity = activity;
-        this.view = null;
+        this.resource = 0;
         this.layoutModels = null;
         this.pagerAdapter = null;
     }
 
-    public CustomBottomSheet(AppCompatActivity activity, View view) {
+    public CustomBottomSheet(AppCompatActivity activity, int resource) {
         this.activity = activity;
-        this.view = view;
-        this.layoutModels = null;
-        this.pagerAdapter = null;
+        setViewResource(resource);
     }
 
     public CustomBottomSheet(AppCompatActivity activity, ArrayList<BottomSheetLayoutModel> layoutModels) {
         this.activity = activity;
-        this.layoutModels = layoutModels;
-        this.pagerAdapter = null;
-        this.view = null;
+        setLayoutModel(layoutModels);
     }
 
     public CustomBottomSheet(AppCompatActivity activity, FragmentStatePagerAdapter pagerAdapter) {
         this.activity = activity;
+        setPagerAdapter(pagerAdapter);
+    }
+
+    public void setViewResource(int resource) {
+        this.resource = resource;
+        this.layoutModels = null;
+        this.pagerAdapter = null;
+    }
+
+    public void addLayoutModel(BottomSheetLayoutModel layoutModel) {
+        if (layoutModels == null) layoutModels = new ArrayList<>();
+        layoutModels.add(layoutModel);
+        this.pagerAdapter = null;
+        this.resource = 0;
+    }
+
+    public void setLayoutModel(ArrayList<BottomSheetLayoutModel> layoutModels) {
+        this.layoutModels = layoutModels;
+        this.pagerAdapter = null;
+        this.resource = 0;
+    }
+
+    public void setPagerAdapter(FragmentStatePagerAdapter pagerAdapter) {
         this.pagerAdapter = pagerAdapter;
         this.layoutModels = null;
-        this.view = null;
+        this.resource = 0;
     }
 
     @Override
@@ -88,6 +109,7 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        this.inflater = inflater;
         return inflater.inflate(R.layout.custom_bottom_sheet, container, false);
     }
 
@@ -98,32 +120,43 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
         BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
         Objects.requireNonNull(dialog).getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
 
-        LinearLayout layout = view.findViewById(R.id.sheet_layout);
+        sheetContainerLayout = view.findViewById(R.id.sheet_container_layout);
+        sheetViewLayout = view.findViewById(R.id.sheet_layout);
         ViewPager viewPager = view.findViewById(R.id.view_pager);
         TextView tvTitle = view.findViewById(R.id.title);
+        TextView tvMessage = view.findViewById(R.id.message);
 
         if (title != null) {
             tvTitle.setText(title);
+            tvTitle.setGravity(titleGravity);
             tvTitle.setVisibility(View.VISIBLE);
+        }
+
+        if (message != null) {
+            tvMessage.setText(message);
+            tvMessage.setGravity(messageGravity);
+            tvMessage.setVisibility(View.VISIBLE);
         }
 
         if (this.onViewPagerMountedListener != null)
             this.onViewPagerMountedListener.onMounted(viewPager);
 
-        if (this.view != null) {
+        if (this.resource != 0) {
 
-            layout.setVisibility(View.VISIBLE);
+            sheetViewLayout.setVisibility(View.VISIBLE);
             viewPager.setVisibility(View.GONE);
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             view.setLayoutParams(params);
-            layout.addView(this.view);
+            View view1 = activity.getLayoutInflater().inflate(this.resource, sheetViewLayout, false);
+            sheetViewLayout.addView(view1);
+            if (onViewInflatedListener != null) onViewInflatedListener.onInflated(view1);
 
         } else if (this.layoutModels != null) {
 
-            layout.setVisibility(View.VISIBLE);
+            sheetViewLayout.setVisibility(View.VISIBLE);
             viewPager.setVisibility(View.GONE);
 
             int size = this.layoutModels.size();
@@ -135,11 +168,11 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
                         ResourcesCompat.getDrawable(activity.getResources(),
                                 R.drawable.layout_underline, null)
                 );
-                layout.addView(linearLayout);
+                sheetViewLayout.addView(linearLayout);
             }
         } else if (pagerAdapter != null) {
 
-            layout.setVisibility(View.GONE);
+            sheetViewLayout.setVisibility(View.GONE);
             viewPager.setVisibility(View.VISIBLE);
             viewPager.setAdapter(pagerAdapter);
         }
@@ -152,7 +185,33 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
     }
 
     public void setTitle(String title) {
+        setTitle(title, Gravity.START);
+    }
+
+    public void setTitle(String title, int gravity) {
         this.title = title;
+        this.titleGravity = gravity;
+    }
+
+    public void setMessage(String message) {
+        setMessage(message, Gravity.START);
+    }
+
+    public void setMessage(String message, int gravity) {
+        this.message = message;
+        this.messageGravity = gravity;
+    }
+
+    public LinearLayout getSheetContainerLayout() {
+        return sheetContainerLayout;
+    }
+
+    public LinearLayout getSheetViewLayout() {
+        return sheetViewLayout;
+    }
+
+    public void setOnViewInflatedListener(OnViewInflatedListener listener) {
+        onViewInflatedListener = listener;
     }
 
     public void show() {
@@ -182,18 +241,25 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
 
     private TextView getTextView(BottomSheetLayoutModel layoutModel) {
         TextView tv = new TextView(activity);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.rightMargin = Utility.getDip(activity, 10);
 
         tv.setTextAppearance(activity, R.style.text_view_style);
         tv.setTextColor(activity.getResources().getColor(R.color.titleColorGray));
         Typeface typeface = ResourcesCompat.getFont(activity, R.font.campton_light);
         tv.setTypeface(typeface, Typeface.BOLD);
+        tv.setLayoutParams(params);
 
         tv.setGravity(Gravity.START|Gravity.CENTER);
-        tv.setCompoundDrawablesWithIntrinsicBounds(layoutModel.getIcon(), null, null, null);
+        tv.setCompoundDrawablesWithIntrinsicBounds(layoutModel.getIconLeft(), null, layoutModel.getIconRight(), null);
         tv.setCompoundDrawablePadding(Utility.getDip(activity, 20));
         tv.setText(layoutModel.getText());
 
         return tv;
+    }
+
+    public interface OnViewInflatedListener {
+        void onInflated(View view);
     }
 
 }

@@ -13,10 +13,12 @@
         android:background="@color/colorTransparent"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <androidx.appcompat.widget.Toolbar
+        <LinearLayout
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:paddingStart="@dimen/activity_horizontal_padding"
             android:paddingEnd="@dimen/activity_horizontal_padding"
             app:popupTheme="@style/AppTheme.NoActionBar">
@@ -41,14 +43,13 @@
                 android:layout_height="wrap_content"
                 style="@style/text_view_style"
                 android:text="@string/review"
-                android:paddingStart="0dp"
-                android:paddingEnd="@dimen/padding_50"
+                android:layout_marginEnd="@dimen/margin_50"
                 android:fontFamily="@font/campton_bold"
                 android:textColor="@color/titleColorGray"
                 android:textStyle="bold"
                 android:textSize="20sp"/>
 
-        </androidx.appcompat.widget.Toolbar>
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 

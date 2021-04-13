@@ -8,7 +8,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.quidvis.moneydrop.R;
@@ -40,7 +39,7 @@ public class SpinnerPickerAdapter extends RecyclerView.Adapter<SpinnerPickerAdap
             holder.item.setTextSize(20);
             holder.item.setTextColor(context.getResources().getColor(R.color.colorBlackLight));
             holder.container.setBackgroundColor(context.getResources().getColor(R.color.colorWhiteDark));
-            holder.item.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_checkmark, 0);
+            holder.item.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_check_mark, 0);
             selectedItem = position;
         } else {
             holder.item.setTextSize(18);

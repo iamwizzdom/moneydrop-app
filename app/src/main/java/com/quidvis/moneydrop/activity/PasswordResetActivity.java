@@ -44,14 +44,10 @@ public class PasswordResetActivity extends CustomCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_password_reset);
 
         Intent intent = getIntent();
         if (intent != null) email = intent.getStringExtra(EMAIL);
-
-        setContentView(R.layout.activity_password_reset);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
         emailHolder = findViewById(R.id.email_holder);
         etEmail = findViewById(R.id.etEmail);
@@ -179,8 +175,10 @@ public class PasswordResetActivity extends CustomCompatActivity {
                     dialog.setPositiveButton("Ok", dialog1 -> {
                         dialog1.dismiss();
                         Intent intent = new Intent(PasswordResetActivity.this, LoginActivity.class);
+                        intent.putExtra(LoginActivity.EMAIL, email);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
-                        finish();
+                        finishAffinity();
                     });
                     dialog.display();
 

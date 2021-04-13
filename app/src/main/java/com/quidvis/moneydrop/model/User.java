@@ -20,20 +20,26 @@ import static com.quidvis.moneydrop.constant.Constant.MALE;
  */
 public class User {
 
+    private final Context context;
     private final DbHelper dbHelper;
     
     private int id, gender, status;
     private double rating;
     private boolean verifiedEmail, verifiedPhone;
     private String uuid, firstname, middlename, lastname, email, phone, bvn,
-            dob, address, country, state, picture, token;
+            dob, address, picture, token;
+    private Country country;
+    private State state;
+    private BankStatement bankStatement;
     private JSONObject userObject;
     
     public User(Context context) {
+        this.context = context;
         this.dbHelper = new DbHelper(context);
     }
 
     public User(Context context, JSONObject userObject) throws JSONException {
+        this.context = context;
         this.dbHelper = new DbHelper(context);
         setValues(userObject);
     }
@@ -126,19 +132,19 @@ public class User {
         this.address = address;
     }
 
-    public String getCountry() {
+    public Country getCountry() {
         return country;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(Country country) {
         this.country = country;
     }
 
-    public String getState() {
+    public State getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(State state) {
         this.state = state;
     }
 
@@ -202,6 +208,14 @@ public class User {
         return getUuid().equals(dbHelper.getUser().getUuid());
     }
 
+    public BankStatement getBankStatement() {
+        return bankStatement;
+    }
+
+    public void setBankStatement(BankStatement bankStatement) {
+        this.bankStatement = bankStatement;
+    }
+
     public void setValues(JSONObject userObject) throws JSONException {
         this.userObject = userObject;
         this.setUuid(userObject.getString("uuid"));
@@ -216,12 +230,20 @@ public class User {
         this.setRating(userObject.getDouble("rating"));
         this.setGender(userObject.getInt("gender"));
         this.setAddress(userObject.getString("address"));
-        this.setCountry(userObject.getString("country"));
-        this.setState(userObject.getString("state"));
+        if (userObject.has("country") && !Utility.castEmpty(userObject.getString("country")).isEmpty())
+            setCountry(new Country(context, userObject.getJSONObject("country")));
+        else setCountry(null);
+        if (userObject.has("state") && !Utility.castEmpty(userObject.getString("state")).isEmpty())
+            setState(new State(context, userObject.getJSONObject("state")));
+        else setState(null);
         this.setStatus(userObject.getInt("status"));
         JSONObject verified = userObject.getJSONObject("verified");
         this.setVerifiedEmail(verified.getBoolean("email"));
         this.setVerifiedPhone(verified.getBoolean("phone"));
+        if (userObject.has("bank_statement") && !Utility.castEmpty(userObject.getString("bank_statement")).isEmpty())
+            setBankStatement(new BankStatement(userObject.getJSONObject("bank_statement")));
+        else setBankStatement(null);
+
         if (userObject.has("token")) this.setToken(userObject.getString("token"));
     }
 
@@ -241,13 +263,14 @@ public class User {
             object.put("rating", rating);
             object.put("gender", gender);
             object.put("address", address);
-            object.put("country", country);
-            object.put("state", state);
+            if (country != null) object.put("country", country.getCountryObject());
+            if (state != null) object.put("state", state.getStateObject());
             object.put("status", status);
             JSONObject verified = new JSONObject();
             verified.put("email", verifiedEmail);
             verified.put("phone", verifiedPhone);
             object.put("verified", verified);
+            if (bankStatement != null) object.put("bank_statement", bankStatement.getStatementObject());
             if (token != null) object.put("token", token);
         } catch (JSONException e) {
             e.printStackTrace();

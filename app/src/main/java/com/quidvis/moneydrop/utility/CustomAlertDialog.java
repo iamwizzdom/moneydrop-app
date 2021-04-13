@@ -99,13 +99,10 @@ public class CustomAlertDialog extends Dialog {
         dialogBtnPositive.setVisibility(View.VISIBLE);
         dialogBtnPositive.setText(text);
 
-        View.OnClickListener onClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null)
-                    listener.onClick(CustomAlertDialog.this);
-                else detach();
-            }
+        View.OnClickListener onClickListener = v -> {
+            if (listener != null)
+                listener.onClick(CustomAlertDialog.this);
+            else detach();
         };
 
         dialogBtnPositive.setOnClickListener(onClickListener);
@@ -119,13 +116,10 @@ public class CustomAlertDialog extends Dialog {
         dialogBtnNegative.setVisibility(View.VISIBLE);
         dialogBtnNegative.setText(text);
 
-        View.OnClickListener onClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null)
-                    listener.onClick(CustomAlertDialog.this);
-                else detach();
-            }
+        View.OnClickListener onClickListener = v -> {
+            if (listener != null)
+                listener.onClick(CustomAlertDialog.this);
+            else detach();
         };
 
         dialogBtnNegative.setOnClickListener(onClickListener);
@@ -139,13 +133,10 @@ public class CustomAlertDialog extends Dialog {
         dialogBtnNeutral.setVisibility(View.VISIBLE);
         dialogBtnNeutral.setText(text);
 
-        View.OnClickListener onClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null)
-                    listener.onClick(CustomAlertDialog.this);
-                else detach();
-            }
+        View.OnClickListener onClickListener = v -> {
+            if (listener != null)
+                listener.onClick(CustomAlertDialog.this);
+            else detach();
         };
 
         dialogBtnNeutral.setOnClickListener(onClickListener);

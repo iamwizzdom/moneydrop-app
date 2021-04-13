@@ -186,8 +186,7 @@ public class LoginActivity extends CustomCompatActivity {
                             com.quidvis.moneydrop.model.Card card = new com.quidvis.moneydrop.model.Card(LoginActivity.this);
                             card.setUuid(cardObject.getString("uuid"));
                             card.setName(cardObject.getString("name"));
-                            card.setCardType(cardObject.getString("card_type"));
-                            card.setLastFourDigits(cardObject.getString("last4"));
+                            card.setLastFourDigits(cardObject.getString("last4digits"));
                             card.setBrand(cardObject.getString("brand"));
                             card.setExpMonth(cardObject.getString("exp_month"));
                             card.setExpYear(cardObject.getString("exp_year"));
@@ -207,8 +206,10 @@ public class LoginActivity extends CustomCompatActivity {
                         session.setLoggedIn(true);
                         Utility.toastMessage(LoginActivity.this, object.getString("message"));
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
-                        finish();
+                        finishAffinity();
+
                     } else {
                         Utility.toastMessage(LoginActivity.this, "Failed to start log in session. Please try again later.");
                     }

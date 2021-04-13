@@ -1,6 +1,7 @@
 package com.quidvis.moneydrop.activity;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,11 +15,21 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
+import com.flutterwave.raveandroid.rave_java_commons.RaveConstants;
+import com.flutterwave.raveandroid.rave_presentation.RaveNonUIManager;
+import com.flutterwave.raveandroid.rave_presentation.card.CardPaymentCallback;
+import com.flutterwave.raveandroid.rave_presentation.card.CardPaymentManager;
+import com.flutterwave.raveandroid.rave_presentation.data.AddressDetails;
+import com.flutterwave.raveutils.verification.AVSVBVFragment;
+import com.flutterwave.raveutils.verification.OTPFragment;
+import com.flutterwave.raveutils.verification.PinFragment;
+import com.flutterwave.raveutils.verification.RaveVerificationUtils;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.constant.Constant;
@@ -41,6 +52,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 import co.paystack.android.Paystack;
@@ -49,18 +61,25 @@ import co.paystack.android.Transaction;
 import co.paystack.android.model.Card;
 import co.paystack.android.model.Charge;
 
-public class CardsActivity extends CustomCompatActivity {
+public class CardsActivity extends CustomCompatActivity implements CardPaymentCallback {
 
     private CircularProgressButton addCardBtn;
     private DbHelper dbHelper;
     private User user;
     private ArrayList<com.quidvis.moneydrop.model.Card> cards;
+    private final int chargeAmount = 5000;
+    private final String flutterwavePubKey = "FLWPUBK_TEST-52ece87389c981bffbff5283aa35f00f-X";
+    private final String flutterwaveEncKey = "FLWSECK_TEST76766747e348";
+    private String flutterCardName, flutterTransRef;
 
 //    private Animation animFadeIn, animFadeOut;
     private LinearLayout cardsContainer, contentView;
     private TextView successfulView, emptyView;
     private CustomBottomSheet bottomSheet;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private RaveNonUIManager raveNonUIManager;
+    private RaveVerificationUtils verificationUtils;
+    private CardPaymentManager cardPayManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +88,10 @@ public class CardsActivity extends CustomCompatActivity {
         dbHelper = new DbHelper(CardsActivity.this);
         user = dbHelper.getUser();
         cards = dbHelper.getCards();
-        PaystackSdk.initialize(this);
+//        PaystackSdk.initialize(this);
+
+        raveNonUIManager = new RaveNonUIManager();
+        verificationUtils = new RaveVerificationUtils(this, true, flutterwavePubKey, R.style.AppTheme);
 
 //        animFadeIn = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in);
 //        animFadeOut = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_out);
@@ -154,83 +176,106 @@ public class CardsActivity extends CustomCompatActivity {
 
     public void addCard(View view) {
 
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.add_card_bottom_sheet_layout, null);
-        contentView = bottomSheetView.findViewById(R.id.content);
-        successfulView = bottomSheetView.findViewById(R.id.successful);
+        bottomSheet = CustomBottomSheet.newInstance(this, R.layout.add_card_bottom_sheet_layout);
+        bottomSheet.setOnViewInflatedListener(view1 -> {
 
-        EditCard etCardNum = bottomSheetView.findViewById(R.id.card_number);
-        EditText etCardExp = bottomSheetView.findViewById(R.id.card_expiration);
-        EditText etCardCvv = bottomSheetView.findViewById(R.id.card_cvv);
-        addCardBtn = bottomSheetView.findViewById(R.id.add_card);
-        etCardExp.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            contentView = view1.findViewById(R.id.content);
+            successfulView = view1.findViewById(R.id.successful);
 
-            }
+            EditCard etCardNum = view1.findViewById(R.id.card_number);
+            EditText etCardExp = view1.findViewById(R.id.card_expiration);
+            EditText etCardCvv = view1.findViewById(R.id.card_cvv);
+            addCardBtn = view1.findViewById(R.id.add_card);
+            etCardExp.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
 
-            }
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                String initial = s.toString();
-                if (initial.contains("/")) {
-                    if (initial.length() < 2) s.replace(0, initial.length(), "0" + initial);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String initial = s.toString();
+                    if (initial.contains("/")) {
+                        if (initial.length() < 2) s.replace(0, initial.length(), "0" + initial);
+                        return;
+                    }
+                    // insert a forward slash after all groups of 2 digits that are followed by another digit
+                    String processed = initial.replaceAll("(\\d{2})(?=\\d)", "$1/");
+                    if (!initial.contentEquals(processed) && processed.length() > 0) {
+                        // set the value
+                        s.replace(0, initial.length(), processed);
+                    }
+                }
+            });
+            InputFilter filter = (source, start, end, dest, dstart, dend) -> {
+                String s = String.valueOf(source);
+                if (s.startsWith("/")) return "";
+                if (s.contains("/")) {
+                    String[] sa = s.split("[/]");
+                    int num = Integer.parseInt(sa[0]);
+                    if (!sa[0].isEmpty() && sa[0].length() <= 2 && (num < 1 || num > 12)) return "";
+                }
+                return null;
+            };
+            etCardExp.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(5)});
+            etCardCvv.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
+
+            addCardBtn.setOnClickListener(v -> {
+                String[] exp = etCardExp.getText().toString().split("[/]");
+                if (exp.length < 2 || exp[0].isEmpty() || exp[1].isEmpty()) {
+                    Utility.toastMessage(CardsActivity.this, "Please enter valid card details");
                     return;
                 }
-                // insert a forward slash after all groups of 2 digits that are followed by another digit
-                String processed = initial.replaceAll("(\\d{2})(?=\\d)", "$1/");
-                if (!initial.contentEquals(processed) && processed.length() > 0) {
-                    // set the value
-                    s.replace(0, initial.length(), processed);
-                }
-            }
-        });
-        InputFilter filter = (source, start, end, dest, dstart, dend) -> {
-            String s = String.valueOf(source);
-            if (s.startsWith("/")) return "";
-            if (s.contains("/")) {
-                String[] sa = s.split("[/]");
-                int num = Integer.parseInt(sa[0]);
-                if (!sa[0].isEmpty() && sa[0].length() <= 2 && (num < 1 || num > 12)) return "";
-            }
-            return null;
-        };
-        etCardExp.setFilters(new InputFilter[]{filter, new InputFilter.LengthFilter(5)});
-        etCardCvv.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
+                int expiryMonth = Integer.parseInt(exp[0]);
+                int expiryYear = Integer.parseInt(exp[1]);
+//                Card card = new Card(etCardNum.getCardNumber(), expiryMonth, expiryYear, etCardCvv.getText().toString());
+//                if (card.isValid()) {
+//                    // charge card
+//                    try {
+//                        performPaystackCharge(card, etCardNum.getCardType());
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                        Utility.toastMessage(CardsActivity.this, "Operation failed.");
+//                    }
+//                } else {
+//                    Utility.toastMessage(CardsActivity.this, "Please enter valid card details");
+//                }
 
-        addCardBtn.setOnClickListener(v -> {
-            String[] exp = etCardExp.getText().toString().split("[/]");
-            if (exp.length < 2 || exp[0].isEmpty() || exp[1].isEmpty()) {
-                Utility.toastMessage(CardsActivity.this, "Please enter valid card details");
-                return;
-            }
-            int expiryMonth = Integer.parseInt(exp[0]);
-            int expiryYear = Integer.parseInt(exp[1]);
-            Card card = new Card(etCardNum.getCardNumber(), expiryMonth, expiryYear, etCardCvv.getText().toString());
-            if (card.isValid()) {
-                // charge card
-                try {
-                    performCharge(card, etCardNum.getCardType());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Utility.toastMessage(CardsActivity.this, "Operation failed.");
-                }
-            } else {
-                Utility.toastMessage(CardsActivity.this, "Please enter valid card details");
-            }
-        });
+                com.flutterwave.raveandroid.rave_presentation.card.Card card = new com.flutterwave.raveandroid.rave_presentation.card.Card(
+                        etCardNum.getCardNumber(), String.valueOf(expiryMonth), String.valueOf(expiryYear), etCardCvv.getText().toString());
+                performFlutterwaveCharge(card, etCardNum.getCardType());
 
-        bottomSheet = CustomBottomSheet.newInstance(this, bottomSheetView);
+            });
+        });
         bottomSheet.show();
     }
 
-    public void performCharge(Card card, String cardName) {
+    public void performFlutterwaveCharge(com.flutterwave.raveandroid.rave_presentation.card.Card card, String cardName) {
+        flutterCardName = cardName;
+        raveNonUIManager.setAmount(chargeAmount)
+                .setCurrency("NGN")
+                .setEmail(user.getEmail())
+                .setfName(user.getFirstname())
+                .setlName(user.getLastname())
+                .setPhoneNumber(user.getPhone())
+                .setNarration("MoneyDrop card test charge")
+                .setPublicKey(flutterwavePubKey)
+                .setEncryptionKey(flutterwaveEncKey)
+                .setTxRef(flutterTransRef = UUID.randomUUID().toString())
+                .initialize();
+        cardPayManager = new CardPaymentManager(raveNonUIManager, this);
+        cardPayManager.chargeCard(card);
+    }
+
+    public void performPaystackCharge(Card card, String cardName) {
         //create a Charge object
         Charge charge = new Charge();
-        charge.setAmount((50 * 100));
+        charge.setAmount(chargeAmount);
         charge.setEmail(user.getEmail());
         charge.setBearer(Charge.Bearer.account);
         charge.setCurrency("NGN");
@@ -345,6 +390,8 @@ public class CardsActivity extends CustomCompatActivity {
         }) {
             @Override
             protected void onRequestStarted() {
+                addCardBtn.startAnimation();
+                Utility.toastMessage(CardsActivity.this, "Verifying transaction.");
             }
 
             @Override
@@ -366,8 +413,7 @@ public class CardsActivity extends CustomCompatActivity {
                         com.quidvis.moneydrop.model.Card card = new com.quidvis.moneydrop.model.Card(CardsActivity.this);
                         card.setUuid(cardObject.getString("uuid"));
                         card.setName(cardObject.getString("name"));
-                        card.setCardType(cardObject.getString("card_type"));
-                        card.setLastFourDigits(cardObject.getString("last4"));
+                        card.setLastFourDigits(cardObject.getString("last4digits"));
                         card.setBrand(cardObject.getString("brand"));
                         card.setExpMonth(cardObject.getString("exp_month"));
                         card.setExpYear(cardObject.getString("exp_year"));
@@ -390,9 +436,7 @@ public class CardsActivity extends CustomCompatActivity {
                     contentView.setVisibility(View.GONE);
                     successfulView.setVisibility(View.VISIBLE);
                     addCardBtn.setOnClickListener(v -> bottomSheet.dismiss());
-                    new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> {
-                        addCardBtn.setText(R.string.done);
-                    }, 500);
+                    new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> addCardBtn.setText(R.string.done), 500);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -485,8 +529,7 @@ public class CardsActivity extends CustomCompatActivity {
                         com.quidvis.moneydrop.model.Card card = new com.quidvis.moneydrop.model.Card(CardsActivity.this);
                         card.setUuid(cardObject.getString("uuid"));
                         card.setName(cardObject.getString("name"));
-                        card.setCardType(cardObject.getString("card_type"));
-                        card.setLastFourDigits(cardObject.getString("last4"));
+                        card.setLastFourDigits(cardObject.getString("last4digits"));
                         card.setBrand(cardObject.getString("brand"));
                         card.setExpMonth(cardObject.getString("exp_month"));
                         card.setExpYear(cardObject.getString("exp_year"));
@@ -639,5 +682,84 @@ public class CardsActivity extends CustomCompatActivity {
 
     public void onBackPressed(View view) {
         onBackPressed();
+    }
+
+    @Override
+    public void showProgressIndicator(boolean active) {
+        if (addCardBtn == null) return;
+        if (active) addCardBtn.startAnimation();
+        else addCardBtn.revertAnimation();
+    }
+
+    @Override
+    public void collectCardPin() {
+        verificationUtils.showPinScreen();
+    }
+
+    @Override
+    public void collectOtp(String message) {
+        verificationUtils.showOtpScreen(message);
+    }
+
+    @Override
+    public void collectAddress() {
+        verificationUtils.showAddressScreen();
+    }
+
+    @Override
+    public void showAuthenticationWebPage(String authenticationUrl) {
+        verificationUtils.showWebpageVerificationScreen(authenticationUrl);
+    }
+
+    @Override
+    public void onError(String errorMessage, @Nullable String flwRef) {
+        if (flutterTransRef != null && !flutterTransRef.isEmpty()) logTransRef(flutterTransRef);
+        Utility.toastMessage(CardsActivity.this, errorMessage);
+    }
+
+    @Override
+    public void onSuccessful(String flwRef) {
+        if (flutterTransRef != null && !flutterTransRef.isEmpty()) verifyTransaction(flutterTransRef, flutterCardName);
+        else Utility.toastMessage(CardsActivity.this, "No transaction reference to verify");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        if (resultCode == RaveConstants.RESULT_SUCCESS) {
+            switch (requestCode) {
+                case RaveConstants.PIN_REQUEST_CODE:
+                    assert data != null;
+                    String pin = data.getStringExtra(PinFragment.EXTRA_PIN);
+                    // Use the collected PIN
+                    cardPayManager.submitPin(pin);
+                    break;
+                case RaveConstants.ADDRESS_DETAILS_REQUEST_CODE:
+                    assert data != null;
+                    String streetAddress = data.getStringExtra(AVSVBVFragment.EXTRA_ADDRESS);
+                    String state = data.getStringExtra(AVSVBVFragment.EXTRA_STATE);
+                    String city = data.getStringExtra(AVSVBVFragment.EXTRA_CITY);
+                    String zipCode = data.getStringExtra(AVSVBVFragment.EXTRA_ZIPCODE);
+                    String country = data.getStringExtra(AVSVBVFragment.EXTRA_COUNTRY);
+                    AddressDetails address = new AddressDetails(streetAddress, city, state, zipCode, country);
+
+                    // Use the address details
+                    cardPayManager.submitAddress(address);
+                    break;
+                case RaveConstants.WEB_VERIFICATION_REQUEST_CODE:
+                    // Web authentication complete, proceed
+                    cardPayManager.onWebpageAuthenticationComplete();
+                    break;
+                case RaveConstants.OTP_REQUEST_CODE:
+                    assert data != null;
+                    String otp = data.getStringExtra(OTPFragment.EXTRA_OTP);
+                    // Use OTP
+                    cardPayManager.submitOtp(otp);
+                    break;
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+
     }
 }

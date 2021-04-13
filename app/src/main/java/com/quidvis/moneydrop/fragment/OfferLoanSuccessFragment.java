@@ -75,7 +75,7 @@ public class OfferLoanSuccessFragment extends CustomFragment {
 
         requestsBtn.setOnClickListener(v -> {
             Intent intent  = new Intent(requireActivity(), LoanApplicantsActivity.class);
-            intent.putExtra(LoanApplicantsActivity.LOAN_KEY, loanObject);
+            intent.putExtra(LoanApplicantsActivity.LOAN_OBJECT, loanObject);
             startActivity(intent);
         });
     }

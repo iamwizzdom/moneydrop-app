@@ -236,7 +236,6 @@
                             android:layout_height="wrap_content"
                             style="@style/tag_pending"
                             android:layout_marginTop="@dimen/margin_5"
-                            android:gravity="start"
                             android:layout_gravity="start"
                             android:textSize="13sp"
                             android:text="@string/transaction_status"/>

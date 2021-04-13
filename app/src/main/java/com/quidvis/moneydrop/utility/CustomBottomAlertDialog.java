@@ -21,20 +21,70 @@ import com.quidvis.moneydrop.R;
 public class CustomBottomAlertDialog {
 
     private final CustomBottomSheet bottomSheet;
-    private final TextView dialogMessage;
-    private final Button dialogBtnPositive;
-    private final Button dialogBtnNegative;
-    private final LinearLayout dialogView;
+    private CharSequence message, positiveBtnText, negativeBtnText;
+    private View.OnClickListener positiveBtnListener, negativeBtnListener;
+    private OnClickListener positiveBtnCustomListener, negativeBtnCustomListener;
+    private int icon;
+    private View view;
+    private LinearLayout dialogView;
+    private TextView dialogMessage;
+    private Button dialogBtnPositive, dialogBtnNegative;
 
     public CustomBottomAlertDialog(@NonNull AppCompatActivity activity) {
-        View view = activity.getLayoutInflater().inflate(R.layout.custom_bottom_alert_dialog, null);
-        dialogView = view.findViewById(R.id.custom_dialog_view);
-        dialogMessage = view.findViewById(R.id.dialog_message);
-        dialogBtnPositive = view.findViewById(R.id.btn_positive);
-        dialogBtnNegative = view.findViewById(R.id.btn_negative);
-        bottomSheet = new CustomBottomSheet(activity, view);
-        dialogBtnPositive.setOnClickListener(v -> bottomSheet.dismiss());
-        dialogBtnNegative.setOnClickListener(v -> bottomSheet.dismiss());
+        bottomSheet = new CustomBottomSheet(activity, R.layout.custom_bottom_alert_dialog);
+        bottomSheet.setOnViewInflatedListener(view -> {
+
+            dialogView = view.findViewById(R.id.custom_dialog_view);
+            dialogMessage = view.findViewById(R.id.dialog_message);
+            dialogBtnPositive = view.findViewById(R.id.btn_positive);
+            dialogBtnNegative = view.findViewById(R.id.btn_negative);
+
+            if (message != null) {
+                dialogMessage.setVisibility(View.VISIBLE);
+                dialogMessage.setText(message);
+            }
+
+            if (icon != 0) {
+                dialogMessage.setCompoundDrawablesWithIntrinsicBounds(0, icon, 0,0);
+            }
+
+            if (positiveBtnText != null) {
+
+                dialogBtnPositive.setVisibility(View.VISIBLE);
+                dialogBtnPositive.setText(positiveBtnText);
+
+                View.OnClickListener onClickListener = v -> {
+                    if (positiveBtnListener != null) positiveBtnListener.onClick(v);
+                    else if (positiveBtnCustomListener != null) positiveBtnCustomListener.onClick(v, dialogView);
+                    detach();
+                };
+
+                dialogBtnPositive.setOnClickListener(onClickListener);
+
+            } else {
+                dialogBtnPositive.setOnClickListener(v -> bottomSheet.dismiss());
+            }
+
+            if (negativeBtnText != null) {
+
+                dialogBtnNegative.setVisibility(View.VISIBLE);
+                dialogBtnNegative.setText(negativeBtnText);
+
+                View.OnClickListener onClickListener = v -> {
+                    if (negativeBtnListener != null) negativeBtnListener.onClick(v);
+                    else if (negativeBtnCustomListener != null) negativeBtnCustomListener.onClick(v, dialogView);
+                    detach();
+                };
+
+                dialogBtnNegative.setOnClickListener(onClickListener);
+
+            } else {
+                dialogBtnNegative.setOnClickListener(v -> bottomSheet.dismiss());
+            }
+
+            if (this.view != null) dialogView.addView(this.view);
+
+        });
     }
 
     public TextView getDialogMessage() {
@@ -54,11 +104,11 @@ public class CustomBottomAlertDialog {
     }
 
     public void setMessage(@Nullable CharSequence message) {
-        dialogMessage.setText(message);
+        this.message = message;
     }
 
     public void setIcon(int resourceId) {
-        dialogMessage.setCompoundDrawablesWithIntrinsicBounds(0, resourceId, 0,0);
+        icon = resourceId;
     }
 
     public void setCancelable(boolean cancelable) {
@@ -70,27 +120,13 @@ public class CustomBottomAlertDialog {
     }
 
     public void setPositiveButton(CharSequence text, final View.OnClickListener listener) {
-        dialogBtnPositive.setVisibility(View.VISIBLE);
-        dialogBtnPositive.setText(text);
-
-        View.OnClickListener onClickListener = v -> {
-            if (listener != null) listener.onClick(v);
-            detach();
-        };
-
-        dialogBtnPositive.setOnClickListener(onClickListener);
+        positiveBtnText = text;
+        positiveBtnListener = listener;
     }
 
     public void setPositiveButton(CharSequence text, final OnClickListener listener) {
-        dialogBtnPositive.setVisibility(View.VISIBLE);
-        dialogBtnPositive.setText(text);
-
-        View.OnClickListener onClickListener = v -> {
-            if (listener != null) listener.onClick(v, dialogView);
-            detach();
-        };
-
-        dialogBtnPositive.setOnClickListener(onClickListener);
+        positiveBtnText = text;
+        positiveBtnCustomListener = listener;
     }
 
     public void setNegativeButton(CharSequence text) {
@@ -98,34 +134,20 @@ public class CustomBottomAlertDialog {
     }
 
     public void setNegativeButton(CharSequence text, final View.OnClickListener listener) {
-        dialogBtnNegative.setVisibility(View.VISIBLE);
-        dialogBtnNegative.setText(text);
-
-        View.OnClickListener onClickListener = v -> {
-            if (listener != null) listener.onClick(v);
-            detach();
-        };
-
-        dialogBtnNegative.setOnClickListener(onClickListener);
+        negativeBtnText = text;
+        negativeBtnListener = listener;
     }
 
     public void setNegativeButton(CharSequence text, final OnClickListener listener) {
-        dialogBtnNegative.setVisibility(View.VISIBLE);
-        dialogBtnNegative.setText(text);
-
-        View.OnClickListener onClickListener = v -> {
-            if (listener != null) listener.onClick(v, dialogView);
-            detach();
-        };
-
-        dialogBtnNegative.setOnClickListener(onClickListener);
+        negativeBtnText = text;
+        negativeBtnCustomListener = listener;
     }
 
     public void addView(View view) {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         view.setLayoutParams(params);
-        dialogView.addView(view);
+        this.view = view;
     }
 
     public void display() {

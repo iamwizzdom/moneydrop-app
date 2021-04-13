@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:orientation="vertical"
+    android:padding="@dimen/padding_20">
+
+    <com.quidvis.moneydrop.utility.view.DialogSpinner
+        android:id="@+id/state_spinner"
+        style="@style/edit_text_stroked_style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dialogTitle="@string/select_state"
+        app:spinnerIcon="@drawable/ic_arrows"
+        app:spinnerPlaceholder="@string/select_state" />
+
+    <TextView
+        android:id="@+id/tvStateError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/text_view_style"
+        android:gravity="start"
+        android:textColor="@color/danger"
+        android:text="@string/error"
+        android:textSize="12sp"
+        android:visibility="gone"/>
+
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        android:id="@+id/submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_20"
+        android:layout_gravity="center"
+        android:background="@drawable/circular_border_shape"
+        android:text="@string/done"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorWhite"
+        android:textAllCaps="false"
+        app:spinning_bar_width="4dp"
+        app:spinning_bar_color="@color/colorWhite"
+        app:spinning_bar_padding="6dp" />
+
+</LinearLayout>

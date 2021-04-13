@@ -19,6 +19,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.fragment.custom.CustomCompatFragment;
+import com.quidvis.moneydrop.interfaces.HttpRequestCallback;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.utility.Validator;
 
@@ -50,7 +51,7 @@ public abstract class HttpRequest {
     private Map<String, String> headers;
     private int statusCode;
     private Runnable runnable;
-    private final Handler handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
+    private final Handler handler;
     private final LoaderManager loaderManager;
 
     public HttpRequest(AppCompatActivity activity, String url, int method) {
@@ -59,6 +60,7 @@ public abstract class HttpRequest {
         this.method = method;
         this.fragment = null;
         this.activity = activity;
+        handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         loaderManager = LoaderManager.getInstance(this.activity);
     }
 
@@ -69,6 +71,7 @@ public abstract class HttpRequest {
         this.fragment = null;
         this.activity = activity;
         this.httpRequestParams = httpRequestParams;
+        handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         loaderManager = LoaderManager.getInstance(this.activity);
     }
 
@@ -79,6 +82,7 @@ public abstract class HttpRequest {
         this.fragment = null;
         this.activity = activity;
         this.httpRequestParams = httpRequestParams;
+        handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         loaderManager = LoaderManager.getInstance(this.activity);
     }
 
@@ -88,6 +92,7 @@ public abstract class HttpRequest {
         this.method = method;
         this.fragment = fragment;
         this.activity = (AppCompatActivity) fragment.requireActivity();
+        handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         loaderManager = LoaderManager.getInstance(this.activity);
     }
 
@@ -98,6 +103,7 @@ public abstract class HttpRequest {
         this.fragment = fragment;
         this.activity = (AppCompatActivity) fragment.requireActivity();
         this.httpRequestParams = httpRequestParams;
+        handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         loaderManager = LoaderManager.getInstance(this.activity);
     }
 
@@ -108,6 +114,7 @@ public abstract class HttpRequest {
         this.fragment = fragment;
         this.activity = (AppCompatActivity) fragment.requireActivity();
         this.httpRequestParams = httpRequestParams;
+        handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         loaderManager = LoaderManager.getInstance(this.activity);
     }
 
@@ -122,10 +129,18 @@ public abstract class HttpRequest {
     protected abstract void onRequestError(String error, int statusCode, Map<String, String> headers);
 
     public final void send() {
-        send(RETRY_IN_30_SEC);
+        send(RETRY_IN_30_SEC, false);
     }
 
     public final void send(int timeout) {
+        send(timeout, false);
+    }
+
+    public final void send(boolean runOnCompletedLast) {
+        send(RETRY_IN_30_SEC, runOnCompletedLast);
+    }
+
+    public final void send(int timeout, boolean runOnCompletedLast) {
 
         if (!Validator.isNetworkConnected(activity)) {
             onRequestCompleted(true);
@@ -164,8 +179,9 @@ public abstract class HttpRequest {
                 MainActivity.logout(activity, title, message);
                 return;
             }
-            onRequestCompleted(false);
+            if (!runOnCompletedLast) onRequestCompleted(false);
             onRequestSuccess(response, statusCode, headers);
+            if (runOnCompletedLast) onRequestCompleted(false);
             stringRequest.cancel();
         };
 
@@ -196,8 +212,9 @@ public abstract class HttpRequest {
                 MainActivity.logout(activity, title, message);
                 return;
             }
-            onRequestCompleted(true);
+            if (!runOnCompletedLast) onRequestCompleted(true);
             onRequestError(responseData, statusCode, headers);
+            if (runOnCompletedLast) onRequestCompleted(true);
             stringRequest.cancel();
             error.printStackTrace();
         };
@@ -396,10 +413,7 @@ public abstract class HttpRequest {
         int PATCH = 7;
     }
 
-    public abstract static class RequestCallback {
-        public abstract void onStarted();
-        public abstract void onCompleted();
-        public abstract void onCancelled();
+    public abstract static class RequestCallback implements HttpRequestCallback {
     }
 
     private static class LoaderCallback implements LoaderManager.LoaderCallbacks<String> {
@@ -417,7 +431,7 @@ public abstract class HttpRequest {
         @NonNull
         @Override
         public Loader<String> onCreateLoader(int id, @Nullable Bundle args) {
-            return new NetService(activity, request, callback);
+            return new AsyncNetLoader(activity, request, callback);
         }
 
         @Override

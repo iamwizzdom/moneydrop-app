@@ -63,7 +63,9 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
         doneBtn.setOnClickListener(vw -> {
             selectedItemPosition = picker.getValue();
             selected();
-            if (onSelectedListener != null) onSelectedListener.onSelected(v);
+            if (isSelected && onSelectedListener != null) {
+                onSelectedListener.onSelected(v, getSelectedItem(), selectedItemPosition);
+            }
             dialog.dismiss();
         });
 
@@ -187,13 +189,33 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
         selected();
     }
 
+    public void setSelectedItem(String selectedItem) {
+        int size = entries.length;
+        for (int i = 0; i < size; i++) {
+            String entry = entries[i];
+            if (entry == null) continue;
+            if (entry.equals(selectedItem)) {
+                this.selectedItemPosition = i;
+                selected();
+                break;
+            }
+        }
+    }
+
+    public void performSelected() {
+        selected();
+        if (isSelected && onSelectedListener != null) {
+            onSelectedListener.onSelected(this, getSelectedItem(), selectedItemPosition);
+        }
+    }
+
     @Override
     public boolean isSelected() {
         return isSelected;
     }
 
     private void selected() {
-        if (entries != null && entries.length > 0) {
+        if (entries != null && entries.length > selectedItemPosition) {
             setText(entries[selectedItemPosition]);
             isSelected = true;
             setTextColor(originalTextColor);
@@ -255,6 +277,6 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
     }
 
     public interface OnSelectedListener {
-        void onSelected(View v);
+        void onSelected(View v, String item, int position);
     }
 }

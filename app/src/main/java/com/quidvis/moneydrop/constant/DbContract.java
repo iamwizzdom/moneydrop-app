@@ -14,6 +14,30 @@ public class DbContract {
     public static final String DATABASE_NAME = "moneydropDB";
 
     /**
+     * country db table variables
+     */
+    public static final String COUNTRIES_TABLE_NAME = "countries";
+    public static final String COUNTRY_ID = "_id";
+    public static final String COUNTRY_UID = "uid";
+    public static final String COUNTRY_NAME = "name";
+    public static final String COUNTRY_REGION = "region";
+    public static final String COUNTRY_DIAL_CODE = "dial_code";
+    public static final String COUNTRY_ISO = "iso";
+    public static final String COUNTRY_ISO3 = "iso3";
+    public static final String COUNTRY_CURRENCY_NAME = "currency_name";
+    public static final String COUNTRY_CURRENCY_CODE = "currency_code";
+
+    /**
+     * state db table variables
+     */
+    public static final String STATES_TABLE_NAME = "states";
+    public static final String STATE_ID = "_id";
+    public static final String STATE_UID = "uid";
+    public static final String STATE_COUNTRY_ID = "country_id";
+    public static final String STATE_NAME = "name";
+    public static final String STATE_ISO3166_2 = "iso3166_2";
+
+    /**
      * user db table variables
      */
     public static final String USERS_TABLE_NAME = "users";
@@ -36,6 +60,7 @@ public class DbContract {
     public static final String USER_TOKEN = "token";
     public static final String USER_VERIFIED_EMAIL = "verified_email";
     public static final String USER_VERIFIED_PHONE = "verified_phone";
+    public static final String USER_BANK_STATEMENT = "bank_statement";
 
 
     /**
@@ -45,7 +70,6 @@ public class DbContract {
     public static final String CARD_ID = "_id";
     public static final String CARD_UUID = "uuid";
     public static final String CARD_NAME = "name";
-    public static final String CARD_TYPE = "cardType";
     public static final String CARD_BRAND = "brand";
     public static final String CARD_LAST_FOUR_DIGITS = "lastFourDigits";
     public static final String CARD_EXP_MONTH = "expMonth";

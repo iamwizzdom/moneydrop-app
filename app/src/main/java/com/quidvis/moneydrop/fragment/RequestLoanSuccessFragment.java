@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.LoanApplicantsActivity;
 import com.quidvis.moneydrop.fragment.custom.CustomFragment;
-import com.quidvis.moneydrop.model.Loan;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -76,7 +75,7 @@ public class RequestLoanSuccessFragment extends CustomFragment {
 
         requestsBtn.setOnClickListener(v -> {
             Intent intent  = new Intent(requireActivity(), LoanApplicantsActivity.class);
-            intent.putExtra(LoanApplicantsActivity.LOAN_KEY, loanObject);
+            intent.putExtra(LoanApplicantsActivity.LOAN_OBJECT, loanObject);
             startActivity(intent);
         });
     }

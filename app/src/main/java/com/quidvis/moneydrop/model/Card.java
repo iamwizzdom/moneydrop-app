@@ -12,7 +12,7 @@ public class Card {
     private final DbHelper dbHelper;
 
     private int id;
-    private String uuid, name, cardType, brand, lastFourDigits, expMonth, expYear;
+    private String uuid, name, brand, lastFourDigits, expMonth, expYear;
 
     public Card(Context context) {
         this.dbHelper = new DbHelper(context);
@@ -22,8 +22,7 @@ public class Card {
         this.dbHelper = new DbHelper(context);
         this.setUuid(cardObject.getString("uuid"));
         this.setName(cardObject.getString("name"));
-        this.setCardType(cardObject.getString("card_type"));
-        this.setLastFourDigits(cardObject.getString("last4"));
+        this.setLastFourDigits(cardObject.getString("last4digits"));
         this.setBrand(cardObject.getString("brand"));
         this.setExpMonth(cardObject.getString("exp_month"));
         this.setExpYear(cardObject.getString("exp_year"));
@@ -51,14 +50,6 @@ public class Card {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getCardType() {
-        return cardType;
-    }
-
-    public void setCardType(String cardType) {
-        this.cardType = cardType;
     }
 
     public String getBrand() {

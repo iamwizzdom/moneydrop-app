@@ -6,21 +6,33 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.loader.content.AsyncTaskLoader;
 
-public class NetService extends AsyncTaskLoader<String> {
+import com.quidvis.moneydrop.interfaces.HttpRequestCallback;
+
+public class AsyncNetLoader extends AsyncTaskLoader<String> {
 
     private final HttpRequest request;
-    private final HttpRequest.RequestCallback requestCallback;
+    private final WebFileReader webFileReader;
+    private final HttpRequestCallback requestCallback;
 
-    public NetService(@NonNull Context context, HttpRequest request, HttpRequest.RequestCallback requestCallback) {
+    public AsyncNetLoader(@NonNull Context context, HttpRequest request, HttpRequestCallback requestCallback) {
         super(context);
         this.request = request;
+        this.webFileReader = null;
+        this.requestCallback = requestCallback;
+    }
+
+    public AsyncNetLoader(@NonNull Context context, WebFileReader webFileReader, HttpRequestCallback requestCallback) {
+        super(context);
+        this.request = null;
+        this.webFileReader = webFileReader;
         this.requestCallback = requestCallback;
     }
 
     @Nullable
     @Override
     public String loadInBackground() {
-        VolleySingleton.getInstance().addToRequestQueue(request.getStringRequest());
+        if (request != null) VolleySingleton.getInstance().addToRequestQueue(request.getStringRequest());
+        else webFileReader.getHttpConnector().connect();
         return null;
     }
 

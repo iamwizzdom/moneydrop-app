@@ -3,29 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:orientation="vertical"
-    android:paddingStart="@dimen/padding_20"
-    android:paddingEnd="@dimen/padding_20"
-    android:paddingBottom="@dimen/padding_20"
-    android:paddingTop="@dimen/padding_20">
+    android:padding="@dimen/padding_20">
 
-    <com.google.android.material.textfield.TextInputLayout
+    <com.quidvis.moneydrop.utility.view.DialogSpinner
+        android:id="@+id/country_spinner"
+        style="@style/edit_text_stroked_style"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/email">
+        app:dialogTitle="@string/select_country"
+        app:spinnerIcon="@drawable/ic_arrows"
+        app:spinnerPlaceholder="@string/select_country" />
 
-        <EditText
-            android:id="@+id/etEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/edit_text_style"
-            android:inputType="textEmailAddress"
-            android:importantForAutofill="no"
-            tools:ignore="LabelFor" />
-
-    </com.google.android.material.textfield.TextInputLayout>
+    <TextView
+        android:id="@+id/tvCountryError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/text_view_style"
+        android:gravity="start"
+        android:textColor="@color/danger"
+        android:text="@string/error"
+        android:textSize="12sp"
+        android:visibility="gone"/>
 
     <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
         android:id="@+id/submit"

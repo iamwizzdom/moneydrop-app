@@ -192,7 +192,7 @@ public class LoanDetailsActivity extends CustomCompatActivity {
     public void viewApplicantsOrApply(View view) {
         if (loan.isMine()) {
             Intent intent = new Intent(this, LoanApplicantsActivity.class);
-            intent.putExtra(LoanApplicantsActivity.LOAN_KEY, loan.getLoanObject().toString());
+            intent.putExtra(LoanApplicantsActivity.LOAN_OBJECT, loan.getLoanObject().toString());
             startActivityForResult(intent, LOAN_APPROVAL_KEY);
         } else {
             applyForLoan(loan, (CircularProgressButton) view);
@@ -204,7 +204,7 @@ public class LoanDetailsActivity extends CustomCompatActivity {
         CustomBottomAlertDialog dialog = new CustomBottomAlertDialog(LoanDetailsActivity.this);
         View view = View.inflate(this, R.layout.loan_apply_confirmation_icon_layout, null);
         TextView tv = view.findViewById(R.id.dialog_message);
-        tv.setText("Are you sure you want to apply for this loan?");
+        tv.setText(R.string.confirm_loan_apply);
         dialog.addView(view);
         dialog.addView(View.inflate(this, R.layout.loan_apply_confirmation_layout, null));
         dialog.setNegativeButton("No, cancel");

@@ -47,6 +47,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.quidvis.moneydrop.BuildConfig;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
+import com.quidvis.moneydrop.utility.view.DialogSpinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -377,6 +378,25 @@ public class Utility {
         editText.setTextColor(color);
     }
 
+    public static void enableButton(@NonNull Button button) {
+        button.setEnabled(true);
+        button.setAlpha(1f);
+    }
+
+    public static void enableButton(@NonNull CircularProgressButton button) {
+        button.setEnabled(true);
+        button.setAlpha(1f);
+    }
+
+    public static void enableDialogSpinner(@NonNull final DialogSpinner dialogSpinner) {
+        enableDialogSpinner(dialogSpinner, Color.BLACK);
+    }
+
+    public static void enableDialogSpinner(@NonNull final DialogSpinner dialogSpinner, int color) {
+        dialogSpinner.setEnabled(true);
+        dialogSpinner.setTextColor(color);
+    }
+
     public static void disableEditText(@NonNull EditText editText) {
         disableEditText(editText, Color.GRAY);
     }
@@ -394,6 +414,15 @@ public class Utility {
     public static void disableButton(@NonNull CircularProgressButton button) {
         button.setEnabled(false);
         button.setAlpha(0.5f);
+    }
+
+    public static void disableDialogSpinner(@NonNull DialogSpinner dialogSpinner) {
+        disableDialogSpinner(dialogSpinner, Color.GRAY);
+    }
+
+    public static void disableDialogSpinner(@NonNull DialogSpinner dialogSpinner, int color) {
+        dialogSpinner.setEnabled(false);
+        dialogSpinner.setTextColor(color);
     }
 
     public static void startRevealActivity(Activity activity, View v, Class<?> className) {
@@ -990,7 +1019,7 @@ public class Utility {
      * @param message
      */
     public static void alertDialog(Context context, String message) {
-        alertDialog(context, null, message, null,
+        alertDialog(context, null, message, "Ok",
                 null, null,
                 null, null,
                 null);
@@ -1001,7 +1030,7 @@ public class Utility {
      * @param message
      */
     public static void alertDialog(Context context, String message, boolean cancelable) {
-        alertDialog(context, null, message, null,
+        alertDialog(context, null, message, "Ok",
                 null, null,
                 null, null,
                 null, cancelable);
@@ -1013,7 +1042,7 @@ public class Utility {
      * @param message
      */
     public static void alertDialog(Context context, String title, String message) {
-        alertDialog(context, title, message, null,
+        alertDialog(context, title, message, "Ok",
                 null, null,
                 null, null,
                 null);
@@ -1026,7 +1055,7 @@ public class Utility {
      * @param cancelable
      */
     public static void alertDialog(Context context, String title, String message, boolean cancelable) {
-        alertDialog(context, title, message, null,
+        alertDialog(context, title, message, "Ok",
                 null, null,
                 null, null,
                 null, cancelable);

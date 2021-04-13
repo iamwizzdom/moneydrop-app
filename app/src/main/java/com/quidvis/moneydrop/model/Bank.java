@@ -48,7 +48,6 @@ public class Bank {
     }
 
     public boolean update() {
-//        return dbHelper.updateBankAccount(this);
-        return false;
+        return dbHelper.updateBank(this);
     }
 }

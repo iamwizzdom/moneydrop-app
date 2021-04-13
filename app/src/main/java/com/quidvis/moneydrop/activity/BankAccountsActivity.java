@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -16,6 +17,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.constant.Constant;
@@ -43,8 +45,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import mono.connect.widget.ConnectWidget;
+import mono.connect.widget.ConnectedAccount;
+import mono.connect.widget.EventListener;
 
-public class BankAccountsActivity extends CustomCompatActivity {
+public class BankAccountsActivity extends CustomCompatActivity implements EventListener {
 
     private CircularProgressButton addBankBtn;
     private DbHelper dbHelper;
@@ -56,6 +61,7 @@ public class BankAccountsActivity extends CustomCompatActivity {
     private TextView successfulView, emptyView;
     private CustomBottomSheet bottomSheet;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private ConnectWidget mConnectWidget;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +71,10 @@ public class BankAccountsActivity extends CustomCompatActivity {
         user = dbHelper.getUser();
         banks = dbHelper.getBanks();
         accounts = dbHelper.getBankAccounts();
+        String key = this.getString(R.string.connect_public_key);
+
+        mConnectWidget = new ConnectWidget(this, key);
+        mConnectWidget.setListener(this);
 
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(() -> this.fetchAllAccounts(true));
@@ -72,27 +82,28 @@ public class BankAccountsActivity extends CustomCompatActivity {
         emptyView = findViewById(R.id.empty_view);
         accountsContainer = findViewById(R.id.accounts_container);
 
-        if (!user.getBvn().isEmpty()) {
+        if (accounts.size() > 0) listAccounts();
+        else fetchAllAccounts();
 
-            if (accounts.size() > 0) listAccounts();
-            else fetchAllAccounts();
-
-        } else {
-
-            isContentEmpty(true);
-            AwesomeAlertDialog awesomeAlertDialog = new AwesomeAlertDialog(this);
-            awesomeAlertDialog.setTitle("BVN Check");
-            awesomeAlertDialog.setMessage("Sorry, you must set your BVN before performing any bank operation.");
-            awesomeAlertDialog.setPositiveButton("Set BVN", dialog -> {
-                startActivity(new Intent(BankAccountsActivity.this, ProfileActivity.class));
-            });
-            awesomeAlertDialog.setCancelable(false);
-            awesomeAlertDialog.setOnCancelListener(dialogInterface -> {
-                Utility.toastMessage(BankAccountsActivity.this, "You must set BVN to proceed.");
-                finish();
-            });
-            awesomeAlertDialog.show();
-        }
+//        if (!user.getBvn().isEmpty()) {
+//
+//
+//        } else {
+//
+//            isContentEmpty(true);
+//            AwesomeAlertDialog awesomeAlertDialog = new AwesomeAlertDialog(this);
+//            awesomeAlertDialog.setTitle("BVN Check");
+//            awesomeAlertDialog.setMessage("Sorry, you must set your BVN before performing any bank operation.");
+//            awesomeAlertDialog.setPositiveButton("Set BVN", dialog -> {
+//                startActivity(new Intent(BankAccountsActivity.this, ProfileActivity.class));
+//            });
+//            awesomeAlertDialog.setCancelable(false);
+//            awesomeAlertDialog.setOnCancelListener(dialogInterface -> {
+//                Utility.toastMessage(BankAccountsActivity.this, "You must set BVN to proceed.");
+//                finish();
+//            });
+//            awesomeAlertDialog.show();
+//        }
     }
 
     private void listAccounts() {
@@ -103,7 +114,9 @@ public class BankAccountsActivity extends CustomCompatActivity {
         }
         isContentEmpty(false);
         for (BankAccount account: accounts) {
-            accountsContainer.addView(getAccountView(account));
+            View view = getAccountView();
+            setAccountView(view, account);
+            accountsContainer.addView(view);
         }
     }
 
@@ -112,18 +125,32 @@ public class BankAccountsActivity extends CustomCompatActivity {
         accountsContainer.setVisibility(status ? View.GONE : View.VISIBLE);
     }
 
-    private View getAccountView(BankAccount account) {
-
-        View accountView = getLayoutInflater().inflate(R.layout.bank_acount_layout, null);
-        ImageView optionBtn = accountView.findViewById(R.id.option);
-        TextView acctNum = accountView.findViewById(R.id.account_number);
-        TextView acctName = accountView.findViewById(R.id.account_name);
-        TextView bankName = accountView.findViewById(R.id.bank_name);
+    private View getAccountView() {
+        View view = getLayoutInflater().inflate(R.layout.bank_acount_layout, null);
+        ShimmerFrameLayout shimmerFrameLayout = view.findViewById(R.id.bank_shimmer_view);
+        shimmerFrameLayout.startShimmer();
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         params.bottomMargin = Utility.getDip(this, 10);
-        accountView.setLayoutParams(params);
+        view.setLayoutParams(params);
+
+        return view;
+    }
+
+    private void setAccountView(View view, BankAccount account) {
+
+        LinearLayout container = view.findViewById(R.id.container);
+        ShimmerFrameLayout shimmerFrameLayout = view.findViewById(R.id.bank_shimmer_view);
+        shimmerFrameLayout.stopShimmer();
+        shimmerFrameLayout.setVisibility(View.GONE);
+        container.setVisibility(View.VISIBLE);
+
+        TextView acctNum = view.findViewById(R.id.account_number);
+        TextView acctName = view.findViewById(R.id.account_name);
+        TextView bankName = view.findViewById(R.id.bank_name);
+        ImageView optionBtn = view.findViewById(R.id.option);
+
         acctNum.setText(account.getAccountNumber());
         acctName.setText(account.getAccountName());
         bankName.setText(Utility.castEmpty(account.getBankName(), "Unknown Bank"));
@@ -143,7 +170,7 @@ public class BankAccountsActivity extends CustomCompatActivity {
                     alertDialog.setIcon(R.drawable.ic_remove);
                     alertDialog.setMessage("Are you sure you want to remove this bank account?");
                     alertDialog.setNegativeButton("No, cancel");
-                    alertDialog.setPositiveButton("Yes, proceed", vw -> removeBankAccount(accountView, (String) v.getTag()));
+                    alertDialog.setPositiveButton("Yes, proceed", vw -> removeBankAccount(view, (String) v.getTag()));
                     alertDialog.display();
                 }
                 return false;
@@ -151,53 +178,63 @@ public class BankAccountsActivity extends CustomCompatActivity {
 
             popup.show();
         });
-        return accountView;
     }
 
     public void addAccount(View view) {
 
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.add_bank_account_bottom_sheet_layout, null);
-        contentView = bottomSheetView.findViewById(R.id.content);
-        successfulView = bottomSheetView.findViewById(R.id.successful);
-
-        EditText etAcctNum = bottomSheetView.findViewById(R.id.account_number);
-        DialogSpinner dialogSpinner = bottomSheetView.findViewById(R.id.banks_list);
-
-        int size = this.banks.size();
-        String[] banks = new String[size];
-        for (int i = 0; i < size; i++) {
-            Bank bank = this.banks.get(i);
-            banks[i] = bank.getName();
+        if (accounts.size() >= 5) {
+            Utility.toastMessage(this, "You can't have more than 5 accounts");
+            return;
         }
-        dialogSpinner.setEntries(banks);
 
-        addBankBtn = bottomSheetView.findViewById(R.id.add_account);
+        mConnectWidget.show();
 
-        addBankBtn.setOnClickListener(v -> {
-            String accountNumber = etAcctNum.getText().toString();
-            String bankCode = this.banks.get(dialogSpinner.getSelectedItemPosition()).getCode();
-            if (accountNumber.isEmpty() || accountNumber.length() < 6) {
-                Utility.toastMessage(BankAccountsActivity.this, "Please enter valid account number");
-                return;
-            }
-            if (bankCode.isEmpty()) {
-                Utility.toastMessage(BankAccountsActivity.this, "Please select a bank");
-                return;
-            }
-            addBankAccount(accountNumber, bankCode);
-        });
-
-        bottomSheet = CustomBottomSheet.newInstance(this, bottomSheetView);
-        bottomSheet.show();
+//        bottomSheet = CustomBottomSheet.newInstance(this, R.layout.add_bank_account_bottom_sheet_layout);
+//        bottomSheet.setOnViewInflatedListener(view1 -> {
+//
+//            contentView = view1.findViewById(R.id.content);
+//            successfulView = view1.findViewById(R.id.successful);
+//
+//            EditText etAcctNum = view1.findViewById(R.id.account_number);
+//            DialogSpinner dialogSpinner = view1.findViewById(R.id.banks_list);
+//
+//            int size = this.banks.size();
+//            String[] banks = new String[size];
+//            for (int i = 0; i < size; i++) {
+//                Bank bank = this.banks.get(i);
+//                banks[i] = bank.getName();
+//            }
+//            dialogSpinner.setEntries(banks);
+//
+//            addBankBtn = view1.findViewById(R.id.add_account);
+//
+//            addBankBtn.setOnClickListener(v -> {
+//                String accountNumber = etAcctNum.getText().toString();
+//                String bankCode = this.banks.get(dialogSpinner.getSelectedItemPosition()).getCode();
+//                if (accountNumber.isEmpty() || accountNumber.length() < 6) {
+//                    Utility.toastMessage(BankAccountsActivity.this, "Please enter valid account number");
+//                    return;
+//                }
+//                if (bankCode.isEmpty()) {
+//                    Utility.toastMessage(BankAccountsActivity.this, "Please select a bank");
+//                    return;
+//                }
+//                addBankAccount(accountNumber, bankCode);
+//            });
+//
+//        });
+//        bottomSheet.show();
     }
 
-    private void addBankAccount(String accountNumber, String bankCode) {
+    private void addBankAccount(String bankCode) {
+
+        View view = getAccountView();
+
         HttpRequest httpRequest = new HttpRequest(this, URLContract.BANK_ACCOUNT_ADD_URL,
                 Request.Method.POST, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
-                params.put("account_number", accountNumber);
                 params.put("bank_code", bankCode);
                 return params;
             }
@@ -217,12 +254,16 @@ public class BankAccountsActivity extends CustomCompatActivity {
         }) {
             @Override
             protected void onRequestStarted() {
-                addBankBtn.startAnimation();
+
+                isContentEmpty(false);
+                accountsContainer.addView(view, 0);
+                Utility.toastMessage(BankAccountsActivity.this,  "Account connected, now authenticating");
             }
 
             @Override
             protected void onRequestCompleted(boolean onError) {
-                addBankBtn.revertAnimation();
+                isContentEmpty(accounts.size() <= 0);
+                if (onError) accountsContainer.removeView(view);
             }
 
             @Override
@@ -246,7 +287,7 @@ public class BankAccountsActivity extends CustomCompatActivity {
                         if (dbHelper.saveBankAccount(account)) {
                             accounts.add(0, account);
                             isContentEmpty(false);
-                            accountsContainer.addView(getAccountView(account), 0);
+                            setAccountView(view, account);
                             Utility.toastMessage(BankAccountsActivity.this, object.getString("message"));
                         } else {
                             Utility.alertDialog(BankAccountsActivity.this,
@@ -257,13 +298,6 @@ public class BankAccountsActivity extends CustomCompatActivity {
                     } else {
                         Utility.toastMessage(BankAccountsActivity.this, object.getString("message"));
                     }
-
-                    contentView.setVisibility(View.GONE);
-                    successfulView.setVisibility(View.VISIBLE);
-                    addBankBtn.setOnClickListener(v -> bottomSheet.dismiss());
-                    new Handler(Objects.requireNonNull(Looper.myLooper())).postDelayed(() -> {
-                        addBankBtn.setText(R.string.done);
-                    }, 500);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -293,12 +327,12 @@ public class BankAccountsActivity extends CustomCompatActivity {
                     Utility.toastMessage(BankAccountsActivity.this, statusCode == 503 ? error :
                             e.getMessage() + ": Something unexpected happened. Please try that again.");
                 }
-                addBankBtn.revertAnimation();
+                accountsContainer.removeView(view);
             }
 
             @Override
             protected void onRequestCancelled() {
-
+                accountsContainer.removeView(view);
             }
         };
         httpRequest.send(Constant.RETRY_IN_60_SEC);
@@ -513,5 +547,15 @@ public class BankAccountsActivity extends CustomCompatActivity {
 
     public void onBackPressed(View view) {
         onBackPressed();
+    }
+
+    @Override
+    public void onClose() {
+        Utility.toastMessage(this, "Account connection failed");
+    }
+
+    @Override
+    public void onSuccess(ConnectedAccount account) {
+        BankAccountsActivity.this.runOnUiThread(() -> addBankAccount(account.getCode()));
     }
 }
