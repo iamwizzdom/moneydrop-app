@@ -385,7 +385,8 @@ public class BankAccountsActivity extends CustomCompatActivity implements EventL
 
                     int size = accountList.length();
 
-                    if (size > 0) accounts.clear();
+                    if (refreshing) dbHelper.deleteAllBankAccounts();
+                    accounts.clear();
 
                     for (int i = 0; i < size; i++) {
                         JSONObject accountObject = accountList.getJSONObject(i);

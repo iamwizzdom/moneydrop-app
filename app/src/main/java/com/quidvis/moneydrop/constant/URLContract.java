@@ -13,8 +13,8 @@ public class URLContract {
     public static final String URL_SCHEME = URL_HTTP_SCHEME;
 //    public static final String HOST_URL = "moneydrop.test";
 //    public static final String HOST_URL = "192.168.0.109:8000";
-    public static final String HOST_URL = "10.101.186.242:8000";
-//    public static final String HOST_URL = "54.93.104.127/moneydrop/server";
+//    public static final String HOST_URL = "10.101.186.242:8000";
+    public static final String HOST_URL = "54.93.104.127/moneydrop/server";
     public static final String BASE_URL = URL_SCHEME + HOST_URL;
     private static final String API_URL = BASE_URL + "/api/v1/m-app";
     public static final String IMPORT_COUNTRIES_URL = API_URL + "/import/countries";

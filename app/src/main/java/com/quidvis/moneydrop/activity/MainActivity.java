@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.quidvis.moneydrop.R;
@@ -979,6 +980,11 @@ public class MainActivity extends CustomCompatActivity {
     private View getAccountView(BankAccount account) {
 
         View accountView = getLayoutInflater().inflate(R.layout.bank_acount_layout, null);
+        LinearLayout container = accountView.findViewById(R.id.container);
+        ShimmerFrameLayout shimmerFrameLayout = accountView.findViewById(R.id.bank_shimmer_view);
+        shimmerFrameLayout.stopShimmer();
+        shimmerFrameLayout.setVisibility(View.GONE);
+        container.setVisibility(View.VISIBLE);
         ImageView selectCheck = accountView.findViewById(R.id.check_mark);
         TextView acctNum = accountView.findViewById(R.id.account_number);
         TextView acctName = accountView.findViewById(R.id.account_name);

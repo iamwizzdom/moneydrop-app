@@ -522,7 +522,8 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
 
                     int size = cardList.length();
 
-                    if (size > 0) cards.clear();
+                    if (refreshing) dbHelper.deleteAllCards();
+                    cards.clear();
 
                     for (int i = 0; i < size; i++) {
                         JSONObject cardObject = cardList.getJSONObject(i);
