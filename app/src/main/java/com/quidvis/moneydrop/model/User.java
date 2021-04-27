@@ -25,7 +25,6 @@ public class User {
     
     private int id, gender, status;
     private double rating;
-    private boolean verifiedEmail, verifiedPhone;
     private String uuid, firstname, middlename, lastname, email, phone, bvn,
             dob, address, picture, token;
     private Country country;
@@ -153,7 +152,7 @@ public class User {
     }
 
     public String getPictureUrl() {
-        return (URLContract.URL_SCHEME + URLContract.HOST_URL + "/" + picture);
+        return (URLContract.BASE_URL + "/" + getPicture());
     }
 
     public int getDefaultPicture() {
@@ -178,22 +177,6 @@ public class User {
 
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    public boolean isVerifiedEmail() {
-        return verifiedEmail;
-    }
-
-    public void setVerifiedEmail(boolean verifiedEmail) {
-        this.verifiedEmail = verifiedEmail;
-    }
-
-    public boolean isVerifiedPhone() {
-        return verifiedPhone;
-    }
-
-    public void setVerifiedPhone(boolean verifiedPhone) {
-        this.verifiedPhone = verifiedPhone;
     }
 
     public String getToken() {
@@ -237,9 +220,6 @@ public class User {
             setState(new State(context, userObject.getJSONObject("state")));
         else setState(null);
         this.setStatus(userObject.getInt("status"));
-        JSONObject verified = userObject.getJSONObject("verified");
-        this.setVerifiedEmail(verified.getBoolean("email"));
-        this.setVerifiedPhone(verified.getBoolean("phone"));
         if (userObject.has("bank_statement") && !Utility.castEmpty(userObject.getString("bank_statement")).isEmpty())
             setBankStatement(new BankStatement(userObject.getJSONObject("bank_statement")));
         else setBankStatement(null);
@@ -266,10 +246,6 @@ public class User {
             if (country != null) object.put("country", country.getCountryObject());
             if (state != null) object.put("state", state.getStateObject());
             object.put("status", status);
-            JSONObject verified = new JSONObject();
-            verified.put("email", verifiedEmail);
-            verified.put("phone", verifiedPhone);
-            object.put("verified", verified);
             if (bankStatement != null) object.put("bank_statement", bankStatement.getStatementObject());
             if (token != null) object.put("token", token);
         } catch (JSONException e) {

@@ -106,12 +106,15 @@ public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
         if (size >= 2) st2 = s.substring(0, 2);
         if (size >= 4) st4 = s.substring(0, 4);
 
-        if (s.startsWith("4") || s.matches(CardPattern.VISA)) {
+        if (s.startsWith("4") || s.matches(CardPattern.VISA) || s.matches(CardPattern.VISA_MASTER)) {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_visa_card, 0, 0,0);
             type = "Visa";
-        } else if (s.startsWith("50") || s.matches(CardPattern.VERVE)) {
+        } else if (s.matches(CardPattern.VERVE)) {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_verve, 0, 0,0);
             type = "Verve";
+        } else if (s.matches(CardPattern.MAESTROCARD)) {
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_maestro, 0, 0,0);
+            type = "Maestro";
         } else if (Validator.isNumberBetween(Integer.parseInt(st2), 51, 55) ||
                 Validator.isNumberBetween(Integer.parseInt(st4), 2221, 2720) ||
                 s.matches(CardPattern.MASTERCARD_SHORTER) || s.matches(CardPattern.MASTERCARD_SHORT) ||
@@ -138,11 +141,12 @@ public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
 
     public boolean isValid() {
         if (getCardNumber().matches(CardPattern.VISA_VALID)) return true;
-        if (getCardNumber().matches(CardPattern.VERVE_VALID)) return true;
-        if (getCardNumber().matches(CardPattern.MASTERCARD_VALID)) return true;
-        if (getCardNumber().matches(CardPattern.AMERICAN_EXPRESS_VALID)) return true;
-        if (getCardNumber().matches(CardPattern.DISCOVER_VALID)) return true;
-        if (getCardNumber().matches(CardPattern.DINERS_CLUB_VALID)) return true;
+        else if (getCardNumber().matches(CardPattern.VERVE_VALID)) return true;
+        else if (getCardNumber().matches(CardPattern.MAESTROCARD_VALID)) return true;
+        else if (getCardNumber().matches(CardPattern.MASTERCARD_VALID)) return true;
+        else if (getCardNumber().matches(CardPattern.AMERICAN_EXPRESS_VALID)) return true;
+        else if (getCardNumber().matches(CardPattern.DISCOVER_VALID)) return true;
+        else if (getCardNumber().matches(CardPattern.DINERS_CLUB_VALID)) return true;
         return getCardNumber().matches(CardPattern.JCB_VALID);
     }
 

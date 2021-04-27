@@ -68,23 +68,27 @@ public class Session {
         this.editor.commit();
     }
 
-    public void setJSONArray(String key, JSONArray data) {
-        this.editor.putString(key, data.toString());
-        this.editor.commit();
-    }
-
     public JSONObject getJSONObject(String key) {
         try {
-            return new JSONObject(Objects.requireNonNull(prefs.getString(key, "")));
+            String value = prefs.getString(key, null);
+            if (value == null) return null;
+            return new JSONObject(value);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    public void setJSONArray(String key, JSONArray data) {
+        this.editor.putString(key, data.toString());
+        this.editor.commit();
+    }
+
     public JSONArray getJSONArray(String key) {
         try {
-            return new JSONArray(Objects.requireNonNull(prefs.getString(key, "")));
+            String value = prefs.getString(key, null);
+            if (value == null) return null;
+            return new JSONArray(value);
         } catch (JSONException e) {
             e.printStackTrace();
         }

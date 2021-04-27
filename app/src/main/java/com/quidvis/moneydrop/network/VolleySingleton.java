@@ -65,8 +65,8 @@ public class VolleySingleton extends Application {
     private RequestQueue getRequestQueue() {
         // If RequestQueue is null the initialize new RequestQueue
         if (mRequestQueue == null) {
-            mRequestQueue = Volley.newRequestQueue(this);
-//            mRequestQueue = Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory()));
+//            mRequestQueue = Volley.newRequestQueue(this);
+            mRequestQueue = Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory()));
         }
 
         // Return RequestQueue
@@ -82,16 +82,14 @@ public class VolleySingleton extends Application {
     private SSLSocketFactory getSocketFactory() {
 
         try {
-            CertificateFactory cf;
-            cf = CertificateFactory.getInstance("X.509");
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
-            Certificate ca;
             InputStream cert = getApplicationContext().getResources().openRawResource(R.raw.cert);
-            ca = cf.generateCertificate(cert);
+            Certificate ca = cf.generateCertificate(cert);
             cert.close();
 
             String keyStoreType = KeyStore.getDefaultType();
-            KeyStore keyStore   = KeyStore.getInstance(keyStoreType);
+            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
             keyStore.load(null, null);
             keyStore.setCertificateEntry("ca", ca);
 
@@ -106,9 +104,7 @@ public class VolleySingleton extends Application {
             HttpsURLConnection.setDefaultSSLSocketFactory(ssf);
 
             return ssf;
-
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

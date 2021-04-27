@@ -412,9 +412,11 @@ public class OfferLoanFragment extends CustomFragment {
                 try {
 
                     JSONObject data = new JSONObject(response);
-                    session.setJSONObject("loan_consts", data);
-                    setLoanTenure(data.getJSONObject("tenure"));
-                    setInterestType(data.getJSONObject("interest_type"));
+                    if (data.length() > 0) {
+                        session.setJSONObject("loan_consts", data);
+                        setLoanTenure(data.getJSONObject("tenure"));
+                        setInterestType(data.getJSONObject("interest_type"));
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();

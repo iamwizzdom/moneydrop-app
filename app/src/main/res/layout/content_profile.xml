@@ -523,7 +523,8 @@
                             android:paddingStart="5dp"
                             android:paddingTop="@dimen/padding_15"
                             android:paddingEnd="@dimen/padding_15"
-                            android:paddingBottom="@dimen/padding_15">
+                            android:paddingBottom="@dimen/padding_15"
+                            android:visibility="gone">
 
                             <TextView
                                 style="@style/text_view_style"
@@ -548,7 +549,8 @@
                             android:paddingStart="5dp"
                             android:paddingTop="@dimen/padding_15"
                             android:paddingEnd="@dimen/padding_15"
-                            android:paddingBottom="@dimen/padding_15">
+                            android:paddingBottom="@dimen/padding_15"
+                            android:visibility="gone">
 
                             <TextView
                                 style="@style/text_view_style"

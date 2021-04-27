@@ -193,6 +193,6 @@ public class FirebaseMessageReceiver extends FirebaseMessagingService {
 
     private String getFullImageUrl(String imageUri) {
         if (TextUtils.isEmpty(imageUri)) return imageUri;
-        return (URLContract.URL_SCHEME + URLContract.HOST_URL + "/" + imageUri);
+        return (URLContract.BASE_URL + "/" + imageUri);
     }
 }

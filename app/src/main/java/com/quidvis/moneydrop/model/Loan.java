@@ -141,12 +141,16 @@ public class Loan {
         isFundRaiser = fundRaiser;
     }
 
-    public boolean isMine() {
-        return isMine;
+    public boolean isPending() {
+        return getStatus().toLowerCase().equals("pending");
     }
 
-    public boolean isRevoked() {
-        return getStatus().toLowerCase().equals("revoked");
+    public boolean isAwaiting() {
+        return getStatus().toLowerCase().equals("awaiting");
+    }
+
+    public boolean isMine() {
+        return isMine;
     }
 
     public void setMine(boolean mine) {

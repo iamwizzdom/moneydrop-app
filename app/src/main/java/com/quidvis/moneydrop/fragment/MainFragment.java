@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -141,7 +142,7 @@ public class MainFragment extends CustomCompatFragment {
 
     private void setLoans(JSONArray loan) {
 
-        int size = loan.length();
+        int size = Math.min(loan.length(), 2);
         loanView.removeAllViews();
 
         for (int i = 0; i < size; i++) {

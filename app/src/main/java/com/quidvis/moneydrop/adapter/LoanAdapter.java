@@ -170,9 +170,9 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 fragment.startActivityForResult(intent, loan.isLoanOffer() ? LoanOffersFragment.LOAN_OFFER_DETAILS_KEY : LoanRequestsFragment.LOAN_REQUEST_DETAILS_KEY);
             });
 
-            if (!loan.isRevoked() && loan.isMine()) {
+            if ((loan.isPending() || loan.isAwaiting()) && loan.isMine()) {
                 parentViewHolder.itemView.setOnLongClickListener(v -> {
-                    setPosition(parentViewHolder.getAdapterPosition());
+                    setPosition(parentViewHolder.getAbsoluteAdapterPosition());
                     return false;
                 });
             } else {

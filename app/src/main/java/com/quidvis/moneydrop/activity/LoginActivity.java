@@ -23,6 +23,7 @@ import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.Bank;
+import com.quidvis.moneydrop.model.BankAccount;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
@@ -175,7 +176,8 @@ public class LoginActivity extends CustomCompatActivity {
 
                     JSONObject userData = object.getJSONObject("response");
                     JSONArray cards = userData.getJSONArray("cards");
-                    JSONObject banks = userData.getJSONObject("banks");
+                    JSONArray bankAccounts = userData.getJSONArray("bank-accounts");
+//                    JSONObject banks = userData.getJSONObject("banks");
 
                     User user = new User(LoginActivity.this, userData.getJSONObject("user"));
 
@@ -193,15 +195,26 @@ public class LoginActivity extends CustomCompatActivity {
                             dbHelper.saveCard(card);
                         }
 
-                        for (Iterator<String> it = banks.keys(); it.hasNext();) {
-                            String key = it.next();
-                            JSONObject bankObject = banks.getJSONObject(key);
-                            Bank bank = new Bank(LoginActivity.this);
-                            bank.setUid(bankObject.getInt("id"));
-                            bank.setName(bankObject.getString("name"));
-                            bank.setCode(bankObject.getString("code"));
-                            dbHelper.saveBank(bank);
+                        for (int i = 0; i < bankAccounts.length(); i++) {
+                            JSONObject accountObject = bankAccounts.getJSONObject(i);
+                            BankAccount account = new BankAccount(LoginActivity.this);
+                            account.setUuid(accountObject.getString("uuid"));
+                            account.setAccountName(accountObject.getString("account_name"));
+                            account.setAccountNumber(accountObject.getString("account_number"));
+                            account.setBankName(accountObject.getString("bank_name"));
+                            account.setRecipientCode(accountObject.getString("recipient_code"));
+                            dbHelper.saveBankAccount(account);
                         }
+
+//                        for (Iterator<String> it = banks.keys(); it.hasNext();) {
+//                            String key = it.next();
+//                            JSONObject bankObject = banks.getJSONObject(key);
+//                            Bank bank = new Bank(LoginActivity.this);
+//                            bank.setUid(bankObject.getInt("id"));
+//                            bank.setName(bankObject.getString("name"));
+//                            bank.setCode(bankObject.getString("code"));
+//                            dbHelper.saveBank(bank);
+//                        }
 
                         session.setLoggedIn(true);
                         Utility.toastMessage(LoginActivity.this, object.getString("message"));

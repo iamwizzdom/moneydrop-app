@@ -171,7 +171,6 @@ public class LoanRequestsFragment extends CustomFragment {
     @Override
     public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenu.ContextMenuInfo menuInfo) {
         activity.getMenuInflater().inflate(R.menu.loan_request_option, menu);
-        Log.e("onCreateContextMenu", "I ran onCreateContextMenu in " + this);
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 

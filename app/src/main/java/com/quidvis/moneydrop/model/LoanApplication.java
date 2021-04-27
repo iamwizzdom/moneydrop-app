@@ -28,7 +28,6 @@ public class LoanApplication {
         this.setLoanID(applicationObject.getString("loan_id"));
         this.setUserID(applicationObject.getInt("user_id"));
         this.setStatus(applicationObject.getString("status_readable"));
-        this.setRepaid(applicationObject.getBoolean("is_reviewed"));
         this.setRepaid(applicationObject.getBoolean("is_repaid"));
         this.setReviewed(applicationObject.getBoolean("is_reviewed"));
         this.setHasGranted(applicationObject.getBoolean("has_granted"));

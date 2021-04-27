@@ -69,11 +69,10 @@ public class BankAccountsActivity extends CustomCompatActivity implements EventL
         setContentView(R.layout.activity_bank_accounts);
         dbHelper = new DbHelper(BankAccountsActivity.this);
         user = dbHelper.getUser();
-        banks = dbHelper.getBanks();
+//        banks = dbHelper.getBanks();
         accounts = dbHelper.getBankAccounts();
-        String key = this.getString(R.string.connect_public_key);
 
-        mConnectWidget = new ConnectWidget(this, key);
+        mConnectWidget = new ConnectWidget(this, Constant.MONO_KEY);
         mConnectWidget.setListener(this);
 
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
@@ -381,7 +380,7 @@ public class BankAccountsActivity extends CustomCompatActivity implements EventL
                     JSONObject object = new JSONObject(response);
                     JSONObject responseObj = object.getJSONObject("response");
                     JSONArray accountList = responseObj.getJSONArray("accounts");
-                    JSONObject banks = responseObj.getJSONObject("banks");
+//                    JSONObject banks = responseObj.getJSONObject("banks");
 
                     int size = accountList.length();
 
@@ -400,19 +399,19 @@ public class BankAccountsActivity extends CustomCompatActivity implements EventL
                         dbHelper.saveBankAccount(account);
                     }
 
-                    if (banks.length() > 0 && BankAccountsActivity.this.banks.size() > 0)
-                        BankAccountsActivity.this.banks.clear();
+//                    if (banks.length() > 0 && BankAccountsActivity.this.banks.size() > 0)
+//                        BankAccountsActivity.this.banks.clear();
 
-                    for (Iterator<String> it = banks.keys(); it.hasNext();) {
-                        String key = it.next();
-                        JSONObject bankObject = banks.getJSONObject(key);
-                        Bank bank = new Bank(BankAccountsActivity.this);
-                        bank.setUid(bankObject.getInt("id"));
-                        bank.setName(bankObject.getString("name"));
-                        bank.setCode(bankObject.getString("code"));
-                        dbHelper.saveBank(bank);
-                        BankAccountsActivity.this.banks.add(bank);
-                    }
+//                    for (Iterator<String> it = banks.keys(); it.hasNext();) {
+//                        String key = it.next();
+//                        JSONObject bankObject = banks.getJSONObject(key);
+//                        Bank bank = new Bank(BankAccountsActivity.this);
+//                        bank.setUid(bankObject.getInt("id"));
+//                        bank.setName(bankObject.getString("name"));
+//                        bank.setCode(bankObject.getString("code"));
+//                        dbHelper.saveBank(bank);
+//                        BankAccountsActivity.this.banks.add(bank);
+//                    }
 
                     listAccounts();
 

@@ -85,7 +85,6 @@ public class LoanApplicantsActivity extends CustomCompatActivity {
 
         try {
             JSONObject loanObject = new JSONObject(loanString);
-            Log.e("loanObject", loanObject.toString());
             loan = new Loan(this, loanObject);
         } catch (JSONException e) {
             e.printStackTrace();

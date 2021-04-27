@@ -17,6 +17,10 @@ public class Constant {
 
     public static final String FILE_PATH = String.format("%s/MoneyDrop", Environment.getExternalStorageDirectory().getPath());
 
+    public static final String MONO_KEY = "test_pk_QkHIcvviN20Tbyap1wnF";
+    public static final String FLUTTERWAVE_PUBKEY = "FLWPUBK_TEST-52ece87389c981bffbff5283aa35f00f-X";
+    public static final String FLUTTERWAVE_ENCKEY = "FLWSECK_TEST76766747e348";
+
     /**
      * HTTP Request code
      */

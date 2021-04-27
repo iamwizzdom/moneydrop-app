@@ -135,7 +135,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             parentViewHolder.tvAmount.setText(format.format(application.getLoan().getAmount()));
             parentViewHolder.tvStatus.setText(Utility.ucFirst(application.getStatus()));
 
-            ArrayMap<String, Integer> theme = getTheme(application.getStatus(), true);
+            ArrayMap<String, Integer> theme = getTheme(application.getStatus(), (loan.isLoanRequest() && application.getApplicant().isMe()) || (loan.isLoanOffer() && loan.isMine()));
 
             parentViewHolder.mvIcon.setImageDrawable(ContextCompat.getDrawable(context, Objects.requireNonNull(theme.get("icon"))));
             parentViewHolder.tvAmount.setTextColor(context.getResources().getColor(Objects.requireNonNull(theme.get("color"))));

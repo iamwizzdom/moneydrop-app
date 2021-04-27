@@ -75,8 +75,6 @@ public class DbHelper extends SQLiteOpenHelper {
             + DbContract.USER_STATUS + " INT NOT NULL,"
             + DbContract.USER_BVN + " CHAR(20) NOT NULL,"
             + DbContract.USER_TOKEN + " CHAR(500) NOT NULL,"
-            + DbContract.USER_VERIFIED_EMAIL + " INT NOT NULL,"
-            + DbContract.USER_VERIFIED_PHONE + " INT NOT NULL,"
             + DbContract.USER_BANK_STATEMENT + " TEXT"
             +");";
 
@@ -220,8 +218,6 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.USER_BVN, user.getBvn());
         contentValues.put(DbContract.USER_TOKEN, user.getToken());
         contentValues.put(DbContract.USER_STATUS, user.getStatus());
-        contentValues.put(DbContract.USER_VERIFIED_EMAIL, user.isVerifiedEmail());
-        contentValues.put(DbContract.USER_VERIFIED_PHONE, user.isVerifiedPhone());
         if (user.getBankStatement() != null) contentValues.put(DbContract.USER_BANK_STATEMENT, user.getBankStatement().getStatementObject().toString());
 
         SQLiteDatabase database = this.getReadableDatabase();
@@ -379,8 +375,6 @@ public class DbHelper extends SQLiteOpenHelper {
         contentValues.put(DbContract.USER_BVN, user.getBvn());
         if (user.getToken() != null) contentValues.put(DbContract.USER_TOKEN, user.getToken());
         contentValues.put(DbContract.USER_STATUS, user.getStatus());
-        contentValues.put(DbContract.USER_VERIFIED_EMAIL, user.isVerifiedEmail());
-        contentValues.put(DbContract.USER_VERIFIED_PHONE, user.isVerifiedPhone());
         if (user.getBankStatement() != null) contentValues.put(DbContract.USER_BANK_STATEMENT, user.getBankStatement().getStatementObject().toString());
 
         if (contentValues.size() <= 0) return false;
@@ -581,8 +575,6 @@ public class DbHelper extends SQLiteOpenHelper {
                 DbContract.USER_STATE,
                 DbContract.USER_BVN,
                 DbContract.USER_TOKEN,
-                DbContract.USER_VERIFIED_EMAIL,
-                DbContract.USER_VERIFIED_PHONE,
                 DbContract.USER_STATUS,
                 DbContract.USER_BANK_STATEMENT
         };
@@ -608,8 +600,6 @@ public class DbHelper extends SQLiteOpenHelper {
             user.setAddress(cursor.getString(cursor.getColumnIndex(DbContract.USER_ADDRESS)));
             user.setBvn(cursor.getString(cursor.getColumnIndex(DbContract.USER_BVN)));
             user.setToken(cursor.getString(cursor.getColumnIndex(DbContract.USER_TOKEN)));
-            user.setVerifiedEmail(cursor.getInt(cursor.getColumnIndex(DbContract.USER_VERIFIED_EMAIL)) == 1);
-            user.setVerifiedPhone(cursor.getInt(cursor.getColumnIndex(DbContract.USER_VERIFIED_PHONE)) == 1);
             user.setStatus(cursor.getInt(cursor.getColumnIndex(DbContract.USER_STATUS)));
             try {
                 String country = cursor.getString(cursor.getColumnIndex(DbContract.USER_COUNTY));

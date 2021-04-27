@@ -67,9 +67,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
     private DbHelper dbHelper;
     private User user;
     private ArrayList<com.quidvis.moneydrop.model.Card> cards;
-    private final int chargeAmount = 5000;
-    private final String flutterwavePubKey = "FLWPUBK_TEST-52ece87389c981bffbff5283aa35f00f-X";
-    private final String flutterwaveEncKey = "FLWSECK_TEST76766747e348";
+    private final int chargeAmount = 50;
     private String flutterCardName, flutterTransRef;
 
 //    private Animation animFadeIn, animFadeOut;
@@ -91,7 +89,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
 //        PaystackSdk.initialize(this);
 
         raveNonUIManager = new RaveNonUIManager();
-        verificationUtils = new RaveVerificationUtils(this, true, flutterwavePubKey, R.style.AppTheme);
+        verificationUtils = new RaveVerificationUtils(this, true, Constant.FLUTTERWAVE_PUBKEY, R.style.AppTheme);
 
 //        animFadeIn = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in);
 //        animFadeOut = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_out);
@@ -145,7 +143,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
         cardNum.setText(String.format("****  ****  ****  %s", card.getLastFourDigits()));
         cardExp.setText(String.format("%s/%s", card.getExpMonth(), card.getExpYear()));
         String cardBrand = Utility.castEmpty(card.getName(), Utility.ucFirst(card.getBrand()));
-        cardBrand = cardBrand.toLowerCase().contains("card") ? cardBrand : String.format("%s card", cardBrand);
+        cardBrand = cardBrand.toLowerCase().contains("card") ? cardBrand : String.format("%s Card", cardBrand);
         cardName.setText(cardBrand);
 
         optionBtn.setTag(card.getUuid());
@@ -264,8 +262,8 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
                 .setlName(user.getLastname())
                 .setPhoneNumber(user.getPhone())
                 .setNarration("MoneyDrop card test charge")
-                .setPublicKey(flutterwavePubKey)
-                .setEncryptionKey(flutterwaveEncKey)
+                .setPublicKey(Constant.FLUTTERWAVE_PUBKEY)
+                .setEncryptionKey(Constant.FLUTTERWAVE_ENCKEY)
                 .setTxRef(flutterTransRef = UUID.randomUUID().toString())
                 .initialize();
         cardPayManager = new CardPaymentManager(raveNonUIManager, this);
@@ -467,6 +465,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
                             e.getMessage() + ": Something unexpected happened. Please try that again.");
                 }
                 addCardBtn.revertAnimation();
+                logTransRef(flutterTransRef);
             }
 
             @Override
@@ -483,7 +482,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
 
     private void fetchAllCards(boolean refreshing) {
         HttpRequest httpRequest = new HttpRequest(this, URLContract.CARD_RETRIEVE_ALL_URL,
-                Request.Method.POST, new HttpRequestParams() {
+                Request.Method.GET, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 return null;
@@ -674,6 +673,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
         if (brand.contains("visa")) return R.drawable.ic_visa_card;
         else if (brand.contains("verve")) return R.drawable.ic_verve;
         else if (brand.contains("master")) return R.drawable.ic_master_card;
+        else if (brand.contains("maestro")) return R.drawable.ic_maestro;
         else if (brand.contains("express")) return R.drawable.ic_american_express_card;
         else if (brand.contains("discover")) return R.drawable.ic_discover_card;
         else if (brand.contains("diners")) return R.drawable.ic_diners_club_card;

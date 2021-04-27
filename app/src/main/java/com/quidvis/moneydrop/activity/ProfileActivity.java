@@ -1164,8 +1164,10 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
                         Utility.disableDialogSpinner((DialogSpinner) input);
                     } else {
                         EditText editText = getEditText(input);
-                        Utility.clearFocus(editText, ProfileActivity.this);
-                        Utility.disableEditText(editText);
+                        if (editText != null) {
+                            Utility.clearFocus(editText, ProfileActivity.this);
+                            Utility.disableEditText(editText);
+                        }
                     }
                 }
 
@@ -1184,7 +1186,10 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
                     Object input = entry.getValue();
                     if (input instanceof DialogSpinner) {
                         Utility.enableDialogSpinner((DialogSpinner) input);
-                    } else Utility.enableEditText(getEditText(input));
+                    } else {
+                        EditText editText = getEditText(input);
+                        if (editText != null) Utility.enableEditText(editText);
+                    }
                 }
                 submitBtn.revertAnimation();
             }

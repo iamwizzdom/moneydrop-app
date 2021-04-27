@@ -58,8 +58,6 @@ public class DbContract {
     public static final String USER_STATUS = "status";
     public static final String USER_BVN = "bvn";
     public static final String USER_TOKEN = "token";
-    public static final String USER_VERIFIED_EMAIL = "verified_email";
-    public static final String USER_VERIFIED_PHONE = "verified_phone";
     public static final String USER_BANK_STATEMENT = "bank_statement";
 
 

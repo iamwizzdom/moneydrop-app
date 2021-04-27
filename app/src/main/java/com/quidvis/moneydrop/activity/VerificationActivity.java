@@ -48,7 +48,6 @@ public class VerificationActivity extends CustomCompatActivity {
             VERIFIED = "verified", OLD_DATA = "oldData";
 
     private CountDownTimer countDownTimer;
-    private static final String FORMAT = "Resend code in %s:%s";
     private boolean verified = false;
 
     private PinView pvOTP;
@@ -237,9 +236,7 @@ public class VerificationActivity extends CustomCompatActivity {
                 int minutes = seconds / 60;
                 seconds = seconds % 60;
 
-                String time = String.format(FORMAT, minutes > 9 ? minutes : "0" + minutes, seconds > 9 ? seconds : "0" + seconds);
-
-                String resentTxt = ("Didn't get OTP? " + time);
+                String resentTxt = String.format("Didn't receive OTP? Wait for %s:%s", minutes > 9 ? minutes : "0" + minutes, seconds > 9 ? seconds : "0" + seconds);
                 int start = resentTxt.indexOf("in") + 2, end = resentTxt.length();
                 SpannableString spannableString = new SpannableString(resentTxt);
                 spannableString.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

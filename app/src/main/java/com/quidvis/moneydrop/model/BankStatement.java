@@ -40,7 +40,7 @@ public class BankStatement {
     }
 
     public String getFileUrl() {
-        return (URLContract.URL_SCHEME + URLContract.HOST_URL + "/" + file);
+        return (URLContract.BASE_URL + "/" + file);
     }
 
     public void setFile(String file) {
