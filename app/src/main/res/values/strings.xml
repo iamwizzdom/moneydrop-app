@@ -266,6 +266,7 @@
     <string name="revoke_loan">Revoke loan</string>
     <string name="copy_right">Copy right</string>
     <string name="edit_review">Edit Review</string>
+    <string name="delete_review">Delete Review</string>
     <string name="delete">Delete</string>
     <string name="male">Male</string>
     <string name="icon">Icon</string>
@@ -284,6 +285,7 @@
     <string name="conditions">Terms and Conditions</string>
     <string name="contact_us"><![CDATA[Help & Contact Us]]></string>
     <string name="select_state">Select a state</string>
+    <string name="applied">Applied</string>
 
 
     <string-array name="interestType">

@@ -153,7 +153,7 @@ public class WalletFragment extends CustomCompatFragment {
 
     public void setTransactions(JSONArray trans) {
 
-        int size = trans.length();
+        int size = Math.min(trans.length(), 4);
         transactionView.removeAllViews();
 
         for (int i = 0; i < size; i++) {

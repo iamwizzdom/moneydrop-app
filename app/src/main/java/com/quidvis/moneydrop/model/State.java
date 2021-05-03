@@ -64,12 +64,12 @@ public class State {
         this.iso3166_2 = iso3166_2;
     }
 
-    public void setValues(JSONObject countryObject) throws JSONException {
-        this.stateObject = countryObject;
-        this.setUid(countryObject.getInt("id"));
-        this.setCountryId(countryObject.getInt("country_id"));
-        this.setName(countryObject.getString("name"));
-        this.setIso3166_2(countryObject.getString("iso3166_2"));
+    public void setValues(JSONObject stateObject) throws JSONException {
+        this.stateObject = stateObject;
+        this.setUid(stateObject.getInt("id"));
+        this.setCountryId(stateObject.getInt("country_id"));
+        this.setName(stateObject.getString("name"));
+        this.setIso3166_2(stateObject.getString("iso3166_2"));
     }
 
     public boolean update() {

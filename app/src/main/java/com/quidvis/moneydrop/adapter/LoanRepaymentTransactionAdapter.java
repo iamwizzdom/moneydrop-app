@@ -149,6 +149,9 @@ public class LoanRepaymentTransactionAdapter extends RecyclerView.Adapter<Recycl
                     intent.putExtra(TransactionReceiptActivity.TRANSACTION_KEY, transaction.getTransObject().toString());
                     activity.startActivity(intent);
                 });
+
+            } else {
+                parentViewHolder.container.setOnClickListener(null);
             }
 
         } else if (holder instanceof LoadingViewHolder) {

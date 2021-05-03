@@ -11,7 +11,7 @@ public class Loan {
 
     private int id;
     private double amount, interest;
-    private String uuid, loanType, interestType, tenure, purpose, note, status, date;
+    private String uuid, loanType, interestType, tenure, purpose, note, status, date, dateTime;
     private boolean isFundRaiser, isMine, isGranted, hasApplied;
     private User user;
     private final JSONObject loanObject;
@@ -29,6 +29,7 @@ public class Loan {
         this.setNote(loanObject.getString("note"));
         this.setStatus(loanObject.getString("status_readable"));
         this.setDate(loanObject.getString("date"));
+        this.setDateTime(loanObject.getString("date_time"));
         this.setFundRaiser(loanObject.getBoolean("is_fund_raiser"));
         this.setMine(loanObject.getBoolean("is_mine"));
         this.setGranted(loanObject.getBoolean("is_granted"));
@@ -54,11 +55,11 @@ public class Loan {
     }
 
     public boolean isLoanOffer() {
-        return getLoanType().toLowerCase().equals("offer");
+        return getLoanType().equalsIgnoreCase("offer");
     }
 
     public boolean isLoanRequest() {
-        return getLoanType().toLowerCase().equals("request");
+        return getLoanType().equalsIgnoreCase("request");
     }
 
     public String getLoanType() {
@@ -133,6 +134,14 @@ public class Loan {
         this.date = date;
     }
 
+    public String getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
+    }
+
     public boolean isFundRaiser() {
         return isFundRaiser;
     }
@@ -142,11 +151,11 @@ public class Loan {
     }
 
     public boolean isPending() {
-        return getStatus().toLowerCase().equals("pending");
+        return getStatus().equalsIgnoreCase("pending");
     }
 
     public boolean isAwaiting() {
-        return getStatus().toLowerCase().equals("awaiting");
+        return getStatus().equalsIgnoreCase("awaiting");
     }
 
     public boolean isMine() {

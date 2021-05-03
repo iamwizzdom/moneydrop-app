@@ -147,10 +147,10 @@ public class LoanDetailsActivity extends CustomCompatActivity {
         tvReference.setText(loan.getUuid());
         tvTenure.setText(loan.getTenure());
         tvInterest.setText(String.format("%s percent", loan.getInterest()));
-        tvPurpose.setText(loan.getLoanType().equals("request") ? Utility.castEmpty(loan.getPurpose(), "Not specified") : "Not applicable");
+        tvPurpose.setText(loan.isLoanRequest() ? Utility.castEmpty(loan.getPurpose(), "Not specified") : "Not applicable");
         tvInterestType.setText(String.format("%s interest", loan.getInterestType()));
-        tvDate.setText(loan.getDate());
-        tvStatus.setText(Utility.ucFirst(loan.getStatus()));
+        tvDate.setText(loan.getDateTime());
+        tvStatus.setText(Utility.castEmpty(loan.getStatus(), "Unknown"));
 
         ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
         tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
@@ -219,11 +219,13 @@ public class LoanDetailsActivity extends CustomCompatActivity {
             }
             sendLoanApplyRequest(loan, applyBtn, amount, note);
         });
-        EditText etAmount = dialog.getDialogView().findViewById(R.id.amount);
-        if (!loan.isFundRaiser()) {
-            etAmount.setText(String.valueOf(loan.getAmount()));
-            Utility.disableEditText(etAmount);
-        }
+        dialog.setOnGotDialogViewListener(view1 -> {
+            EditText etAmount = view1.findViewById(R.id.amount);
+            if (!loan.isFundRaiser()) {
+                etAmount.setText(String.valueOf(loan.getAmount()));
+                Utility.disableEditText(etAmount);
+            }
+        });
         dialog.display();
     }
 
@@ -271,6 +273,8 @@ public class LoanDetailsActivity extends CustomCompatActivity {
                     JSONObject object = new JSONObject(response);
 
                     if (object.getBoolean("status")) {
+
+                        applyBtn.setText(R.string.applied);
                         applyBtn.setEnabled(false);
                         applyBtn.setAlpha(.7f);
                         applyBtn.setOnClickListener(null);

@@ -164,17 +164,17 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
 
     private void setLoanRecipientView() {
 
-        User payee = loan.isLoanOffer() ? loanApplication.getApplicant() : loan.getUser();
+        User recipient = loan.isLoanOffer() ? loanApplication.getApplicant() : loan.getUser();
 
         Glide.with(this)
-                .load(payee.getPictureUrl())
-                .placeholder(payee.getDefaultPicture())
+                .load(recipient.getPictureUrl())
+                .placeholder(recipient.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .error(payee.getDefaultPicture())
+                .error(recipient.getDefaultPicture())
                 .apply(new RequestOptions().override(150, 150))
                 .into(ivUserPic);
 
-        tvUsername.setText(String.format("%s %s", payee.getFirstname(), payee.getLastname()));
+        tvUsername.setText(String.format("%s %s", recipient.getFirstname(), recipient.getLastname()));
 
         String date = String.format("Date Applied: %s", loanApplication.getDate());
         int start = date.indexOf(":") + 1, end = date.length();
@@ -199,7 +199,10 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         tvApplicationStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
         tvApplicationStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
-        if (loanApplication.getApplicant().isMe()) cancelApplicationBtn.setVisibility((loanApplication.isGranted() || loanApplication.isRepaid()) ? View.GONE : View.VISIBLE);
+        if (loanApplication.getApplicant().isMe()) {
+            cancelApplicationBtn.setVisibility((loanApplication.isGranted() || loanApplication.isRepaid()) ? View.GONE : View.VISIBLE);
+            if (loanApplication.isRejected()) Utility.disableButton(cancelApplicationBtn);
+        }
 
         paymentBtnHolder.setVisibility((loanApplication.isGranted() || loanApplication.isRepaid()) ? View.VISIBLE : View.GONE);
 
@@ -211,7 +214,6 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
     }
 
     public void reviewRecipient(View view) {
-        if ((loan.isLoanRequest() && loan.isMine()) || (loan.isLoanOffer() && !loan.isMine())) return;
         User user = loan.isLoanOffer() ? loanApplication.getApplicant() : loan.getUser();
         if (user.isMe()) return;
         Intent intent = new Intent(this, !loanApplication.isReviewed() ? ReviewUserActivity.class : ProfileActivity.class);
@@ -431,7 +433,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
     public void sendCancelApplicationRequest(CircularProgressButton cancelBtn) {
 
         HttpRequest httpRequest = new HttpRequest(this, String.format(URLContract.LOAN_APPLICATION_CANCEL_URL, loan.getUuid(), loanApplication.getReference()),
-                Request.Method.POST, new HttpRequestParams() {
+                Request.Method.DELETE, new HttpRequestParams() {
 
             @Override
             public Map<String, String> getParams() {

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -149,7 +148,7 @@ public class LoanApplicantsActivity extends CustomCompatActivity {
         tvType.setText(String.format("Loan %s", loan.getLoanType()));
         tvDate.setText(loan.getDate());
         tvAmount.setText(format.format(loan.getAmount()));
-        tvStatus.setText(Utility.ucFirst(loan.getStatus()));
+        tvStatus.setText(Utility.castEmpty(loan.getStatus(), "Unknown"));
 //        container.setBackgroundResource(R.drawable.layout_background_rounded);
 //        container.setElevation(2f);
 
@@ -175,7 +174,7 @@ public class LoanApplicantsActivity extends CustomCompatActivity {
         CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(LoanApplicantsActivity.this);
         alertDialog.setIcon(application.getLoan().isLoanOffer() ? R.drawable.ic_give_money : R.drawable.ic_receive_money);
         String confirmation = "Are you sure you want to give %s this loan?";
-        if (application.getLoan().getLoanType().equals("request")) {
+        if (application.getLoan().isLoanRequest()) {
             confirmation = "Are you sure you want to collect this loan from %s?";
         }
         alertDialog.setMessage(String.format(confirmation, application.getApplicant().getFirstname()));
@@ -188,7 +187,7 @@ public class LoanApplicantsActivity extends CustomCompatActivity {
 
         HttpRequest httpRequest = new HttpRequest(this, String.format(URLContract.LOAN_APPLICATION_GRANT_URL,
                 application.getLoanID(), application.getReference()),
-                Request.Method.POST, new HttpRequestParams() {
+                Request.Method.PUT, new HttpRequestParams() {
 
             @Override
             public Map<String, String> getParams() {

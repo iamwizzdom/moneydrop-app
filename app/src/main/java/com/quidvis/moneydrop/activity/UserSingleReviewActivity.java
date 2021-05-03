@@ -9,9 +9,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.Request;
 import com.bumptech.glide.Glide;
@@ -56,7 +55,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
     private Review review;
     private DbHelper dbHelper;
 
-    private ProgressBar reviewProgress;
+    private RelativeLayout reviewProgressHolder;
     private CircleImageView mvPic, mvLoanPic, mvReviewPic;
     private TextView tvUsername, tvType, tvDate, tvAmount, tvStatus, tvReviewName, tvReviewDate, tvReview;
 
@@ -93,7 +92,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
 
         format.setMaximumFractionDigits(0);
 
-        reviewProgress = findViewById(R.id.reviewProgress);
+        reviewProgressHolder = findViewById(R.id.reviewProgressHolder);
         mvPic = findViewById(R.id.user_pic);
         tvUsername = findViewById(R.id.username);
 
@@ -137,8 +136,10 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
                     update(review);
                 });
                 sheet.dismiss();
-                EditText etReview = dialog.getDialogView().findViewById(R.id.review);
-                if (etReview != null) etReview.setText(review.getReview());
+                dialog.setOnGotDialogViewListener(view -> {
+                    EditText etReview = view.findViewById(R.id.review);
+                    if (etReview != null) etReview.setText(review.getReview());
+                });
                 dialog.display();
             });
 
@@ -146,7 +147,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
 
             sheetLayoutModel = new BottomSheetLayoutModel();
             sheetLayoutModel.setIconLeft(R.drawable.ic_delete, this);
-            sheetLayoutModel.setText(getResources().getString(R.string.delete));
+            sheetLayoutModel.setText(getResources().getString(R.string.delete_review));
             sheetLayoutModel.setOnClickListener((sheet, v) -> {
                 CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(UserSingleReviewActivity.this);
                 alertDialog.setIcon(R.drawable.ic_remove);
@@ -249,7 +250,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
 
         HttpRequest httpRequest = new HttpRequest(UserSingleReviewActivity.this,
                 String.format( URLContract.EDIT_REVIEW_URL, review.getUuid()),
-                Request.Method.POST, new HttpRequestParams() {
+                Request.Method.PUT, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -272,12 +273,12 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
         }) {
             @Override
             protected void onRequestStarted() {
-                Utility.fadeIn(UserSingleReviewActivity.this, reviewProgress);
+                Utility.fadeIn(UserSingleReviewActivity.this, reviewProgressHolder);
             }
 
             @Override
             protected void onRequestCompleted(boolean onError) {
-                Utility.fadeOut(UserSingleReviewActivity.this, reviewProgress);
+                Utility.fadeOut(UserSingleReviewActivity.this, reviewProgressHolder);
             }
 
             @Override
@@ -361,12 +362,12 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
         }) {
             @Override
             protected void onRequestStarted() {
-                Utility.fadeIn(UserSingleReviewActivity.this, reviewProgress);
+                Utility.fadeIn(UserSingleReviewActivity.this, reviewProgressHolder);
             }
 
             @Override
             protected void onRequestCompleted(boolean onError) {
-                Utility.fadeOut(UserSingleReviewActivity.this, reviewProgress);
+                Utility.fadeOut(UserSingleReviewActivity.this, reviewProgressHolder);
             }
 
             @Override

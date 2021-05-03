@@ -65,8 +65,8 @@ public class VolleySingleton extends Application {
     private RequestQueue getRequestQueue() {
         // If RequestQueue is null the initialize new RequestQueue
         if (mRequestQueue == null) {
-//            mRequestQueue = Volley.newRequestQueue(this);
-            mRequestQueue = Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory()));
+            mRequestQueue = Volley.newRequestQueue(this);
+//            mRequestQueue = Volley.newRequestQueue(this, new HurlStack(null, getSocketFactory()));
         }
 
         // Return RequestQueue

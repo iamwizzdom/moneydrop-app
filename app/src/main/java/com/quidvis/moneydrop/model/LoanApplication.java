@@ -181,15 +181,15 @@ public class LoanApplication {
     }
 
     public boolean isGranted() {
-        return getStatus().equals("granted");
+        return getStatus().equalsIgnoreCase("granted");
     }
 
     public boolean isAwaiting() {
-        return getStatus().equals("awaiting");
+        return getStatus().equalsIgnoreCase("awaiting");
     }
 
     public boolean isRejected() {
-        return getStatus().equals("rejected");
+        return getStatus().equalsIgnoreCase("rejected");
     }
 
     public boolean isRepaid() {

@@ -141,7 +141,7 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             parentViewHolder.tvType.setText(type);
             parentViewHolder.tvDate.setText(loan.getDate());
             parentViewHolder.tvAmount.setText(format.format(loan.getAmount()));
-            parentViewHolder.tvStatus.setText(Utility.ucFirst(loan.getStatus()));
+            parentViewHolder.tvStatus.setText(Utility.castEmpty(loan.getStatus(), "Unknown"));
 
             ArrayMap<String, Integer> theme = getTheme(loan.getStatus());
 

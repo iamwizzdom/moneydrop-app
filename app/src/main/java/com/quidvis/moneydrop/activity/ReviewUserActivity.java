@@ -44,7 +44,7 @@ public class ReviewUserActivity extends CustomCompatActivity {
     private User loanRecipient, user;
     private CircleImageView profilePic;
 
-    public static final String LOAN_APPLICATION_OBJECT_KEY = "userObject";
+    public static final String LOAN_APPLICATION_OBJECT_KEY = "applicationObject";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +80,9 @@ public class ReviewUserActivity extends CustomCompatActivity {
 
         Loan loan = loanApplication.getLoan();
 
-        if ((loan.isLoanRequest() && loan.isMine()) || (loan.isLoanOffer() && !loan.isMine())) {
+        this.loanRecipient = loan.isLoanOffer() ? loanApplication.getApplicant() : loan.getUser();
+
+        if (this.loanRecipient.isMe()) {
             Utility.toastMessage(this, "You can't review yourself");
             finish();
             return;
@@ -88,8 +90,6 @@ public class ReviewUserActivity extends CustomCompatActivity {
 
         DbHelper dbHelper = new DbHelper(this);
         user = dbHelper.getUser();
-
-        this.loanRecipient = loan.isLoanOffer() ? loanApplication.getApplicant() : loan.getUser();
 
         profilePic = findViewById(R.id.profile_pic);
         ratingBar = findViewById(R.id.ratingBar);

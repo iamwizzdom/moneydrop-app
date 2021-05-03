@@ -1,6 +1,5 @@
 package com.quidvis.moneydrop.utility;
 
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -11,6 +10,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.quidvis.moneydrop.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Wisdom Emenike.
@@ -25,8 +27,8 @@ public class CustomBottomAlertDialog {
     private View.OnClickListener positiveBtnListener, negativeBtnListener;
     private OnClickListener positiveBtnCustomListener, negativeBtnCustomListener;
     private int icon;
-    private View view;
-    private LinearLayout dialogView;
+    private final List<View> views = new ArrayList<>();
+    private OnGotDialogViewListener onGotDialogViewListener;
     private TextView dialogMessage;
     private Button dialogBtnPositive, dialogBtnNegative;
 
@@ -34,7 +36,7 @@ public class CustomBottomAlertDialog {
         bottomSheet = new CustomBottomSheet(activity, R.layout.custom_bottom_alert_dialog);
         bottomSheet.setOnViewInflatedListener(view -> {
 
-            dialogView = view.findViewById(R.id.custom_dialog_view);
+            LinearLayout dialogView = view.findViewById(R.id.custom_dialog_view);
             dialogMessage = view.findViewById(R.id.dialog_message);
             dialogBtnPositive = view.findViewById(R.id.btn_positive);
             dialogBtnNegative = view.findViewById(R.id.btn_negative);
@@ -82,7 +84,12 @@ public class CustomBottomAlertDialog {
                 dialogBtnNegative.setOnClickListener(v -> bottomSheet.dismiss());
             }
 
-            if (this.view != null) dialogView.addView(this.view);
+            if (this.views.size() > 0) {
+                for (View v: this.views) dialogView.addView(v);
+                this.views.clear();
+            }
+
+            if (this.onGotDialogViewListener != null) onGotDialogViewListener.onGotView(dialogView);
 
         });
     }
@@ -99,8 +106,8 @@ public class CustomBottomAlertDialog {
         return dialogBtnNegative;
     }
 
-    public LinearLayout getDialogView() {
-        return dialogView;
+    public void setOnGotDialogViewListener(OnGotDialogViewListener onGotDialogViewListener) {
+        this.onGotDialogViewListener = onGotDialogViewListener;
     }
 
     public void setMessage(@Nullable CharSequence message) {
@@ -147,7 +154,7 @@ public class CustomBottomAlertDialog {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         view.setLayoutParams(params);
-        this.view = view;
+        this.views.add(view);
     }
 
     public void display() {
@@ -160,5 +167,9 @@ public class CustomBottomAlertDialog {
 
     public interface OnClickListener {
         void onClick(View btnView, View dialogView);
+    }
+
+    public interface OnGotDialogViewListener {
+        void onGotView(View view);
     }
 }
