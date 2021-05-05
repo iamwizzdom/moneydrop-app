@@ -1,5 +1,6 @@
 package com.quidvis.moneydrop.utility;
 
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -31,13 +32,13 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
     private final AppCompatActivity activity;
     private ArrayList<BottomSheetLayoutModel> layoutModels;
     private FragmentStatePagerAdapter pagerAdapter;
-    private LayoutInflater inflater;
     private int resource;
     private LinearLayout sheetContainerLayout, sheetViewLayout;
     private String title, message;
     private OnViewInflatedListener onViewInflatedListener;
     private int titleGravity, messageGravity;
     private OnViewPagerMountedListener onViewPagerMountedListener;
+    private OnDismissListener onDismissListener;
 
     public static CustomBottomSheet newInstance(AppCompatActivity activity) {
         return new CustomBottomSheet(activity);
@@ -109,7 +110,6 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.inflater = inflater;
         return inflater.inflate(R.layout.custom_bottom_sheet, container, false);
     }
 
@@ -182,6 +182,10 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
 
     public void setOnViewPagerMountedListener(OnViewPagerMountedListener onViewPagerMountedListener) {
         this.onViewPagerMountedListener = onViewPagerMountedListener;
+    }
+
+    public void setOnDismissListener(OnDismissListener onDismissListener) {
+        this.onDismissListener = onDismissListener;
     }
 
     public void setTitle(String title) {
@@ -258,8 +262,18 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
         return tv;
     }
 
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (onDismissListener != null) onDismissListener.dismissed();
+    }
+
     public interface OnViewInflatedListener {
         void onInflated(View view);
+    }
+
+    public interface OnDismissListener {
+        void dismissed();
     }
 
 }

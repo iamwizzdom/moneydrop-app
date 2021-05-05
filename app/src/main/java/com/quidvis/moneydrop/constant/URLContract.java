@@ -13,7 +13,7 @@ public class URLContract {
     public static final String URL_SCHEME = URL_HTTPS_SCHEME;
     public static final String HOST_URL = "moneydrop.ng:8085/moneydrop/server";
 //    public static final String HOST_URL = "192.168.0.109:8000";
-//    public static final String HOST_URL = "10.101.186.143:8000";
+//    public static final String HOST_URL = "10.101.185.202:8000";
 //    public static final String HOST_URL = "54.93.104.127/moneydrop/server";
     public static final String BASE_URL = URL_SCHEME + HOST_URL;
     private static final String API_URL = BASE_URL + "/api/v1/m-app";

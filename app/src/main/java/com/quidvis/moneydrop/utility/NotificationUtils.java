@@ -90,7 +90,7 @@ public class NotificationUtils {
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
         bigTextStyle.bigText(message);
 
-        Notification notification = mBuilder.setSmallIcon(R.mipmap.ic_launcher)
+        Notification notification = mBuilder.setSmallIcon(R.drawable.ic_launcher)
                 .setTicker(title)
                 .setAutoCancel(true)
                 .setContentTitle(title)
@@ -98,8 +98,8 @@ public class NotificationUtils {
                 .setSound(alarmSound)
                 .setStyle(bigTextStyle)
                 .setWhen(getTimeMilliSec(timeStamp))
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(Utility.drawableToBitmap(ContextCompat.getDrawable(mContext, R.mipmap.ic_launcher)))
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setLargeIcon(Utility.drawableToBitmap(ContextCompat.getDrawable(mContext, R.drawable.ic_launcher)))
                 .setContentText(message)
                 .build();
 
@@ -116,7 +116,7 @@ public class NotificationUtils {
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
         bigTextStyle.bigText(message);
 
-        Notification notification = mBuilder.setSmallIcon(R.mipmap.ic_launcher)
+        Notification notification = mBuilder.setSmallIcon(R.drawable.ic_launcher)
                 .setTicker(title)
                 .setAutoCancel(true)
                 .setContentTitle(title)
@@ -124,7 +124,7 @@ public class NotificationUtils {
                 .setSound(alarmSound)
                 .setStyle(bigTextStyle)
                 .setWhen(getTimeMilliSec(timeStamp))
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher)
                 .setLargeIcon(bitmap)
                 .setContentText(message)
                 .build();

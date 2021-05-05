@@ -8,7 +8,6 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -88,7 +87,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
         dbHelper = new DbHelper(this);
 
         user = review.getUser();
-        loan = review.getLoanApplication().getLoan();
+        loan = review.getLoan();
 
         format.setMaximumFractionDigits(0);
 

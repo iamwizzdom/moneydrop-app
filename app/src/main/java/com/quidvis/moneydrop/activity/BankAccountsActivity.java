@@ -279,7 +279,7 @@ public class BankAccountsActivity extends CustomCompatActivity implements EventL
                         BankAccount account = new BankAccount(BankAccountsActivity.this);
                         account.setUuid(accountObject.getString("uuid"));
                         account.setAccountName(accountObject.getString("account_name"));
-                        account.setAccountNumber(accountObject.getString("account_number"));
+                        account.setAccountNumber(accountObject.getString("acct_no"));
                         account.setBankName(accountObject.getString("bank_name"));
                         account.setRecipientCode(accountObject.getString("recipient_code"));
 
@@ -392,7 +392,7 @@ public class BankAccountsActivity extends CustomCompatActivity implements EventL
                         BankAccount account = new BankAccount(BankAccountsActivity.this);
                         account.setUuid(accountObject.getString("uuid"));
                         account.setAccountName(accountObject.getString("account_name"));
-                        account.setAccountNumber(accountObject.getString("account_number"));
+                        account.setAccountNumber(accountObject.getString("acct_no"));
                         account.setBankName(accountObject.getString("bank_name"));
                         account.setRecipientCode(accountObject.getString("recipient_code"));
                         accounts.add(account);

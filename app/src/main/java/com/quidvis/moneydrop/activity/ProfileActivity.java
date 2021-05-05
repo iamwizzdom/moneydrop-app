@@ -3,6 +3,7 @@ package com.quidvis.moneydrop.activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -15,6 +16,7 @@ import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.DatePicker;
@@ -53,9 +55,11 @@ import com.quidvis.moneydrop.network.VolleySingleton;
 import com.quidvis.moneydrop.network.WebFileReader;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.network.HttpRequest;
+import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.CustomBottomSheet;
 import com.quidvis.moneydrop.utility.Utility;
 import com.quidvis.moneydrop.utility.Validator;
+import com.quidvis.moneydrop.utility.model.BottomSheetLayoutModel;
 import com.quidvis.moneydrop.utility.view.DialogSpinner;
 
 import org.json.JSONException;
@@ -226,43 +230,70 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
 
     private void selectImage() {
         imagePicker.setVisibility(View.GONE);
-        final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
-        builder.setTitle("Add Photo!");
-        builder.setItems(options, (dialog, item) -> {
-            if (item == 0) {
 
-                try {
+        CustomBottomSheet bottomSheet = CustomBottomSheet.newInstance(this);
 
-                    PackageManager packageManager = getPackageManager();
-                    boolean hasCamera = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA);
+        BottomSheetLayoutModel sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIconLeft(R.drawable.ic_take_photo, this);
+        sheetLayoutModel.setText("Take Photo");
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            try {
 
-                    if (hasCamera) {
-                        // start the image capture Intent
-                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT,
-                                FileProvider.getUriForFile(this,
-                                        BuildConfig.APPLICATION_ID + ".provider", createImageFile()));
-                        startActivityForResult(intent, IMAGE_PICK_CAMERA);
+                PackageManager packageManager = getPackageManager();
+                boolean hasCamera = packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA);
 
-                    } else {
-                        Utility.toastMessage(ProfileActivity.this, "This device seems not to have a camera");
-                    }
+                if (hasCamera) {
+                    // start the image capture Intent
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT,
+                            FileProvider.getUriForFile(this,
+                                    BuildConfig.APPLICATION_ID + ".provider", createImageFile()));
+                    startActivityForResult(intent, IMAGE_PICK_CAMERA);
 
-                } catch (Exception ex) {
-
-                    Utility.toastMessage(ProfileActivity.this, "There was an error with the camera.");
+                } else {
+                    Utility.toastMessage(ProfileActivity.this, "This device seems not to have a camera");
                 }
 
-            } else if (item == 1) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, IMAGE_PICK_GALLERY);
-            } else {
-                dialog.dismiss();
+            } catch (Exception ex) {
+
+                Utility.toastMessage(ProfileActivity.this, "There was an error with the camera.");
             }
+            sheet.dismiss();
         });
-        builder.setOnDismissListener(dialogInterface -> imagePicker.setVisibility(View.VISIBLE));
-        builder.show();
+        bottomSheet.addLayoutModel(sheetLayoutModel);
+
+        sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIconLeft(R.drawable.ic_gallery, this);
+        sheetLayoutModel.setText("Choose from Gallery");
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intent, IMAGE_PICK_GALLERY);
+            sheet.dismiss();
+        });
+        bottomSheet.addLayoutModel(sheetLayoutModel);
+
+        sheetLayoutModel = new BottomSheetLayoutModel();
+        sheetLayoutModel.setIconLeft(R.drawable.ic_delete_photo, this);
+        sheetLayoutModel.setText("Remove Photo");
+        sheetLayoutModel.setOnClickListener((sheet, v) -> {
+            if (TextUtils.isEmpty(Utility.castEmpty(user.getPicture()))) {
+                Utility.toastMessage(ProfileActivity.this, "You don't have a photo to remove.");
+                sheet.dismiss();
+                return;
+            }
+            CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(ProfileActivity.this);
+            alertDialog.setIcon(R.drawable.ic_remove);
+            alertDialog.setMessage("Are you sure you want to remove your photo?");
+            alertDialog.setNegativeButton("No, cancel");
+            alertDialog.setPositiveButton("Yes, proceed", vw -> removePhoto());
+            sheet.dismiss();
+            alertDialog.display();
+        });
+        bottomSheet.addLayoutModel(sheetLayoutModel);
+
+        bottomSheet.setOnDismissListener(() -> imagePicker.setVisibility(View.VISIBLE));
+
+        bottomSheet.show();
     }
 
     private File createImageFile() throws IOException {
@@ -495,13 +526,11 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
     private void updatePhoto(String imageString) {
 
         HttpRequest httpRequest = new HttpRequest(this,
-                String.format(URLContract.PROFILE_UPDATE_REQUEST_URL, "picture"), Request.Method.POST,
+                String.format(URLContract.PROFILE_UPDATE_REQUEST_URL, "picture"), Request.Method.PUT,
                 new HttpRequestParams() {
                     @Override
                     public Map<String, String> getParams() {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("picture", imageString);
-                        return params;
+                        return null;
                     }
 
                     @Override
@@ -554,6 +583,108 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
                             Utility.toastMessage(ProfileActivity.this, object.getString("message"));
                         } else {
                             Utility.toastMessage(ProfileActivity.this, "Failed to update user picture locally. Please try again later.");
+                        }
+
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(ProfileActivity.this, "Something unexpected happened. Please try that again.");
+                }
+
+            }
+
+            @Override
+            protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(error);
+                    AwesomeAlertDialog dialog = new AwesomeAlertDialog(ProfileActivity.this);
+
+                    dialog.setTitle(object.getString("title"));
+                    if (object.has("errors")) {
+                        JSONObject errors = object.getJSONObject("errors");
+                        if (errors.length() > 0) dialog.setMessage(Utility.serializeObject(errors));
+                        else dialog.setMessage(object.getString("message"));
+                    } else dialog.setMessage(object.getString("message"));
+                    dialog.setPositiveButton("Ok");
+                    dialog.display();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(ProfileActivity.this, statusCode == 503 ? error :
+                                    "Something unexpected happened. Please try that again.");
+                }
+            }
+
+            @Override
+            protected void onRequestCancelled() {
+
+                progressToggle(false);
+                imagePicker.setVisibility(View.VISIBLE);
+            }
+        };
+
+        httpRequest.send();
+    }
+
+    private void removePhoto() {
+
+        HttpRequest httpRequest = new HttpRequest(this,
+                String.format(URLContract.PROFILE_UPDATE_REQUEST_URL, "picture-remove"), Request.Method.PUT,
+                new HttpRequestParams() {
+                    @Override
+                    public Map<String, String> getParams() {
+                        return null;
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Auth-Token", dbHelper.getUser().getToken());
+                        params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
+                        return params;
+                    }
+
+                    @Override
+                    public byte[] getBody() {
+                        return null;
+                    }
+                }) {
+            @Override
+            protected void onRequestStarted() {
+                progressToggle(true);
+                imagePicker.setVisibility(View.GONE);
+            }
+
+            @Override
+            protected void onRequestCompleted(boolean onError) {
+
+                progressToggle(false);
+                imagePicker.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(response);
+
+                    JSONObject userData = object.getJSONObject("response");
+
+                    if (userData.has("user")) {
+
+                        JSONObject userObject = userData.getJSONObject("user");
+
+                        user.setPicture(userObject.getString("picture"));
+
+                        if (user.update()) {
+                            setUser(user);
+                            Utility.toastMessage(ProfileActivity.this, object.getString("message"));
+                        } else {
+                            Utility.toastMessage(ProfileActivity.this, "Failed to remove user picture locally. Please try again later.");
                         }
 
                     }
@@ -1136,7 +1267,8 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
         Map<String, String> params = getUpdateParams();
 
         HttpRequest httpRequest = new HttpRequest(this, url,
-                Request.Method.POST, new HttpRequestParams() {
+                (uriType.equals("phone") || uriType.equals("email")) ? Request.Method.POST : Request.Method.PUT,
+                new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 return params;

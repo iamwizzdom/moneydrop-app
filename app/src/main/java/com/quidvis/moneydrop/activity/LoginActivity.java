@@ -200,7 +200,7 @@ public class LoginActivity extends CustomCompatActivity {
                             BankAccount account = new BankAccount(LoginActivity.this);
                             account.setUuid(accountObject.getString("uuid"));
                             account.setAccountName(accountObject.getString("account_name"));
-                            account.setAccountNumber(accountObject.getString("account_number"));
+                            account.setAccountNumber(accountObject.getString("acct_no"));
                             account.setBankName(accountObject.getString("bank_name"));
                             account.setRecipientCode(accountObject.getString("recipient_code"));
                             dbHelper.saveBankAccount(account);

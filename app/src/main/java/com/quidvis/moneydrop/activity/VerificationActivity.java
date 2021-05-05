@@ -237,7 +237,7 @@ public class VerificationActivity extends CustomCompatActivity {
                 seconds = seconds % 60;
 
                 String resentTxt = String.format("Didn't receive OTP? Wait for %s:%s", minutes > 9 ? minutes : "0" + minutes, seconds > 9 ? seconds : "0" + seconds);
-                int start = resentTxt.indexOf("in") + 2, end = resentTxt.length();
+                int start = resentTxt.lastIndexOf("for") + 4, end = resentTxt.length();
                 SpannableString spannableString = new SpannableString(resentTxt);
                 spannableString.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 spannableString.setSpan(new android.text.style.RelativeSizeSpan(1.1f), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -249,7 +249,7 @@ public class VerificationActivity extends CustomCompatActivity {
             public void onFinish() {
 
                 String resentTxt = "Didn't get OTP? Resend code";
-                int start = resentTxt.indexOf("?") + 2, end = resentTxt.length();
+                int start = resentTxt.lastIndexOf("?") + 2, end = resentTxt.length();
                 SpannableString spannableString = new SpannableString(resentTxt);
                 spannableString.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 spannableString.setSpan(new android.text.style.RelativeSizeSpan(1.1f), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

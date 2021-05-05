@@ -12,7 +12,7 @@ public class Review {
     private int id;
     private String uuid, review, date, dateFormatted;
     private User user, reviewer;
-    private LoanApplication loanApplication;
+    private Loan loan;
     private final JSONObject reviewObject;
 
     public Review(Context context, JSONObject reviewObject) throws JSONException {
@@ -22,8 +22,8 @@ public class Review {
         this.setReview(reviewObject.getString("review"));
         this.setDate(reviewObject.getString("date"));
         this.setDateFormatted(reviewObject.getString("date_formatted"));
-        if (reviewObject.has("application") && !Utility.castEmpty(reviewObject.getString("application")).isEmpty())
-            loanApplication = new LoanApplication(context, reviewObject.getJSONObject("application"));
+        if (reviewObject.has("loan") && !Utility.castEmpty(reviewObject.getString("loan")).isEmpty())
+            loan = new Loan(context, reviewObject.getJSONObject("loan"));
         if (reviewObject.has("user") && !Utility.castEmpty(reviewObject.getString("user")).isEmpty())
             user = new User(context, reviewObject.getJSONObject("user"));
         if (reviewObject.has("reviewer") && !Utility.castEmpty(reviewObject.getString("reviewer")).isEmpty())
@@ -78,8 +78,8 @@ public class Review {
         return reviewer;
     }
 
-    public LoanApplication getLoanApplication() {
-        return loanApplication;
+    public Loan getLoan() {
+        return loan;
     }
 
     public JSONObject getReviewObject() {
