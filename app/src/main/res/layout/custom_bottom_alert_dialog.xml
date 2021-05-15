@@ -30,6 +30,15 @@
             android:paddingStart="@dimen/padding_10"
             android:paddingEnd="@dimen/padding_10">
 
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/anim_layout"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                android:visibility="gone"/>
+
             <TextView
                 android:id="@+id/dialog_message"
                 android:layout_width="wrap_content"

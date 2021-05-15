@@ -36,6 +36,15 @@ public class Session {
         return prefs.getBoolean("loggedIn", false);
     }
 
+    public void setLastEmail(String lastEmail) {
+        this.editor.putString("lastEmail", lastEmail);
+        this.editor.commit();
+    }
+
+    public String getLastEmail() {
+        return prefs.getString("lastEmail", null);
+    }
+
     public void setCompletedCountryImport(boolean status) {
         this.editor.putBoolean("completedCountryImport", status);
         this.editor.commit();
@@ -105,11 +114,13 @@ public class Session {
     }
 
     public void clearAll() {
+        String lastEmail = getLastEmail();
         boolean isFirstTimeLaunch = isFirstTimeLaunch();
         boolean hasCompletedCountryImport = hasCompletedCountryImport();
         boolean hasCompletedStateImport = hasCompletedStateImport();
         boolean cleared = editor.clear().commit();
         if (cleared) {
+            setLastEmail(lastEmail);
             setFirstTimeLaunch(isFirstTimeLaunch);
             setCompletedCountryImport(hasCompletedCountryImport);
             setCompletedStateImport(hasCompletedStateImport);

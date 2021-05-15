@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.quidvis.moneydrop.R;
 
 import java.util.ArrayList;
@@ -26,9 +27,10 @@ public class CustomBottomAlertDialog {
     private CharSequence message, positiveBtnText, negativeBtnText;
     private View.OnClickListener positiveBtnListener, negativeBtnListener;
     private OnClickListener positiveBtnCustomListener, negativeBtnCustomListener;
-    private int icon;
+    private int icon, lottieIcon;
     private final List<View> views = new ArrayList<>();
     private OnGotDialogViewListener onGotDialogViewListener;
+    private LottieAnimationView lottieAnimationView;
     private TextView dialogMessage;
     private Button dialogBtnPositive, dialogBtnNegative;
 
@@ -37,6 +39,7 @@ public class CustomBottomAlertDialog {
         bottomSheet.setOnViewInflatedListener(view -> {
 
             LinearLayout dialogView = view.findViewById(R.id.custom_dialog_view);
+            lottieAnimationView = view.findViewById(R.id.anim_layout);
             dialogMessage = view.findViewById(R.id.dialog_message);
             dialogBtnPositive = view.findViewById(R.id.btn_positive);
             dialogBtnNegative = view.findViewById(R.id.btn_negative);
@@ -48,6 +51,10 @@ public class CustomBottomAlertDialog {
 
             if (icon != 0) {
                 dialogMessage.setCompoundDrawablesWithIntrinsicBounds(0, icon, 0,0);
+                lottieAnimationView.setVisibility(View.GONE);
+            } else if (lottieIcon != 0) {
+                lottieAnimationView.setAnimation(lottieIcon);
+                lottieAnimationView.setVisibility(View.VISIBLE);
             }
 
             if (positiveBtnText != null) {
@@ -116,6 +123,10 @@ public class CustomBottomAlertDialog {
 
     public void setIcon(int resourceId) {
         icon = resourceId;
+    }
+
+    public void setLottieIcon(int lottieIcon) {
+        this.lottieIcon = lottieIcon;
     }
 
     public void setCancelable(boolean cancelable) {

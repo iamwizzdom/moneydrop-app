@@ -84,6 +84,8 @@ public class LoginActivity extends CustomCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         loginBtn = findViewById(R.id.loginBtn);
 
+        if (email == null) email = session.getLastEmail();
+
         if (email != null && Validator.isValidEmail(email)) {
             etEmail.setText(email);
         }
@@ -217,6 +219,7 @@ public class LoginActivity extends CustomCompatActivity {
 //                        }
 
                         session.setLoggedIn(true);
+                        session.setLastEmail(user.getEmail());
                         Utility.toastMessage(LoginActivity.this, object.getString("message"));
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

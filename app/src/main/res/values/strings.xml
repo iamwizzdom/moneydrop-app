@@ -263,6 +263,7 @@
     <string name="channel_name">MoneyDrop Notification</string>
     <string name="channel_description">This channel is meant to display notifications from MoneyDrop.</string>
     <string name="interest_rate">Interest Rate</string>
+    <string name="revoke">Revoke</string>
     <string name="revoke_loan">Revoke loan</string>
     <string name="copy_right">Copy right</string>
     <string name="edit_review">Edit Review</string>
@@ -286,6 +287,7 @@
     <string name="contact_us"><![CDATA[Help & Contact Us]]></string>
     <string name="select_state">Select a state</string>
     <string name="applied">Applied</string>
+    <string name="revoke_loan_confirmation">Are you sure you want to revoke this loan?</string>
 
 
     <string-array name="interestType">

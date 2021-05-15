@@ -89,7 +89,7 @@ public class PasswordResetActivity extends CustomCompatActivity {
             return;
         } else etOTP.setError(null);
 
-        if (otp.length() < 4) {
+        if (otp.length() < 5) {
             etOTP.setError("Please enter a complete OTP");
             return;
         } else etOTP.setError(null);

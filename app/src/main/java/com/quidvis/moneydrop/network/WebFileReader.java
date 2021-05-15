@@ -192,18 +192,18 @@ public abstract class WebFileReader {
 
         if (this.fragment instanceof CustomCompatFragment) {
 
-            ((CustomCompatFragment) this.fragment).setOnStopFragmentListener(requestID, () -> {
+            ((CustomCompatFragment) this.fragment).setOnStopFragmentListener(requestID, (key) -> {
                 onReadCompleted(false);
                 cancel();
-                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(requestID);
+                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(key);
             });
 
         } else if (this.activity instanceof CustomCompatActivity) {
 
-            ((CustomCompatActivity) this.activity).setOnStopActivityListener(requestID, () -> {
+            ((CustomCompatActivity) this.activity).setOnStopActivityListener(requestID, (key) -> {
                 onReadCompleted(false);
                 cancel();
-                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(requestID);
+                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(key);
             });
         }
     }

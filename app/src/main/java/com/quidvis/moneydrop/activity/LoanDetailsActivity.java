@@ -8,6 +8,7 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -53,8 +54,9 @@ public class LoanDetailsActivity extends CustomCompatActivity {
     private Loan loan;
 
     private ImageView ivUserPic;
-    private TextView tvType, tvFundRaiser, tvAmount, tvReference, tvTenure, tvInterest,
+    private TextView revokeBtn, tvType, tvFundRaiser, tvAmount, tvReference, tvTenure, tvInterest,
             tvPurpose, tvInterestType, tvDate, tvStatus, tvNote;
+    private RelativeLayout revokeProgressHolder;
     private CircularProgressButton applyBtn;
     private int loanKey;
 
@@ -86,7 +88,7 @@ public class LoanDetailsActivity extends CustomCompatActivity {
 
         dbHelper = new DbHelper(this);
 
-        format = NumberFormat.getCurrencyInstance(new java.util.Locale("en","ng"));
+        format = NumberFormat.getCurrencyInstance(new java.util.Locale("en", "ng"));
         format.setMaximumFractionDigits(2);
 
         ivUserPic = findViewById(R.id.user_pic);
@@ -102,6 +104,8 @@ public class LoanDetailsActivity extends CustomCompatActivity {
         tvStatus = findViewById(R.id.loan_status);
         tvNote = findViewById(R.id.note);
 
+        revokeProgressHolder = findViewById(R.id.revokeProgressHolder);
+        revokeBtn = findViewById(R.id.revoke_btn);
         applyBtn = findViewById(R.id.apply_btn);
 
         setLoanView();
@@ -122,12 +126,21 @@ public class LoanDetailsActivity extends CustomCompatActivity {
             applyBtn.setVisibility(View.VISIBLE);
             applyBtn.setText(loan.isMine() ? "View Applicants" : (loan.isHasApplied() ? "Applied" : "Apply"));
         }
+
         if (!loan.isMine() && loan.isHasApplied()) {
             applyBtn.setEnabled(false);
             applyBtn.setAlpha(.7f);
             applyBtn.setOnClickListener(null);
         } else {
             applyBtn.setOnClickListener(this::viewApplicantsOrApply);
+        }
+
+        if (loan.isMine() && (loan.isPending() || loan.isAwaiting())) {
+            revokeBtn.setVisibility(View.VISIBLE);
+            revokeBtn.setOnClickListener(v -> revokeLoan());
+        } else {
+            revokeBtn.setVisibility(View.INVISIBLE);
+            revokeBtn.setOnClickListener(null);
         }
 
         User loanUser = loan.getUser();
@@ -274,15 +287,11 @@ public class LoanDetailsActivity extends CustomCompatActivity {
 
                     if (object.getBoolean("status")) {
 
-                        applyBtn.setText(R.string.applied);
-                        applyBtn.setEnabled(false);
-                        applyBtn.setAlpha(.7f);
-                        applyBtn.setOnClickListener(null);
-
                         JSONObject respObj = object.getJSONObject("response");
                         JSONObject applicationObj = respObj.getJSONObject("application");
                         double balance = respObj.getDouble("balance");
                         double availableBalance = respObj.getDouble("available_balance");
+                        LoanDetailsActivity.this.loan = new Loan(LoanDetailsActivity.this, applicationObj.getJSONObject("loan"));
 
                         Bundle mainFragmentState = Utility.getState(MainFragment.STATE_KEY);
                         String mainFragmentStringData = mainFragmentState.getString("data");
@@ -319,8 +328,8 @@ public class LoanDetailsActivity extends CustomCompatActivity {
                                 JSONObject data = new JSONObject(Objects.requireNonNull(state.getString("data")));
                                 JSONArray loans = data.getJSONArray("loans");
                                 for (int i = 0; i < loans.length(); i++) {
-                                    if (loan.getUuid().equals(loans.getJSONObject(i).getString("uuid"))) {
-                                        loans.put(i, applicationObj.getJSONObject("loan"));
+                                    if (LoanDetailsActivity.this.loan.getUuid().equals(loans.getJSONObject(i).getString("uuid"))) {
+                                        loans.put(i, LoanDetailsActivity.this.loan.getLoanObject());
                                         data.put("loans", loans);
                                         state.putString("data", data.toString());
                                         Utility.saveState(stateKey, state);
@@ -333,6 +342,7 @@ public class LoanDetailsActivity extends CustomCompatActivity {
                         }
                     }
 
+                    setLoanView();
                     Utility.toastMessage(LoanDetailsActivity.this, object.getString("message"), true);
 
                 } catch (JSONException e) {
@@ -372,6 +382,155 @@ public class LoanDetailsActivity extends CustomCompatActivity {
 
             }
         };
+        httpRequest.send();
+    }
+
+    private void revokeLoan() {
+        CustomBottomAlertDialog dialog = new CustomBottomAlertDialog(LoanDetailsActivity.this);
+        dialog.setIcon(R.drawable.ic_remove);
+        dialog.setMessage(getString(R.string.revoke_loan_confirmation));
+        dialog.setNegativeButton("No, cancel");
+        dialog.setPositiveButton("Yes, revoke", (v, d) -> senRevokeLoanRequest());
+        dialog.display();
+    }
+
+    public void senRevokeLoanRequest() {
+
+        HttpRequest httpRequest = new HttpRequest(LoanDetailsActivity.this,
+                String.format(URLContract.LOAN_REVOKE_URL, loan.getUuid()), Request.Method.POST, new HttpRequestParams() {
+
+            @Override
+            public Map<String, String> getParams() {
+                return null;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Auth-Token", dbHelper.getUser().getToken());
+                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
+                return params;
+            }
+
+            @Override
+            public byte[] getBody() {
+                return null;
+            }
+        }) {
+            @Override
+            protected void onRequestStarted() {
+                revokeProgressHolder.setVisibility(View.VISIBLE);
+                Utility.toastMessage(LoanDetailsActivity.this, "Revoking loan, please wait.");
+            }
+
+            @Override
+            protected void onRequestCompleted(boolean onError) {
+                revokeProgressHolder.setVisibility(View.GONE);
+            }
+
+            @Override
+            protected void onRequestSuccess(String response, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(response);
+
+                    if (object.getBoolean("status")) {
+
+                        JSONObject respObj = object.getJSONObject("response");
+                        double balance = respObj.getDouble("balance");
+                        double availableBalance = respObj.getDouble("available_balance");
+                        loan = new Loan(LoanDetailsActivity.this, respObj.getJSONObject("loan"));
+
+                        Bundle mainFragmentState = Utility.getState(MainFragment.STATE_KEY);
+                        String mainFragmentStringData = mainFragmentState.getString("data");
+
+                        if (mainFragmentStringData != null) {
+
+                            JSONObject mainFragmentData = new JSONObject(mainFragmentStringData);
+
+                            mainFragmentData.put("balance", balance);
+                            mainFragmentData.put("available_balance", availableBalance);
+
+                            JSONArray loans = mainFragmentData.getJSONArray("loans");
+                            for (int i = 0; i < loans.length(); i++) {
+                                if (loan.getUuid().equals(loans.getJSONObject(i).getString("uuid"))) {
+                                    loans.put(i, loan.getLoanObject());
+                                    break;
+                                }
+                            }
+
+                            mainFragmentState.putString("data", mainFragmentData.toString());
+                            Utility.saveState(MainFragment.STATE_KEY, mainFragmentState);
+                        }
+
+                        Bundle walletFragmentState = Utility.getState(WalletFragment.STATE_KEY);
+                        String walletFragmentStringData = walletFragmentState.getString("data");
+
+                        if (walletFragmentStringData != null) {
+
+                            JSONObject walletFragmentData = new JSONObject(walletFragmentStringData);
+
+                            walletFragmentData.put("balance", balance);
+                            walletFragmentData.put("available_balance", availableBalance);
+
+                            walletFragmentState.putString("data", walletFragmentData.toString());
+                            Utility.saveState(WalletFragment.STATE_KEY, walletFragmentState);
+                        }
+
+                        String stateKey = (MainActivity.STATE_KEY + "-" + (loan.isLoanOffer() ? LoanOffersFragment.class.getName() : LoanRequestsFragment.class.getName()));
+                        Bundle state = Utility.getState(stateKey);
+                        if (state.size() > 0) {
+                            try {
+                                JSONObject data = new JSONObject(Objects.requireNonNull(state.getString("data")));
+                                JSONArray loans = data.getJSONArray("loans");
+                                for (int i = 0; i < loans.length(); i++) {
+                                    if (loan.getUuid().equals(loans.getJSONObject(i).getString("uuid"))) {
+                                        loans.put(i, loan.getLoanObject());
+                                        data.put("loans", loans);
+                                        state.putString("data", data.toString());
+                                        Utility.saveState(stateKey, state);
+                                        break;
+                                    }
+                                }
+                            } catch (JSONException | NullPointerException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        setLoanView();
+
+                    }
+
+                    Utility.toastMessage(LoanDetailsActivity.this, object.getString("message"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(LoanDetailsActivity.this, "Something unexpected happened. Please try that again.");
+                }
+
+            }
+
+            @Override
+            protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
+
+                try {
+
+                    JSONObject object = new JSONObject(error);
+                    Utility.toastMessage(LoanDetailsActivity.this, object.getString("message"));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Utility.toastMessage(LoanDetailsActivity.this, statusCode == 503 ? error :
+                            "Something unexpected happened. Please try that again.");
+                }
+            }
+
+            @Override
+            protected void onRequestCancelled() {
+
+            }
+        };
+
         httpRequest.send();
     }
 

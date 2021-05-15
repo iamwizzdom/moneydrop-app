@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.google.android.material.tabs.TabLayout;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.LoanDetailsActivity;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.UserLoanActivity;
 import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
@@ -44,6 +45,7 @@ import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.Utility;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -209,10 +211,11 @@ public class LoansFragment extends CustomCompatFragment {
                         double balance = respObj.getDouble("balance");
                         double availableBalance = respObj.getDouble("available_balance");
 
+                        JSONObject loanObj = respObj.getJSONObject("loan");
+                        Loan loan = new Loan(fragment.getContext(), loanObj);
+
                         if (detach) loanAdapter.removeItem(loanAdapter.getPosition());
                         else {
-                            JSONObject loanObj = respObj.getJSONObject("loan");
-                            Loan loan = new Loan(fragment.getContext(), loanObj);
                             loanAdapter.setItem(loanAdapter.getPosition(), loan);
                         }
 
@@ -225,6 +228,14 @@ public class LoansFragment extends CustomCompatFragment {
 
                             mainFragmentData.put("balance", balance);
                             mainFragmentData.put("available_balance", availableBalance);
+
+                            JSONArray loans = mainFragmentData.getJSONArray("loans");
+                            for (int i = 0; i < loans.length(); i++) {
+                                if (loan.getUuid().equals(loans.getJSONObject(i).getString("uuid"))) {
+                                    loans.put(i, loan.getLoanObject());
+                                    break;
+                                }
+                            }
 
                             mainFragmentState.putString("data", mainFragmentData.toString());
                             Utility.saveState(MainFragment.STATE_KEY, mainFragmentState);

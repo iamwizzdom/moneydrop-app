@@ -64,34 +64,34 @@ public abstract class CustomCompatFragment extends Fragment {
     public void onStart() {
         super.onStart();
         for (java.util.Map.Entry<Integer, OnStartListener> entry : onStartListeners.entrySet())
-            entry.getValue().onStart();
+            entry.getValue().onStart(entry.getKey());
     }
 
     @Override
     public void onStop() {
         super.onStop();
         for (java.util.Map.Entry<Integer, OnStopListener> entry : onStopListeners.entrySet())
-            entry.getValue().onStop();
+            entry.getValue().onStop(entry.getKey());
     }
 
     @Override
     public void onPause() {
         super.onPause();
         for (java.util.Map.Entry<Integer, OnPauseListener> entry : onPauseListeners.entrySet())
-            entry.getValue().onPause();
+            entry.getValue().onPause(entry.getKey());
     }
 
     @Override
     public void onResume() {
         super.onResume();
         for (java.util.Map.Entry<Integer, OnResumeListener> entry : onResumeListeners.entrySet())
-            entry.getValue().onResume();
+            entry.getValue().onResume(entry.getKey());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         for (java.util.Map.Entry<Integer, OnDestroyListener> entry : onDestroyListeners.entrySet())
-            entry.getValue().onDestroy();
+            entry.getValue().onDestroy(entry.getKey());
     }
 }

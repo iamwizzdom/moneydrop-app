@@ -168,7 +168,7 @@ public abstract class HttpRequest {
             response = response.trim();
 
             if (statusCode == 419) {
-                String title = "Auth Error", message = "Seems your authentication token has expired, please login again to continue.";
+                String title = "Auth Error", message = "Seems your current session has expired, please login again to continue.";
                 try {
                     JSONObject object = new JSONObject(response);
                     title = object.getString("title");
@@ -176,7 +176,7 @@ public abstract class HttpRequest {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                MainActivity.logout(activity, title, message);
+                MainActivity.logout(activity, title, message, statusCode);
                 return;
             }
             if (!runOnCompletedLast) onRequestCompleted(false);
@@ -201,7 +201,7 @@ public abstract class HttpRequest {
             responseData = responseData.trim();
 
             if (statusCode == 419) {
-                String title = "Auth Error", message = "Seems your authentication token has expired, please login again to continue.";
+                String title = "Auth Error", message = "Seems your current session has expired, please login again to continue.";
                 try {
                     JSONObject object = new JSONObject(responseData);
                     title = object.getString("title");
@@ -209,7 +209,7 @@ public abstract class HttpRequest {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                MainActivity.logout(activity, title, message);
+                MainActivity.logout(activity, title, message, statusCode);
                 return;
             }
             if (!runOnCompletedLast) onRequestCompleted(true);
@@ -367,18 +367,18 @@ public abstract class HttpRequest {
 
         if (this.fragment instanceof CustomCompatFragment) {
 
-            ((CustomCompatFragment) this.fragment).setOnStopFragmentListener(requestID, () -> {
+            ((CustomCompatFragment) this.fragment).setOnStopFragmentListener(requestID, (key) -> {
                 onRequestCompleted(false);
                 cancel();
-                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(requestID);
+                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(key);
             });
 
         } else if (this.activity instanceof CustomCompatActivity) {
 
-            ((CustomCompatActivity) this.activity).setOnStopActivityListener(requestID, () -> {
+            ((CustomCompatActivity) this.activity).setOnStopActivityListener(requestID, (key) -> {
                 onRequestCompleted(false);
                 cancel();
-                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(requestID);
+                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(key);
             });
         }
     }

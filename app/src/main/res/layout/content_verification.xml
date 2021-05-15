@@ -36,14 +36,13 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:layout_marginBottom="@dimen/margin_30"
-        android:gravity="bottom">
+        android:gravity="bottom|center">
 
         <com.chaos.view.PinView
             android:id="@+id/otp"
             style="@style/PinWidget.PinView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:cursorVisible="true"
             android:inputType="number"
             android:itemBackground="@drawable/edit_text_background"

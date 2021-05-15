@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".activity.LoanDetailsActivity">
 
+
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,12 +17,14 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:orientation="horizontal"
+            android:weightSum="3"
             android:paddingStart="@dimen/activity_vertical_padding"
             android:paddingEnd="@dimen/activity_vertical_padding">
 
             <LinearLayout
-                android:layout_width="50dp"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight=".5"
                 android:orientation="horizontal"
                 android:gravity="center|start"
                 android:onClick="onBackPressed">
@@ -34,25 +37,30 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:layout_marginEnd="@dimen/margin_50">
+                android:layout_weight="1.9"
+                android:paddingStart="0dp"
+                android:paddingEnd="@dimen/padding_50"
+                style="@style/text_view_style"
+                android:gravity="end|center"
+                android:text="@string/loan_details"
+                android:fontFamily="@font/campton_bold"
+                android:textColor="@color/titleColorGray"
+                android:textStyle="bold"
+                android:textSize="20sp"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/text_view_style"
-                    android:text="@string/loan_details"
-                    android:layout_margin="0dp"
-                    android:fontFamily="@font/campton_bold"
-                    android:textColor="@color/titleColorGray"
-                    android:textStyle="bold"
-                    android:textSize="20sp"/>
-
-            </LinearLayout>
+            <TextView
+                android:id="@+id/revoke_btn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".6"
+                style="@style/text_view_style"
+                android:gravity="end|center"
+                android:text="@string/revoke"
+                android:fontFamily="@font/campton_medium"
+                android:textColor="@color/colorAccent"/>
 
         </LinearLayout>
 

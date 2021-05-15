@@ -1,5 +1,5 @@
 package com.quidvis.moneydrop.interfaces;
 
 public interface OnStopListener {
-    void onStop();
+    void onStop(int key);
 }

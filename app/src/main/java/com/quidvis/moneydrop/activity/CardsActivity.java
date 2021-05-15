@@ -67,7 +67,6 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
     private DbHelper dbHelper;
     private User user;
     private ArrayList<com.quidvis.moneydrop.model.Card> cards;
-    private final int chargeAmount = 50;
     private String flutterCardName, flutterTransRef;
 
 //    private Animation animFadeIn, animFadeOut;
@@ -89,7 +88,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
 //        PaystackSdk.initialize(this);
 
         raveNonUIManager = new RaveNonUIManager();
-        verificationUtils = new RaveVerificationUtils(this, true, Constant.FLUTTERWAVE_PUBKEY, R.style.AppTheme);
+        verificationUtils = new RaveVerificationUtils(this, false, Constant.FLUTTERWAVE_PUBKEY, R.style.AppTheme);
 
 //        animFadeIn = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in);
 //        animFadeOut = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_out);
@@ -255,7 +254,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
 
     public void performFlutterwaveCharge(com.flutterwave.raveandroid.rave_presentation.card.Card card, String cardName) {
         flutterCardName = cardName;
-        raveNonUIManager.setAmount(chargeAmount)
+        raveNonUIManager.setAmount(50)
                 .setCurrency("NGN")
                 .setEmail(user.getEmail())
                 .setfName(user.getFirstname())
@@ -266,53 +265,54 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
                 .setEncryptionKey(Constant.FLUTTERWAVE_ENCKEY)
                 .setTxRef(flutterTransRef = UUID.randomUUID().toString())
                 .initialize();
+
         cardPayManager = new CardPaymentManager(raveNonUIManager, this);
         cardPayManager.chargeCard(card);
     }
 
-    public void performPaystackCharge(Card card, String cardName) {
-        //create a Charge object
-        Charge charge = new Charge();
-        charge.setAmount(chargeAmount);
-        charge.setEmail(user.getEmail());
-        charge.setBearer(Charge.Bearer.account);
-        charge.setCurrency("NGN");
-        charge.setCard(card); //sets the card to charge
-
-        addCardBtn.startAnimation();
-
-        PaystackSdk.chargeCard(CardsActivity.this, charge, new Paystack.TransactionCallback() {
-            @Override
-            public void onSuccess(Transaction transaction) {
-                // This is called only after transaction is deemed successful.
-                // Retrieve the transaction, and send its reference to your server
-                // for verification.
-                verifyTransaction(transaction.getReference(), cardName);
-            }
-
-            @Override
-            public void beforeValidate(Transaction transaction) {
-                // This is called only before requesting OTP.
-                // Save reference so you may send to server. If
-                // error occurs with OTP, you should still verify on server.
-                String reference = transaction.getReference();
-                if (reference != null && !reference.isEmpty()) logTransRef(reference);
-            }
-
-            @Override
-            public void onError(Throwable error, Transaction transaction) {
-                //handle error here
-                String reference = transaction.getReference();
-                if (reference != null && !reference.isEmpty())
-                    verifyTransaction(reference, cardName);
-                else {
-                    addCardBtn.revertAnimation();
-                    Utility.toastMessage(CardsActivity.this, error.getMessage());
-                }
-            }
-
-        });
-    }
+//    public void performPaystackCharge(Card card, String cardName) {
+//        //create a Charge object
+//        Charge charge = new Charge();
+//        charge.setAmount(chargeAmount);
+//        charge.setEmail(user.getEmail());
+//        charge.setBearer(Charge.Bearer.account);
+//        charge.setCurrency("NGN");
+//        charge.setCard(card); //sets the card to charge
+//
+//        addCardBtn.startAnimation();
+//
+//        PaystackSdk.chargeCard(CardsActivity.this, charge, new Paystack.TransactionCallback() {
+//            @Override
+//            public void onSuccess(Transaction transaction) {
+//                // This is called only after transaction is deemed successful.
+//                // Retrieve the transaction, and send its reference to your server
+//                // for verification.
+//                verifyTransaction(transaction.getReference(), cardName);
+//            }
+//
+//            @Override
+//            public void beforeValidate(Transaction transaction) {
+//                // This is called only before requesting OTP.
+//                // Save reference so you may send to server. If
+//                // error occurs with OTP, you should still verify on server.
+//                String reference = transaction.getReference();
+//                if (reference != null && !reference.isEmpty()) logTransRef(reference);
+//            }
+//
+//            @Override
+//            public void onError(Throwable error, Transaction transaction) {
+//                //handle error here
+//                String reference = transaction.getReference();
+//                if (reference != null && !reference.isEmpty())
+//                    verifyTransaction(reference, cardName);
+//                else {
+//                    addCardBtn.revertAnimation();
+//                    Utility.toastMessage(CardsActivity.this, error.getMessage());
+//                }
+//            }
+//
+//        });
+//    }
 
     private void logTransRef(String reference) {
         HttpRequest httpRequest = new HttpRequest(this, URLContract.CARD_TRANS_LOG_URL,

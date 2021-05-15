@@ -201,37 +201,38 @@ public class MainActivity extends CustomCompatActivity {
     }
 
     public static void logout(Activity activity) {
-        logout(activity, "Logged out");
+        logout(activity, null);
     }
 
-    public static void logout(Activity activity, String title, String message) {
-        logout(activity, title, message, null, null);
+    public static void logout(Activity activity, String title, String message, int code) {
+        logout(activity, title, message, code, null, null);
     }
 
     public static void logout(Activity activity, String message) {
-        logout(activity, null, message, null, null);
+        logout(activity, null, message, 0, null, null);
     }
 
     public static void logout(Activity activity, String message, Session session) {
-        logout(activity, null, message, null, session);
+        logout(activity, null, message, 0, null, session);
     }
 
     public static void logout(Activity activity, String message, DbHelper dbHelper) {
-        logout(activity, null, message, dbHelper, null);
+        logout(activity, null, message, 0, dbHelper, null);
     }
 
-    public static void logout(Activity activity, String title, String message, DbHelper dbHelper, Session session) {
+    public static void logout(Activity activity, String title, String message, int code, DbHelper dbHelper, Session session) {
 
         if (dbHelper == null) dbHelper = new DbHelper(activity);
         if (session == null) session = new Session(activity);
         Session finalSession = session;
         DbHelper finalDbHelper = dbHelper;
 
-        CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog((AppCompatActivity) activity);
-        alertDialog.setIcon(R.drawable.ic_log_me_out);
-        alertDialog.setMessage((title != null && message != null) ? String.format("%s: %s. Logout to fix this.", title, message) : "Are you sure you want to logout?");
-        alertDialog.setNegativeButton("No, I'm not ready");
-        alertDialog.setPositiveButton("Yes, Log me out", v -> {
+        CustomBottomAlertDialog dialog = new CustomBottomAlertDialog((AppCompatActivity) activity);
+        if (code == 419) dialog.setLottieIcon(R.raw.locked);
+        else dialog.setIcon(R.drawable.ic_log_me_out);
+        dialog.setMessage(code == 419 ? "Current session expired, please login again to continue." : (message != null ? message : "Are you sure you want to logout?"));
+        dialog.setNegativeButton("No, Cancel");
+        dialog.setPositiveButton(String.format("%s, Log me out", code == 419 ? "Ok" : "Yes"), v -> {
 
             Utility.toastMessage(activity, "Logging out, please wait.");
 
@@ -248,10 +249,10 @@ public class MainActivity extends CustomCompatActivity {
                 activity.startActivity(intent);
                 activity.finish();
 
-            }).addOnFailureListener(e -> Utility.toastMessage(activity, "Logout failed"));
+            }).addOnFailureListener(e -> Utility.toastMessage(activity, "Logout failed, please try again."));
 
         });
-        alertDialog.display();
+        dialog.display();
     }
 
     public void viewAllLoanRequest(View view) {
