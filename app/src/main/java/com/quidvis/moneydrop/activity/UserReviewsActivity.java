@@ -168,7 +168,7 @@ public class UserReviewsActivity extends CustomCompatActivity {
         tvUsername.setText(String.format("%s %s", reviewUser.getFirstname(), reviewUser.getLastname()));
 
         Glide.with(this)
-                .load(reviewUser.getPictureUrl())
+                .load(reviewUser.getPicture())
                 .placeholder(reviewUser.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(reviewUser.getDefaultPicture())

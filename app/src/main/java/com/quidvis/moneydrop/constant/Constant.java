@@ -20,6 +20,7 @@ public class Constant {
     public static final String MONO_KEY = "live_pk_miQHyMrumQTOWK5itPyB";
     public static final String FLUTTERWAVE_PUBKEY = "FLWPUBK-a46dd307fadd0d345c9ebba50b56c724-X";
     public static final String FLUTTERWAVE_ENCKEY = "a97c898dfc76e1e276b6eb4d";
+    public static final String GOOGLE_CLIENT_ID = "629705934099-0imerg29pskj9cahu6agk9pnpepdlma2.apps.googleusercontent.com";
 
     /**
      * HTTP Request code

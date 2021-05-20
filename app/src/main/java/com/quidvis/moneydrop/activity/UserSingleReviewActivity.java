@@ -184,7 +184,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
         tvUsername.setText(String.format("%s %s", user.getFirstname(), user.getLastname()));
 
         Glide.with(this)
-                .load(user.getPictureUrl())
+                .load(user.getPicture())
                 .placeholder(user.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(user.getDefaultPicture())
@@ -202,7 +202,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
         User loanUser = loan.getUser();
 
         Glide.with(this)
-                .load(loanUser.getPictureUrl())
+                .load(loanUser.getPicture())
                 .placeholder(loanUser.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(loanUser.getDefaultPicture())
@@ -221,7 +221,7 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
         User reviewer = review.getReviewer();
 
         Glide.with(this)
-                .load(reviewer.getPictureUrl())
+                .load(reviewer.getPicture())
                 .placeholder(reviewer.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(reviewer.getDefaultPicture())

@@ -165,7 +165,7 @@ public class MainActivity extends CustomCompatActivity {
         User user = dbHelper.getUser();
 
         Glide.with(MainActivity.this)
-                .load(user.getPictureUrl())
+                .load(user.getPicture())
                 .placeholder(user.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(user.getDefaultPicture())

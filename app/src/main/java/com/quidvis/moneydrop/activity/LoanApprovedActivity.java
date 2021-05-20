@@ -81,7 +81,7 @@ public class LoanApprovedActivity extends CustomCompatActivity {
         User applicant = loan.getLoanType().equals("request") ? loan.getUser() : loanApplication.getApplicant();
 
         Glide.with(this)
-                .load(applicant.getPictureUrl())
+                .load(applicant.getPicture())
                 .placeholder(applicant.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(applicant.getDefaultPicture())

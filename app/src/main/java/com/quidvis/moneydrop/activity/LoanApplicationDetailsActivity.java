@@ -143,7 +143,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         User loanUser = loan.getUser();
 
         Glide.with(this)
-                .load(loanUser.getPictureUrl())
+                .load(loanUser.getPicture())
                 .placeholder(loanUser.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(loanUser.getDefaultPicture())
@@ -167,7 +167,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         User recipient = loan.isLoanOffer() ? loanApplication.getApplicant() : loan.getUser();
 
         Glide.with(this)
-                .load(recipient.getPictureUrl())
+                .load(recipient.getPicture())
                 .placeholder(recipient.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(recipient.getDefaultPicture())

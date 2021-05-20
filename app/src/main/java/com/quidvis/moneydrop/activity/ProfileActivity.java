@@ -181,7 +181,7 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
 
         profilePic.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putString(ImagePreviewActivity.IMAGE_URL, user.getPictureUrl());
+            bundle.putString(ImagePreviewActivity.IMAGE_URL, user.getPicture());
             startRevealActivity(this, v, ImagePreviewActivity.class, bundle);
         });
 
@@ -207,7 +207,7 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
         TextView tvAcctEmail = findViewById(R.id.account_email);
 
         Glide.with(ProfileActivity.this)
-                .load(user.getPictureUrl())
+                .load(user.getPicture())
                 .placeholder(user.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(user.getDefaultPicture())
@@ -1083,7 +1083,7 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
             layout = R.layout.profile_edit_password;
             bottomSheet.setOnViewInflatedListener(view1 -> {
                 EditText etCurrentPassword = view1.findViewById(R.id.etCurrentPassword);
-                EditText etPassword = view1.findViewById(R.id.etPassword);
+                EditText etPassword = view1.findViewById(R.id.etNewPassword);
                 EditText etConfirmPassword = view1.findViewById(R.id.etConfirmPassword);
                 submitBtn = view1.findViewById(R.id.submit);
                 submitBtn.setOnClickListener(v -> update(bottomSheet, id));

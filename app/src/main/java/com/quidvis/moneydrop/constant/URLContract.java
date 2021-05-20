@@ -20,6 +20,7 @@ public class URLContract {
     public static final String IMPORT_COUNTRIES_URL = API_URL + "/import/countries";
     public static final String IMPORT_STATES_URL = API_URL + "/import/states";
     public static final String LOGIN_URL = API_URL + "/auth/login";
+    public static final String LOGIN_WITH_GOOGLE_URL = API_URL + "/auth/login-with-google";
     public static final String REGISTRATION_URL = API_URL + "/auth/register";
     public static final String FORGOT_PASSWORD_URL = API_URL + "/auth/password/forgot";
     public static final String RESET_PASSWORD_URL = API_URL + "/auth/password/reset";

@@ -288,6 +288,8 @@
     <string name="select_state">Select a state</string>
     <string name="applied">Applied</string>
     <string name="revoke_loan_confirmation">Are you sure you want to revoke this loan?</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="fingerprint_info">Touch the fingerprint sensor</string>
 
 
     <string-array name="interestType">

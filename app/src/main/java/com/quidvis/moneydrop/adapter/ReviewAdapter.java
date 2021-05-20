@@ -131,7 +131,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             parentViewHolder.tvDate.setText(review.getDate());
 
             Glide.with(activity)
-                    .load(reviewer.getPictureUrl())
+                    .load(reviewer.getPicture())
                     .placeholder(reviewer.getDefaultPicture())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .error(reviewer.getDefaultPicture())

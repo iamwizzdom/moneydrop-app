@@ -29,10 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="@dimen/padding_50"
-            android:paddingBottom="@dimen/padding_50"
-            android:paddingStart="@dimen/activity_vertical_padding"
-            android:paddingEnd="@dimen/activity_vertical_padding">
+            android:padding="@dimen/padding_50">
 
             <TextView
                 android:id="@+id/tv_app_name"
@@ -75,11 +72,13 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/etPasswordLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 app:passwordToggleEnabled="true"
                 app:passwordToggleTint="@color/colorWhite"
+                app:passwordToggleDrawable="@drawable/ic_fingerprint"
                 android:theme="@style/text_view_hint_style"
                 android:hint="@string/password">
 
@@ -109,16 +108,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_vertical_margin_max"
                 android:layout_gravity="center"
                 android:background="@drawable/circular_border_shape_white"
                 android:text="@string/login"
                 android:textSize="14sp"
-                android:textStyle="bold"
                 android:textColor="@color/colorAccent"
                 android:textAllCaps="false"
                 app:spinning_bar_width="4dp"
                 app:spinning_bar_color="@color/colorAccent"
+                app:spinning_bar_padding="6dp" />
+
+            <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+                android:id="@+id/googleSignInBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin_max"
+                android:layout_gravity="center"
+                android:background="@drawable/circular_border_shape"
+                android:drawableStart="@drawable/ic_google_glass_logo"
+                android:drawablePadding="@dimen/padding_10"
+                android:paddingHorizontal="@dimen/padding_80"
+                android:text="@string/sign_in_with_google"
+                android:textSize="14sp"
+                android:textColor="@color/colorWhite"
+                android:textAllCaps="false"
+                app:spinning_bar_width="4dp"
+                app:spinning_bar_color="@color/colorWhite"
                 app:spinning_bar_padding="6dp" />
 
             <TextView

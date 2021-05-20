@@ -151,10 +151,6 @@ public class User {
         return picture;
     }
 
-    public String getPictureUrl() {
-        return (URLContract.BASE_URL + "/" + getPicture());
-    }
-
     public int getDefaultPicture() {
         return getGender() == MALE ? R.drawable.male : (getGender() == FEMALE ? R.drawable.female : R.drawable.unisex);
     }

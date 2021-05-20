@@ -138,7 +138,7 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
             parentViewHolder.tvDate.setText(spannableStringBuilder);
 
             Glide.with(activity)
-                    .load(user.getPictureUrl())
+                    .load(user.getPicture())
                     .placeholder(user.getDefaultPicture())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .error(user.getDefaultPicture())

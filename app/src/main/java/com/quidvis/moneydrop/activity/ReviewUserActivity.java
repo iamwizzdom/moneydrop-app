@@ -97,7 +97,7 @@ public class ReviewUserActivity extends CustomCompatActivity {
 
         profilePic.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
-            bundle.putString(ImagePreviewActivity.IMAGE_URL, this.loanRecipient.getPictureUrl());
+            bundle.putString(ImagePreviewActivity.IMAGE_URL, this.loanRecipient.getPicture());
             startRevealActivity(this, v, ImagePreviewActivity.class, bundle);
         });
 
@@ -114,7 +114,7 @@ public class ReviewUserActivity extends CustomCompatActivity {
         TextView tvEmail = findViewById(R.id.account_email);
 
         Glide.with(ReviewUserActivity.this)
-                .load(loanRecipient.getPictureUrl())
+                .load(loanRecipient.getPicture())
                 .placeholder(loanRecipient.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(loanRecipient.getDefaultPicture())

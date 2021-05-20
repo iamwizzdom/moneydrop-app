@@ -90,15 +90,14 @@ public class NotificationUtils {
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
         bigTextStyle.bigText(message);
 
-        Notification notification = mBuilder.setSmallIcon(R.drawable.ic_launcher)
-                .setTicker(title)
+        Notification notification = mBuilder.setTicker(title)
                 .setAutoCancel(true)
                 .setContentTitle(title)
                 .setContentIntent(resultPendingIntent)
                 .setSound(alarmSound)
                 .setStyle(bigTextStyle)
                 .setWhen(getTimeMilliSec(timeStamp))
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_white)
                 .setLargeIcon(Utility.drawableToBitmap(ContextCompat.getDrawable(mContext, R.drawable.ic_launcher)))
                 .setContentText(message)
                 .build();
@@ -116,15 +115,14 @@ public class NotificationUtils {
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
         bigTextStyle.bigText(message);
 
-        Notification notification = mBuilder.setSmallIcon(R.drawable.ic_launcher)
-                .setTicker(title)
+        Notification notification = mBuilder.setTicker(title)
                 .setAutoCancel(true)
                 .setContentTitle(title)
                 .setContentIntent(resultPendingIntent)
                 .setSound(alarmSound)
                 .setStyle(bigTextStyle)
                 .setWhen(getTimeMilliSec(timeStamp))
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_white)
                 .setLargeIcon(bitmap)
                 .setContentText(message)
                 .build();

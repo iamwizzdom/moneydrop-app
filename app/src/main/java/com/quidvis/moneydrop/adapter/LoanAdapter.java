@@ -147,7 +147,7 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             User user = loan.getUser();
             Glide.with(fragment)
-                    .load(user.getPictureUrl())
+                    .load(user.getPicture())
                     .placeholder(user.getDefaultPicture())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .error(user.getDefaultPicture())

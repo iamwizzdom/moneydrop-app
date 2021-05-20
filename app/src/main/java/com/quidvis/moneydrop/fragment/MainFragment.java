@@ -207,7 +207,7 @@ public class MainFragment extends CustomCompatFragment {
         User loanOwner = loan.getUser();
 
         Glide.with(activity)
-                .load(loanOwner.getPictureUrl())
+                .load(loanOwner.getPicture())
                 .placeholder(loanOwner.getDefaultPicture())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(loanOwner.getDefaultPicture())

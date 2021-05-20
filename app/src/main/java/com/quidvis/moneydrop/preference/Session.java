@@ -45,6 +45,24 @@ public class Session {
         return prefs.getString("lastEmail", null);
     }
 
+    public void setLastPassword(String lastPassword) {
+        this.editor.putString("lastPassword", lastPassword);
+        this.editor.commit();
+    }
+
+    public String getLastPassword() {
+        return prefs.getString("lastPassword", null);
+    }
+
+    public void setCipherIV(String cipherIV) {
+        this.editor.putString("cipherIV", cipherIV);
+        this.editor.commit();
+    }
+
+    public String getCipherIV() {
+        return prefs.getString("cipherIV", null);
+    }
+
     public void setCompletedCountryImport(boolean status) {
         this.editor.putBoolean("completedCountryImport", status);
         this.editor.commit();
@@ -115,12 +133,16 @@ public class Session {
 
     public void clearAll() {
         String lastEmail = getLastEmail();
+        String lastPassword = getLastPassword();
+        String cipherIV = getCipherIV();
         boolean isFirstTimeLaunch = isFirstTimeLaunch();
         boolean hasCompletedCountryImport = hasCompletedCountryImport();
         boolean hasCompletedStateImport = hasCompletedStateImport();
         boolean cleared = editor.clear().commit();
         if (cleared) {
             setLastEmail(lastEmail);
+            setLastPassword(lastPassword);
+            setCipherIV(cipherIV);
             setFirstTimeLaunch(isFirstTimeLaunch);
             setCompletedCountryImport(hasCompletedCountryImport);
             setCompletedStateImport(hasCompletedStateImport);
