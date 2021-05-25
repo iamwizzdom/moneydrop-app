@@ -164,15 +164,15 @@ public class LoanApplicantsActivity extends CustomCompatActivity {
 
         ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
 
-        tvAmount.setTextColor(this.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-        tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
+        tvAmount.setTextColor(this.getResources().getColor(Objects.requireNonNull(theme.get("color")), null));
+        tvStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
     }
 
     public void grantLoan(LoanApplication application, CircularProgressButton btn) {
 
         CustomBottomAlertDialog alertDialog = new CustomBottomAlertDialog(LoanApplicantsActivity.this);
-        alertDialog.setIcon(application.getLoan().isLoanOffer() ? R.drawable.ic_give_money : R.drawable.ic_receive_money);
+        alertDialog.setLottieIcon(application.getLoan().isLoanOffer() ? R.raw.lottie_give_money : R.raw.lottie_receive_money);
         String confirmation = "Are you sure you want to give %s this loan?";
         if (application.getLoan().isLoanRequest()) {
             confirmation = "Are you sure you want to collect this loan from %s?";

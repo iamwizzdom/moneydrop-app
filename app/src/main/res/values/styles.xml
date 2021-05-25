@@ -355,7 +355,7 @@
         <item name="android:fontFamily">@font/campton_light</item>
     </style>
 
-    <style name="DialogAnimation">
+    <style name="DialogAnimationSlide">
         <item name="android:windowEnterAnimation">@anim/slide_left</item>
         <item name="android:windowExitAnimation">@anim/slide_right</item>
     </style>

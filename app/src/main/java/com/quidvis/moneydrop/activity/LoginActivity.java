@@ -580,7 +580,7 @@ public class LoginActivity extends CustomCompatActivity {
         httpRequest.send();
     }
 
-    private void loginWithGoogle(String email, String googleId) {
+    private void loginWithGoogle(String email, String googleId, String tokenId) {
 
         if (!Validator.isValidEmail(email)) {
             Utility.toastMessage(this, "Please enter a valid email address");
@@ -598,6 +598,7 @@ public class LoginActivity extends CustomCompatActivity {
                 Map<String, String> params = new HashMap<>();
                 params.put("email", email);
                 params.put("google_id", googleId);
+                params.put("token_id", tokenId);
                 params.put("pn_token", session.getFirebaseToken());
                 return params;
             }
@@ -773,7 +774,7 @@ public class LoginActivity extends CustomCompatActivity {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (account != null && !account.isExpired()) {
-                loginWithGoogle(account.getEmail(), account.getId());
+                loginWithGoogle(account.getEmail(), account.getId(), account.getIdToken());
             } else {
                 if (account != null && account.isExpired()) {
                     Utility.toastMessage(this, "Retrying");

@@ -539,7 +539,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = mainFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
                                 mainFragmentData.put("available_balance", availableBalance);
@@ -555,7 +555,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = walletFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
                                 walletFragmentData.put("available_balance", availableBalance);
@@ -573,7 +573,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = mainFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
                                 mainFragmentData.put("available_balance", availableBalance);
@@ -592,7 +592,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = walletFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 4) transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
                                 walletFragmentData.put("available_balance", availableBalance);
@@ -610,7 +610,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = walletFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 4) transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
                                 walletFragmentData.put("available_balance", availableBalance);
@@ -629,7 +629,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = mainFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
                                 mainFragmentData.put("available_balance", availableBalance);
@@ -834,7 +834,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = mainFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
                                 mainFragmentData.put("available_balance", availableBalance);
@@ -850,7 +850,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = walletFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
                                 walletFragmentData.put("available_balance", availableBalance);
@@ -868,7 +868,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = mainFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
                                 mainFragmentData.put("available_balance", availableBalance);
@@ -887,7 +887,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = walletFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
                                 walletFragmentData.put("available_balance", availableBalance);
@@ -905,7 +905,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = walletFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 walletFragmentData.put("balance", balance);
                                 walletFragmentData.put("available_balance", availableBalance);
@@ -924,7 +924,7 @@ public class MainActivity extends CustomCompatActivity {
 
                                 transactions = mainFragmentData.getJSONArray("transactions");
                                 size = transactions.length();
-                                transactions.remove(size - 1);
+                                if (size > 1) transactions.remove(size - 1);
 
                                 mainFragmentData.put("balance", balance);
                                 mainFragmentData.put("available_balance", availableBalance);

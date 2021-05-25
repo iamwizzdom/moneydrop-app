@@ -134,7 +134,7 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
             SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(date);
             spannableStringBuilder.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             spannableStringBuilder.setSpan(new android.text.style.RelativeSizeSpan(1.1f), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            spannableStringBuilder.setSpan(new android.text.style.ForegroundColorSpan(activity.getResources().getColor(R.color.colorAccent)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableStringBuilder.setSpan(new android.text.style.ForegroundColorSpan(activity.getResources().getColor(R.color.colorAccent, null)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             parentViewHolder.tvDate.setText(spannableStringBuilder);
 
             Glide.with(activity)
@@ -160,11 +160,11 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
 
                 if (application.isGranted()) {
                     parentViewHolder.grantBtn.setText(R.string.granted);
-                    parentViewHolder.grantBtn.setTextColor(activity.getResources().getColor(R.color.successColor));
+                    parentViewHolder.grantBtn.setTextColor(activity.getResources().getColor(R.color.successColor, null));
                     parentViewHolder.grantBtn.setBackgroundResource(R.drawable.button_border_success);
                 } else {
                     parentViewHolder.grantBtn.setText(R.string.rejected);
-                    parentViewHolder.grantBtn.setTextColor(activity.getResources().getColor(R.color.dangerColor));
+                    parentViewHolder.grantBtn.setTextColor(activity.getResources().getColor(R.color.dangerColor, null));
                     parentViewHolder.grantBtn.setBackgroundResource(R.drawable.button_border_default);
                 }
 
@@ -174,7 +174,7 @@ public class LoanApplicantAdapter extends RecyclerView.Adapter<RecyclerView.View
                 parentViewHolder.grantBtn.setAlpha(1f);
 
                 parentViewHolder.grantBtn.setText(R.string.grant);
-                parentViewHolder.grantBtn.setTextColor(activity.getResources().getColor(R.color.colorAccent));
+                parentViewHolder.grantBtn.setTextColor(activity.getResources().getColor(R.color.colorAccent, null));
                 parentViewHolder.grantBtn.setBackgroundResource(R.drawable.button_border_info);
                 parentViewHolder.grantBtn.setOnClickListener(v -> ((LoanApplicantsActivity) activity).grantLoan(application, (CircularProgressButton) v));
             }

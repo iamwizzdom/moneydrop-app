@@ -89,7 +89,7 @@ public class TransactionReceiptActivity extends CustomCompatActivity {
         tvCurrency.setText(transaction.getCurrency());
         tvDate.setText(transaction.getDateTime());
         tvStatus.setText(transaction.getStatus());
-        tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
+        tvStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
         tvNarration.setText(Utility.castEmpty(transaction.getNarration(), "No narrative"));
 

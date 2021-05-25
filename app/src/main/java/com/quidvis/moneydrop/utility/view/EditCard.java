@@ -106,7 +106,7 @@ public class EditCard extends androidx.appcompat.widget.AppCompatEditText {
         if (size >= 2) st2 = s.substring(0, 2);
         if (size >= 4) st4 = s.substring(0, 4);
 
-        if (s.startsWith("4") || s.matches(CardPattern.VISA) || s.matches(CardPattern.VISA_MASTER)) {
+        if (s.startsWith("4") && (s.matches(CardPattern.VISA) || s.matches(CardPattern.VISA_MASTER))) {
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_visa_card, 0, 0,0);
             type = "Visa";
         } else if (s.matches(CardPattern.VERVE)) {

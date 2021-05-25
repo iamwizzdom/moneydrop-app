@@ -81,7 +81,7 @@ public class ProgressButton extends RelativeLayout {
             int textSize = a.getDimensionPixelSize(R.styleable.ProgressButton_btnTextSize, 0);
             if (textSize != 0) button.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) textSize);
             int color = a.getResourceId(R.styleable.ProgressButton_btnTextColor, 0);
-            if (color != 0) button.setTextColor(getResources().getColor(color));
+            if (color != 0) button.setTextColor(getResources().getColor(color, null));
             button.setTypeface(button.getTypeface(), a.getInt(R.styleable.ProgressButton_btnTextStyle, Typeface.NORMAL));
             button.setAllCaps(a.getBoolean(R.styleable.ProgressButton_btnTextAllCaps, false));
             int background = a.getResourceId(R.styleable.ProgressButton_btnBackground, 0);

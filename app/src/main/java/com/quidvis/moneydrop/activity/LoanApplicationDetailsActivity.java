@@ -152,8 +152,8 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
 
         ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
 
-        tvLoanAmount.setTextColor(this.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-        tvLoanStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
+        tvLoanAmount.setTextColor(this.getResources().getColor(Objects.requireNonNull(theme.get("color")), null));
+        tvLoanStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
         tvLoanStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
         loanLayout.setOnClickListener(v -> {
             Intent intent = new Intent(LoanApplicationDetailsActivity.this, LoanDetailsActivity.class);
@@ -181,7 +181,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(date);
         spannableStringBuilder.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         spannableStringBuilder.setSpan(new android.text.style.RelativeSizeSpan(1.1f), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableStringBuilder.setSpan(new android.text.style.ForegroundColorSpan(getResources().getColor(R.color.colorAccent)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableStringBuilder.setSpan(new android.text.style.ForegroundColorSpan(getResources().getColor(R.color.colorAccent, null)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvDate.setText(spannableStringBuilder);
     }
 
@@ -196,7 +196,7 @@ public class LoanApplicationDetailsActivity extends CustomCompatActivity {
         tvApplicationStatus.setText(Utility.ucFirst(loanApplication.getStatus()));
 
         ArrayMap<String, Integer> theme = Utility.getTheme(loanApplication.getStatus());
-        tvApplicationStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
+        tvApplicationStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
         tvApplicationStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
         if (loanApplication.getApplicant().isMe()) {

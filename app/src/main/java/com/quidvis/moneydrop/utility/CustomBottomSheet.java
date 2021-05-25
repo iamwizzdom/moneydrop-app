@@ -248,8 +248,8 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         params.rightMargin = Utility.getDip(activity, 10);
 
-        tv.setTextAppearance(activity, R.style.text_view_style);
-        tv.setTextColor(activity.getResources().getColor(R.color.titleColorGray));
+        tv.setTextAppearance(R.style.text_view_style);
+        tv.setTextColor(activity.getResources().getColor(R.color.titleColorGray, null));
         Typeface typeface = ResourcesCompat.getFont(activity, R.font.campton_light);
         tv.setTypeface(typeface, Typeface.BOLD);
         tv.setLayoutParams(params);

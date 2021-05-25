@@ -211,8 +211,8 @@ public class UserSingleReviewActivity extends CustomCompatActivity {
 
         ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
 
-        tvAmount.setTextColor(this.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-        tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
+        tvAmount.setTextColor(this.getResources().getColor(Objects.requireNonNull(theme.get("color")), null));
+        tvStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
     }
 

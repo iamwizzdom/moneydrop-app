@@ -17,10 +17,10 @@ public class Constant {
 
     public static final String FILE_PATH = String.format("%s/MoneyDrop", Environment.getExternalStorageDirectory().getPath());
 
-    public static final String MONO_KEY = "live_pk_miQHyMrumQTOWK5itPyB";
-    public static final String FLUTTERWAVE_PUBKEY = "FLWPUBK-a46dd307fadd0d345c9ebba50b56c724-X";
-    public static final String FLUTTERWAVE_ENCKEY = "a97c898dfc76e1e276b6eb4d";
-    public static final String GOOGLE_CLIENT_ID = "629705934099-0imerg29pskj9cahu6agk9pnpepdlma2.apps.googleusercontent.com";
+    public static final String MONO_KEY = "test_pk_QkHIcvviN20Tbyap1wnF";
+    public static final String FLUTTERWAVE_PUBKEY = "FLWPUBK_TEST-52ece87389c981bffbff5283aa35f00f-X";
+    public static final String FLUTTERWAVE_ENCKEY = "FLWSECK_TEST76766747e348";
+    public static final String GOOGLE_CLIENT_ID = "629705934099-185d1ijs1uum9qra9k7klsvglfjsv2sg.apps.googleusercontent.com";
 
     /**
      * HTTP Request code

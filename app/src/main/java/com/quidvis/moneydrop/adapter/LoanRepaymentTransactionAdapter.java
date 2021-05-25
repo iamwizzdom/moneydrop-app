@@ -133,8 +133,8 @@ public class LoanRepaymentTransactionAdapter extends RecyclerView.Adapter<Recycl
             ArrayMap<String, Integer> theme = getTheme(transaction.getStatus(), transaction.getType().toLowerCase().equals("top-up"));
 
             parentViewHolder.mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
-            parentViewHolder.tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-            parentViewHolder.tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
+            parentViewHolder.tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color")), null));
+            parentViewHolder.tvStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
             parentViewHolder.tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
             int size = getItemCount();

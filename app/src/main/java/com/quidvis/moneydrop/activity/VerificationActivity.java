@@ -241,7 +241,7 @@ public class VerificationActivity extends CustomCompatActivity {
                 SpannableString spannableString = new SpannableString(resentTxt);
                 spannableString.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 spannableString.setSpan(new android.text.style.RelativeSizeSpan(1.1f), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                spannableString.setSpan(new android.text.style.ForegroundColorSpan(getResources().getColor(R.color.colorAccent)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new android.text.style.ForegroundColorSpan(getResources().getColor(R.color.colorAccent, null)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 tvResend.setText(spannableString);
             }
 
@@ -253,7 +253,7 @@ public class VerificationActivity extends CustomCompatActivity {
                 SpannableString spannableString = new SpannableString(resentTxt);
                 spannableString.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 spannableString.setSpan(new android.text.style.RelativeSizeSpan(1.1f), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                spannableString.setSpan(new android.text.style.ForegroundColorSpan(getResources().getColor(R.color.colorAccent)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new android.text.style.ForegroundColorSpan(getResources().getColor(R.color.colorAccent, null)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 ClickableSpan clickHandler = new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View v) {

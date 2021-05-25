@@ -154,8 +154,8 @@ public class LoanAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .apply(new RequestOptions().override(150, 150))
                     .into(parentViewHolder.mvPic);
 
-            parentViewHolder.tvAmount.setTextColor(fragment.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-            parentViewHolder.tvStatus.setTextAppearance(context, Objects.requireNonNull(theme.get("badge")));
+            parentViewHolder.tvAmount.setTextColor(fragment.getResources().getColor(Objects.requireNonNull(theme.get("color")), null));
+            parentViewHolder.tvStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
             parentViewHolder.tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
             int size = getItemCount();

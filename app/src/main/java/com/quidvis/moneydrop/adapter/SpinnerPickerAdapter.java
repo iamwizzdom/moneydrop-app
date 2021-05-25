@@ -38,13 +38,13 @@ public class SpinnerPickerAdapter extends RecyclerView.Adapter<SpinnerPickerAdap
         if (position == selectedItem) {
             holder.item.setTextSize(20);
             holder.item.setTextColor(context.getResources().getColor(R.color.colorBlackLight));
-            holder.container.setBackgroundColor(context.getResources().getColor(R.color.colorWhiteDark));
+            holder.container.setBackgroundColor(context.getResources().getColor(R.color.colorWhiteDark, null));
             holder.item.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_check_mark, 0);
             selectedItem = position;
         } else {
             holder.item.setTextSize(18);
-            holder.item.setTextColor(context.getResources().getColor(R.color.colorWhiteDarkExtra));
-            holder.container.setBackgroundColor(context.getResources().getColor(R.color.colorWhite));
+            holder.item.setTextColor(context.getResources().getColor(R.color.colorWhiteDarkExtra, null));
+            holder.container.setBackgroundColor(context.getResources().getColor(R.color.colorWhite, null));
             holder.item.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
         }
     }

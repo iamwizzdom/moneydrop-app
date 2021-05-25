@@ -89,8 +89,8 @@ public class UserLoanActivity extends CustomCompatActivity {
     private TextView getTextView() {
         TextView tv = new TextView(this);
 
-        tv.setTextAppearance(this, R.style.text_view_style);
-        tv.setTextColor(this.getResources().getColor(R.color.colorAccent));
+        tv.setTextAppearance(R.style.text_view_style);
+        tv.setTextColor(this.getResources().getColor(R.color.colorAccent, null));
 
         int padding = Utility.getDip(this, 10);
         int paddingSides = Utility.getDip(this, 20);
@@ -109,7 +109,7 @@ public class UserLoanActivity extends CustomCompatActivity {
 
     private void selectView(View view) {
         view.setBackground(ResourcesCompat.getDrawable(this.getResources(), R.drawable.layout_background_rounded, null));
-        view.setBackgroundTintList(ColorStateList.valueOf(this.getResources().getColor(R.color.colorWhite)));
+        view.setBackgroundTintList(ColorStateList.valueOf(this.getResources().getColor(R.color.colorWhite, null)));
     }
 
     private void deselectView(View view) {

@@ -3,6 +3,7 @@ package com.quidvis.moneydrop.activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.ArrayMap;
 import android.util.Base64;
 import android.view.View;
@@ -166,7 +167,7 @@ public class LoanDetailsActivity extends CustomCompatActivity {
         tvStatus.setText(Utility.castEmpty(loan.getStatus(), "Unknown"));
 
         ArrayMap<String, Integer> theme = Utility.getTheme(loan.getStatus());
-        tvStatus.setTextAppearance(this, Objects.requireNonNull(theme.get("badge")));
+        tvStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
         tvNote.setText(Utility.castEmpty(loan.getNote(), "No note"));
     }
@@ -342,7 +343,7 @@ public class LoanDetailsActivity extends CustomCompatActivity {
                         }
                     }
 
-                    setLoanView();
+                    new Handler().postDelayed(() -> setLoanView(), 500);
                     Utility.toastMessage(LoanDetailsActivity.this, object.getString("message"), true);
 
                 } catch (JSONException e) {

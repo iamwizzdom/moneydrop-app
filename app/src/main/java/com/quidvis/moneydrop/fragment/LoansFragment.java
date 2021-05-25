@@ -136,8 +136,8 @@ public class LoansFragment extends CustomCompatFragment {
     private TextView getTextView() {
         TextView tv = new TextView(activity);
 
-        tv.setTextAppearance(activity, R.style.text_view_style);
-        tv.setTextColor(activity.getResources().getColor(R.color.colorAccent));
+        tv.setTextAppearance(R.style.text_view_style);
+        tv.setTextColor(activity.getResources().getColor(R.color.colorAccent, null));
 
         int padding = Utility.getDip(activity, 10);
         int paddingSides = Utility.getDip(activity, 20);
@@ -152,7 +152,7 @@ public class LoansFragment extends CustomCompatFragment {
 
     private void selectView(View view) {
         view.setBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.layout_background_rounded, null));
-        view.setBackgroundTintList(ColorStateList.valueOf(activity.getResources().getColor(R.color.colorWhite)));
+        view.setBackgroundTintList(ColorStateList.valueOf(activity.getResources().getColor(R.color.colorWhite, null)));
     }
 
     private void deselectView(View view) {

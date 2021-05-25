@@ -118,10 +118,10 @@ public class RequestLoanFragment extends CustomFragment {
         for (int i = 0; i < amounts.length; i++) {
             TextView tv = new TextView(activity);
 
-            tv.setTextAppearance(activity, R.style.text_view_style);
+            tv.setTextAppearance(R.style.text_view_style);
             tv.setBackground(ResourcesCompat.getDrawable(activity.getResources(), R.drawable.layout_background_rounded, null));
-            tv.setBackgroundTintList(ColorStateList.valueOf(activity.getResources().getColor(R.color.colorGrayExtraLight)));
-            tv.setTextColor(activity.getResources().getColor(R.color.colorAccent));
+            tv.setBackgroundTintList(ColorStateList.valueOf(activity.getResources().getColor(R.color.colorGrayExtraLight, null)));
+            tv.setTextColor(activity.getResources().getColor(R.color.colorAccent, null));
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -296,7 +296,7 @@ public class RequestLoanFragment extends CustomFragment {
 
                             JSONArray loans = mainFragmentData.getJSONArray("loans");
                             int size = loans.length();
-                            loans.remove(size - 1);
+                            if (size > 1) loans.remove(size - 1);
                             mainFragmentData.put("loans", Utility.prependJSONObject(loans, loan));
 
                             mainFragmentState.putString("data", mainFragmentData.toString());

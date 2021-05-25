@@ -137,11 +137,11 @@ public class MainFragment extends CustomCompatFragment {
     public void setBalance(double amount) {
         format.setMaximumFractionDigits(2);
         ((MainActivity) activity).setCustomTitle(format.format(amount));
-        format.setMaximumFractionDigits(0);
     }
 
     private void setLoans(JSONArray loan) {
 
+        format.setMaximumFractionDigits(0);
         int size = Math.min(loan.length(), 2);
         loanView.removeAllViews();
 
@@ -216,8 +216,8 @@ public class MainFragment extends CustomCompatFragment {
 
         ArrayMap<String, Integer> theme = getTheme(loan.getStatus());
 
-        tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-        tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
+        tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color")), null));
+        tvStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
         container.setOnClickListener(v -> {
@@ -252,8 +252,8 @@ public class MainFragment extends CustomCompatFragment {
         ArrayMap<String, Integer> theme = getTheme(transaction.getStatus(), transaction.getType().toLowerCase().equals("top-up"));
 
         mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
-        tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-        tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
+        tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color")), null));
+        tvStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
         container.setOnClickListener(v -> {

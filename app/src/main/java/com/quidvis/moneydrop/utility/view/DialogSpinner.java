@@ -223,7 +223,7 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
     }
 
     private void changeDividerColor(NumberPicker picker) {
-        int color = getContext().getResources().getColor(R.color.colorWhiteDark);
+        int color = getContext().getResources().getColor(R.color.colorWhiteDark, null);
         Field[] pickerFields = NumberPicker.class.getDeclaredFields();
         for (Field pf : pickerFields) {
             if (pf.getName().equals("mSelectionDivider")) {
@@ -240,7 +240,7 @@ public class DialogSpinner extends androidx.appcompat.widget.AppCompatTextView {
     }
 
     public void setNumberPickerTextColor(NumberPicker numberPicker) {
-        int color = getContext().getResources().getColor(R.color.colorBlackLight);
+        int color = getContext().getResources().getColor(R.color.colorBlackLight, null);
 
         final int count = numberPicker.getChildCount();
         for (int i = 0; i < count; i++) {

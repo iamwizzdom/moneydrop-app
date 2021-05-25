@@ -195,8 +195,8 @@ public class WalletFragment extends CustomCompatFragment {
         ArrayMap<String, Integer> theme = getTheme(transaction.getStatus(), transaction.getType().toLowerCase().equals("top-up"));
 
         mvIcon.setImageDrawable(ContextCompat.getDrawable(activity, Objects.requireNonNull(theme.get("icon"))));
-        tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color"))));
-        tvStatus.setTextAppearance(activity, Objects.requireNonNull(theme.get("badge")));
+        tvAmount.setTextColor(activity.getResources().getColor(Objects.requireNonNull(theme.get("color")), null));
+        tvStatus.setTextAppearance(Objects.requireNonNull(theme.get("badge")));
         tvStatus.setBackgroundResource(Objects.requireNonNull(theme.get("background")));
 
         container.setOnClickListener(v -> {

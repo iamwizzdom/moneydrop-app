@@ -88,7 +88,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
 //        PaystackSdk.initialize(this);
 
         raveNonUIManager = new RaveNonUIManager();
-        verificationUtils = new RaveVerificationUtils(this, false, Constant.FLUTTERWAVE_PUBKEY, R.style.AppTheme);
+        verificationUtils = new RaveVerificationUtils(this, true, Constant.FLUTTERWAVE_PUBKEY, R.style.AppTheme);
 
 //        animFadeIn = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in);
 //        animFadeOut = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_out);
@@ -389,7 +389,7 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
             @Override
             protected void onRequestStarted() {
                 addCardBtn.startAnimation();
-                Utility.toastMessage(CardsActivity.this, "Verifying transaction.");
+                Utility.toastMessage(CardsActivity.this, "Verifying card.");
             }
 
             @Override
@@ -720,8 +720,10 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
 
     @Override
     public void onSuccessful(String flwRef) {
-        if (flutterTransRef != null && !flutterTransRef.isEmpty()) verifyTransaction(flutterTransRef, flutterCardName);
-        else Utility.toastMessage(CardsActivity.this, "No transaction reference to verify");
+        new Handler().postDelayed(() -> {
+            if (flutterTransRef != null && !flutterTransRef.isEmpty()) verifyTransaction(flutterTransRef, flutterCardName);
+            else Utility.toastMessage(CardsActivity.this, "No transaction reference to verify");
+        }, 500);
     }
 
     @Override

@@ -50,7 +50,7 @@ public class CustomAlertDialog extends Dialog {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         window.setGravity(Gravity.CENTER);
-        window.getAttributes().windowAnimations = R.style.DialogAnimation;
+        window.getAttributes().windowAnimations = R.style.DialogAnimationPop;
     }
 
     public TextView getDialogTitle() {
