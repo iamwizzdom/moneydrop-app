@@ -15,8 +15,7 @@
         android:drawablePadding="@dimen/margin_20"
         android:hint="@string/enter_amount"
         style="@style/edit_text_stroked_style"
-        android:inputType="numberDecimal"
-        android:autofillHints="" />
+        android:inputType="numberDecimal" />
 
     <LinearLayout
         android:layout_width="match_parent"
