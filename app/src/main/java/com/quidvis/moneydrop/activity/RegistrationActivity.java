@@ -40,7 +40,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton;
 
 public class RegistrationActivity extends CustomCompatActivity implements DatePickerDialog.OnDateSetListener {
 

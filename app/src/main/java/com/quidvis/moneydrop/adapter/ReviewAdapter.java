@@ -32,7 +32,7 @@ import com.quidvis.moneydrop.model.User;
 import java.util.List;
 import java.util.Objects;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton;
 
 import static com.quidvis.moneydrop.constant.Constant.DEFAULT_RECORD_PER_VIEW;
 

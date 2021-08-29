@@ -44,7 +44,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton;
 import mono.connect.widget.ConnectWidget;
 import mono.connect.widget.ConnectedAccount;
 import mono.connect.widget.EventListener;

@@ -27,7 +27,7 @@
         android:textSize="12sp"
         android:visibility="gone"/>
 
-    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+    <com.apachat.loadingbutton.core.customViews.CircularProgressButton
         android:id="@+id/submit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

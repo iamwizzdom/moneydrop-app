@@ -15,7 +15,6 @@ import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Base64;
 import android.util.Log;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -31,8 +30,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -43,12 +40,13 @@ import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.interfaces.OnAwesomeDialogClickListener;
+import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
 import com.quidvis.moneydrop.model.BankAccount;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.preference.Session;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.network.HttpRequest;
+import com.quidvis.moneydrop.utility.CustomAlertDialog;
 import com.quidvis.moneydrop.utility.FingerprintHandler;
 import com.quidvis.moneydrop.utility.FirebaseMessageReceiver;
 import com.quidvis.moneydrop.utility.Utility;
@@ -81,7 +79,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton;
 
 public class LoginActivity extends CustomCompatActivity {
 
@@ -120,7 +118,11 @@ public class LoginActivity extends CustomCompatActivity {
         dbHelper = new DbHelper(this);
 
         if (TextUtils.isEmpty(session.getFirebaseToken())) {
-            FirebaseMessaging.getInstance().getToken().addOnSuccessListener(s -> FirebaseMessageReceiver.storeRegIdInPref(session, s));
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnSuccessListener(t -> FirebaseMessageReceiver.storeRegIdInPref(session, t))
+                    .addOnFailureListener(e -> Utility.alertDialog(this, "App Failure",
+                            "Sorry, the moneydrop app didn't start properly. To fix this, please restart the app.",
+                            "Restart", dialog -> Utility.restartApp(LoginActivity.this), false));
         }
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -532,6 +534,7 @@ public class LoginActivity extends CustomCompatActivity {
             protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
                 try {
 
+                    Log.e("error", error);
                     JSONObject object = new JSONObject(error);
                     AwesomeAlertDialog dialog = new AwesomeAlertDialog(LoginActivity.this);
 

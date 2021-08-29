@@ -41,7 +41,7 @@
         android:drawablePadding="@dimen/padding_15"
         app:drawableTopCompat="@drawable/ic_no_content" />
 
-    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+    <com.apachat.loadingbutton.core.customViews.CircularProgressButton
         android:id="@+id/cash_out_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

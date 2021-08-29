@@ -428,7 +428,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            <com.apachat.loadingbutton.core.customViews.CircularProgressButton
                 android:id="@+id/apply_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

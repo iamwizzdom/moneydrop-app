@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton;
 
 public class VerificationActivity extends CustomCompatActivity {
 

@@ -309,7 +309,7 @@
 
             </LinearLayout>
 
-            <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            <com.apachat.loadingbutton.core.customViews.CircularProgressButton
                 android:id="@+id/cancel_application_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -334,7 +334,7 @@
                 android:orientation="vertical"
                 android:layout_marginTop="@dimen/margin_20">
 
-                <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+                <com.apachat.loadingbutton.core.customViews.CircularProgressButton
                     android:id="@+id/pay_btn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -2,23 +2,17 @@ package com.quidvis.moneydrop.activity;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -37,7 +31,6 @@ import com.android.volley.Request;
 import com.android.volley.RetryPolicy;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.github.barteksc.pdfviewer.PDFView;
 import com.hbb20.CountryCodePicker;
 import com.quidvis.moneydrop.BuildConfig;
 import com.quidvis.moneydrop.R;
@@ -46,13 +39,11 @@ import com.quidvis.moneydrop.constant.Constant;
 import com.quidvis.moneydrop.constant.URLContract;
 import com.quidvis.moneydrop.database.DbHelper;
 import com.quidvis.moneydrop.interfaces.HttpRequestParams;
-import com.quidvis.moneydrop.model.BankStatement;
 import com.quidvis.moneydrop.model.Country;
 import com.quidvis.moneydrop.model.State;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.network.VolleyMultipartRequest;
 import com.quidvis.moneydrop.network.VolleySingleton;
-import com.quidvis.moneydrop.network.WebFileReader;
 import com.quidvis.moneydrop.utility.AwesomeAlertDialog;
 import com.quidvis.moneydrop.network.HttpRequest;
 import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
@@ -81,7 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.quidvis.moneydrop.utility.Utility.startRevealActivity;
@@ -100,14 +91,10 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
     private ArrayList<Country> countries;
     private ArrayList<State> states;
 
-    private PDFView pdfViewer;
-
     private DbHelper dbHelper;
     private User user;
     private Uri uri;
     private static File camImage;
-    private byte[] inputData;
-    private String fileName = "", mimeType = "";
 
     private final Calendar calendar = Calendar.getInstance();
     private final DateFormat formatter = new SimpleDateFormat(
@@ -379,43 +366,44 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
 
             } else Utility.toastMessage(ProfileActivity.this, String.format("%s verification failed.", requestCode == VERIFY_EMAIL_KEY ? "Email" : "Phone"));
 
-        } else if (requestCode == SELECT_BANK_STATEMENT) {
-
-            tvBankStatementError.setVisibility(View.GONE);
-
-            uri = data.getData();
-            assert uri != null;
-            String uriString = uri.toString();
-
-            if (uriString.startsWith("content://")) {
-                ContentResolver cr = ProfileActivity.this.getContentResolver();
-                try (Cursor cursor = cr.query(uri, null, null, null, null)) {
-                    if (cursor != null && cursor.moveToFirst()) {
-                        fileName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                        mimeType = cr.getType(uri);
-                    }
-                }
-            } else if (uriString.startsWith("file://")) {
-                File myFile = new File(uriString);
-                fileName = myFile.getName();
-                String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uriString);
-                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
-            }
-
-            tvFileName.setText(fileName);
-
-            try {
-                InputStream iStream = ProfileActivity.this.getContentResolver().openInputStream(uri);
-                inputData = Utility.toByteArray(iStream);
-                pdfPlaceholder.setVisibility(View.GONE);
-                pdfViewer.setVisibility(View.VISIBLE);
-                renderPDF(inputData);
-            } catch (Exception e) {
-                inputData = null;
-                e.printStackTrace();
-            }
-
         }
+//        else if (requestCode == SELECT_BANK_STATEMENT) {
+//
+//            tvBankStatementError.setVisibility(View.GONE);
+//
+//            uri = data.getData();
+//            assert uri != null;
+//            String uriString = uri.toString();
+//
+//            if (uriString.startsWith("content://")) {
+//                ContentResolver cr = ProfileActivity.this.getContentResolver();
+//                try (Cursor cursor = cr.query(uri, null, null, null, null)) {
+//                    if (cursor != null && cursor.moveToFirst()) {
+//                        fileName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+//                        mimeType = cr.getType(uri);
+//                    }
+//                }
+//            } else if (uriString.startsWith("file://")) {
+//                File myFile = new File(uriString);
+//                fileName = myFile.getName();
+//                String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uriString);
+//                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+//            }
+//
+//            tvFileName.setText(fileName);
+//
+//            try {
+//                InputStream iStream = ProfileActivity.this.getContentResolver().openInputStream(uri);
+//                inputData = Utility.toByteArray(iStream);
+//                pdfPlaceholder.setVisibility(View.GONE);
+//                pdfViewer.setVisibility(View.VISIBLE);
+//                renderPDF(inputData);
+//            } catch (Exception e) {
+//                inputData = null;
+//                e.printStackTrace();
+//            }
+//
+//        }
     }
 
     private String imageToBase64(Bitmap bitmap) {
@@ -1020,64 +1008,66 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
                 inputs.put("bvn", etBVN);
             });
 
-        } else if (id == R.id.bank_statement) {
-
-            title = "Set Bank Statement";
-            layout = R.layout.profile_edit_bank_statement;
-            bottomSheet.setOnViewInflatedListener(view1 -> {
-                pdfPlaceholder = view1.findViewById(R.id.pdf_placeholder);
-                pdfViewer = view1.findViewById(R.id.pdf_viewer);
-                tvFileName = view1.findViewById(R.id.file_name);
-                submitBtn = view1.findViewById(R.id.submit);
-                TextView fileSelector = view1.findViewById(R.id.file_selector);
-                tvBankStatementError = view1.findViewById(R.id.tvBankStatementError);
-                BankStatement bankStatement = user.getBankStatement();
-                if (bankStatement != null && !TextUtils.isEmpty(Utility.castEmpty(bankStatement.getFile()))) {
-                    tvFileName.setText(bankStatement.getFileName());
-                    WebFileReader fileReader = new WebFileReader(this, bankStatement.getFileUrl(), WebFileReader.Method.GET) {
-                        @Override
-                        protected void onReadStarted() {
-                            Utility.toastMessage(ProfileActivity.this, "Reading file from server, please wait.");
-                        }
-
-                        @Override
-                        protected void onReadCancelled() {
-
-                            Utility.toastMessage(ProfileActivity.this, "Reading cancelled.");
-                        }
-
-                        @Override
-                        protected void onReadCompleted(boolean onError) {
-
-                            if (!onError) {
-                                pdfPlaceholder.setVisibility(View.GONE);
-                                pdfViewer.setVisibility(View.VISIBLE);
-                                Utility.toastMessage(ProfileActivity.this, "Reading completed, now rendering.");
-                            }
-                        }
-
-                        @Override
-                        protected void onReadSuccess(String fileName, byte[] fileByte, int statusCode, Map<String, List<String>> headers) {
-                            renderPDF(fileByte);
-                        }
-
-                        @Override
-                        public void onReadError(String error, int statusCode, Map<String, List<String>> headers) {
-
-                            Utility.toastMessage(ProfileActivity.this, error);
-                        }
-                    };
-                    fileReader.send();
-                }
-                fileSelector.setOnClickListener(v -> {
-                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                    intent.setType("application/pdf");
-                    ProfileActivity.this.startActivityForResult(intent, SELECT_BANK_STATEMENT);
-                });
-                submitBtn.setOnClickListener(v -> updateBankStatement(bottomSheet, id));
-            });
-
-        } else if (id == R.id.change_password) {
+        }
+//        else if (id == R.id.bank_statement) {
+//
+//            title = "Set Bank Statement";
+//            layout = R.layout.profile_edit_bank_statement;
+//            bottomSheet.setOnViewInflatedListener(view1 -> {
+//                pdfPlaceholder = view1.findViewById(R.id.pdf_placeholder);
+//                pdfViewer = view1.findViewById(R.id.pdf_viewer);
+//                tvFileName = view1.findViewById(R.id.file_name);
+//                submitBtn = view1.findViewById(R.id.submit);
+//                TextView fileSelector = view1.findViewById(R.id.file_selector);
+//                tvBankStatementError = view1.findViewById(R.id.tvBankStatementError);
+//                BankStatement bankStatement = user.getBankStatement();
+//                if (bankStatement != null && !TextUtils.isEmpty(Utility.castEmpty(bankStatement.getFile()))) {
+//                    tvFileName.setText(bankStatement.getFileName());
+//                    WebFileReader fileReader = new WebFileReader(this, bankStatement.getFileUrl(), WebFileReader.Method.GET) {
+//                        @Override
+//                        protected void onReadStarted() {
+//                            Utility.toastMessage(ProfileActivity.this, "Reading file from server, please wait.");
+//                        }
+//
+//                        @Override
+//                        protected void onReadCancelled() {
+//
+//                            Utility.toastMessage(ProfileActivity.this, "Reading cancelled.");
+//                        }
+//
+//                        @Override
+//                        protected void onReadCompleted(boolean onError) {
+//
+//                            if (!onError) {
+//                                pdfPlaceholder.setVisibility(View.GONE);
+//                                pdfViewer.setVisibility(View.VISIBLE);
+//                                Utility.toastMessage(ProfileActivity.this, "Reading completed, now rendering.");
+//                            }
+//                        }
+//
+//                        @Override
+//                        protected void onReadSuccess(String fileName, byte[] fileByte, int statusCode, Map<String, List<String>> headers) {
+//                            renderPDF(fileByte);
+//                        }
+//
+//                        @Override
+//                        public void onReadError(String error, int statusCode, Map<String, List<String>> headers) {
+//
+//                            Utility.toastMessage(ProfileActivity.this, error);
+//                        }
+//                    };
+//                    fileReader.send();
+//                }
+//                fileSelector.setOnClickListener(v -> {
+//                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//                    intent.setType("application/pdf");
+//                    ProfileActivity.this.startActivityForResult(intent, SELECT_BANK_STATEMENT);
+//                });
+//                submitBtn.setOnClickListener(v -> updateBankStatement(bottomSheet, id));
+//            });
+//
+//        }
+        else if (id == R.id.change_password) {
 
             title = "Change Password";
             layout = R.layout.profile_edit_password;
@@ -1136,124 +1126,124 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
         else return null;
     }
 
-    private void updateBankStatement(CustomBottomSheet bottomSheet, int updateID) {
-
-        tvBankStatementError.setVisibility(View.GONE);
-
-        if (uri == null || inputData == null) {
-            Utility.toastMessage(ProfileActivity.this, "Please select your bank statement");
-            return;
-        }
-
-        if (!Validator.isNetworkConnected(ProfileActivity.this)) {
-            Utility.toastMessage(ProfileActivity.this, "No network connection, check your connection and try again.");
-            return;
-        }
-
-        submitBtn.startAnimation();
-
-        String uriType = getUpdateUriType(updateID), url = String.format( URLContract.PROFILE_UPDATE_REQUEST_URL, uriType);
-
-        VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest(Request.Method.POST, url, response -> {
-
-            submitBtn.revertAnimation();
-
-            try {
-
-                String responseData = response != null ? new String(response.data) : "";
-                responseData = responseData.trim();
-
-                JSONObject object = new JSONObject(responseData);
-
-                if (object.getBoolean("status")) {
-
-                    bottomSheet.dismiss();
-
-                    JSONObject userData = object.getJSONObject("response");
-
-                    if (userData.has("user")) {
-
-                        JSONObject userObject = userData.getJSONObject("user");
-                        user.setValues(userObject);
-
-                        if (user.update()) {
-                            setUser();
-                            Utility.toastMessage(ProfileActivity.this, object.getString("message"));
-                        } else {
-                            Utility.toastMessage(ProfileActivity.this, "Failed to update user info locally. Please try again later.");
-                        }
-
-                    } else {
-                        Utility.toastMessage(ProfileActivity.this, object.getString("message"));
-                    }
-
-                } else {
-                    Utility.toastMessage(ProfileActivity.this, object.getString("message"));
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Utility.toastMessage(ProfileActivity.this, "Something unexpected happened. Please try that again.");
-            }
-
-        }, error -> {
-
-            submitBtn.revertAnimation();
-
-            try {
-
-                NetworkResponse response = error.networkResponse;
-
-                String responseData = response != null ? new String(response.data) : "";
-                responseData = responseData.trim();
-
-                JSONObject object = new JSONObject(responseData);
-
-                if (object.has("errors")) {
-
-                    JSONObject errors = object.getJSONObject("errors");
-
-                    if (errors.length() > 0) {
-                        for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
-                            String key = it.next();
-                            String value = errors.getString(key);
-                            if (TextUtils.isEmpty(value)) continue;
-                            if (tvBankStatementError != null && key.equals("bank_statement")) {
-                                tvBankStatementError.setText(value);
-                                tvBankStatementError.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }
-                } else {
-                    tvBankStatementError.setText(object.getString("message"));
-                    tvBankStatementError.setVisibility(View.VISIBLE);
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Utility.toastMessage(ProfileActivity.this, "Something unexpected happened. Please try that again.");
-            }
-
-        }) {
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> params = new HashMap<>();
-                params.put("Auth-Token", user.getToken());
-                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
-                return params;
-            }
-
-            @Override
-            public Map<String, DataPart> getByteData() {
-                Map<String, DataPart> params = new HashMap<>();
-                params.put("bank_statement", new DataPart(fileName, inputData, mimeType));
-                return params;
-            }
-        };
-        RetryPolicy policy = new DefaultRetryPolicy(Constant.RETRY_IN_60_SEC, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-        multipartRequest.setRetryPolicy(policy);
-        VolleySingleton.getInstance().addToRequestQueue(multipartRequest);
-    }
+//    private void updateBankStatement(CustomBottomSheet bottomSheet, int updateID) {
+//
+//        tvBankStatementError.setVisibility(View.GONE);
+//
+//        if (uri == null || inputData == null) {
+//            Utility.toastMessage(ProfileActivity.this, "Please select your bank statement");
+//            return;
+//        }
+//
+//        if (!Validator.isNetworkConnected(ProfileActivity.this)) {
+//            Utility.toastMessage(ProfileActivity.this, "No network connection, check your connection and try again.");
+//            return;
+//        }
+//
+//        submitBtn.startAnimation();
+//
+//        String uriType = getUpdateUriType(updateID), url = String.format( URLContract.PROFILE_UPDATE_REQUEST_URL, uriType);
+//
+//        VolleyMultipartRequest multipartRequest = new VolleyMultipartRequest(Request.Method.POST, url, response -> {
+//
+//            submitBtn.revertAnimation();
+//
+//            try {
+//
+//                String responseData = response != null ? new String(response.data) : "";
+//                responseData = responseData.trim();
+//
+//                JSONObject object = new JSONObject(responseData);
+//
+//                if (object.getBoolean("status")) {
+//
+//                    bottomSheet.dismiss();
+//
+//                    JSONObject userData = object.getJSONObject("response");
+//
+//                    if (userData.has("user")) {
+//
+//                        JSONObject userObject = userData.getJSONObject("user");
+//                        user.setValues(userObject);
+//
+//                        if (user.update()) {
+//                            setUser();
+//                            Utility.toastMessage(ProfileActivity.this, object.getString("message"));
+//                        } else {
+//                            Utility.toastMessage(ProfileActivity.this, "Failed to update user info locally. Please try again later.");
+//                        }
+//
+//                    } else {
+//                        Utility.toastMessage(ProfileActivity.this, object.getString("message"));
+//                    }
+//
+//                } else {
+//                    Utility.toastMessage(ProfileActivity.this, object.getString("message"));
+//                }
+//
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//                Utility.toastMessage(ProfileActivity.this, "Something unexpected happened. Please try that again.");
+//            }
+//
+//        }, error -> {
+//
+//            submitBtn.revertAnimation();
+//
+//            try {
+//
+//                NetworkResponse response = error.networkResponse;
+//
+//                String responseData = response != null ? new String(response.data) : "";
+//                responseData = responseData.trim();
+//
+//                JSONObject object = new JSONObject(responseData);
+//
+//                if (object.has("errors")) {
+//
+//                    JSONObject errors = object.getJSONObject("errors");
+//
+//                    if (errors.length() > 0) {
+//                        for (Iterator<String> it = errors.keys(); it.hasNext(); ) {
+//                            String key = it.next();
+//                            String value = errors.getString(key);
+//                            if (TextUtils.isEmpty(value)) continue;
+//                            if (tvBankStatementError != null && key.equals("bank_statement")) {
+//                                tvBankStatementError.setText(value);
+//                                tvBankStatementError.setVisibility(View.VISIBLE);
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    tvBankStatementError.setText(object.getString("message"));
+//                    tvBankStatementError.setVisibility(View.VISIBLE);
+//                }
+//
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//                Utility.toastMessage(ProfileActivity.this, "Something unexpected happened. Please try that again.");
+//            }
+//
+//        }) {
+//            @Override
+//            public Map<String, String> getHeaders() {
+//                Map<String, String> params = new HashMap<>();
+//                params.put("Auth-Token", user.getToken());
+//                params.put("Authorization", String.format("Basic %s", Base64.encodeToString(Constant.SERVER_CREDENTIAL.getBytes(), Base64.NO_WRAP)));
+//                return params;
+//            }
+//
+//            @Override
+//            public Map<String, DataPart> getByteData() {
+//                Map<String, DataPart> params = new HashMap<>();
+//                params.put("bank_statement", new DataPart(fileName, inputData, mimeType));
+//                return params;
+//            }
+//        };
+//        RetryPolicy policy = new DefaultRetryPolicy(Constant.RETRY_IN_60_SEC, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+//        multipartRequest.setRetryPolicy(policy);
+//        VolleySingleton.getInstance().addToRequestQueue(multipartRequest);
+//    }
 
     private void update(CustomBottomSheet bottomSheet, int updateID) {
 
@@ -1443,23 +1433,23 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
         httpRequest.send();
     }
 
-    private void renderPDF(byte[] resultByte) {
-        pdfViewer.fromBytes(resultByte)
-                .enableSwipe(true) // allows to block changing pages using swipe
-                .swipeHorizontal(true)
-                .enableDoubletap(true)
-                .defaultPage(0)
-                .enableAnnotationRendering(false) // render annotations (such as comments, colors or forms)
-                .enableAntialiasing(true) // improve rendering a little bit on low-res screens
-                .onRender((pages, pageWidth, pageHeight) -> {
-                    pdfViewer.fitToWidth(Math.round(pageWidth / pages));
-                    pdfViewer.setMinZoom(pageWidth / pages);
-                    pdfViewer.setMidZoom(Math.round((pageWidth + (pageWidth / 4))));
-                    pdfViewer.setMaxZoom(Math.round((pageWidth + (pageWidth / 3))));
-                    pdfViewer.enableDoubletap(true);
-                })
-                .load();
-    }
+//    private void renderPDF(byte[] resultByte) {
+//        pdfViewer.fromBytes(resultByte)
+//                .enableSwipe(true) // allows to block changing pages using swipe
+//                .swipeHorizontal(true)
+//                .enableDoubletap(true)
+//                .defaultPage(0)
+//                .enableAnnotationRendering(false) // render annotations (such as comments, colors or forms)
+//                .enableAntialiasing(true) // improve rendering a little bit on low-res screens
+//                .onRender((pages, pageWidth, pageHeight) -> {
+//                    pdfViewer.fitToWidth(Math.round(pageWidth / pages));
+//                    pdfViewer.setMinZoom(pageWidth / pages);
+//                    pdfViewer.setMidZoom(Math.round((pageWidth + (pageWidth / 4))));
+//                    pdfViewer.setMaxZoom(Math.round((pageWidth + (pageWidth / 3))));
+//                    pdfViewer.enableDoubletap(true);
+//                })
+//                .load();
+//    }
 
     private void setDate() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(ProfileActivity.this,

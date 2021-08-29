@@ -88,7 +88,7 @@
         app:drawableTopCompat="@drawable/ic_success"
         android:visibility="gone"/>
 
-    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+    <com.apachat.loadingbutton.core.customViews.CircularProgressButton
         android:id="@+id/add_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

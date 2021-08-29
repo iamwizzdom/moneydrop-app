@@ -81,7 +81,7 @@
             android:gravity="bottom"
             android:layout_gravity="bottom">
 
-            <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            <com.apachat.loadingbutton.core.customViews.CircularProgressButton
                 android:id="@+id/verifyBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

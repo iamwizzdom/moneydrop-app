@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class LoanApplicantsActivity extends CustomCompatActivity {

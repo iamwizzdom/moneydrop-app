@@ -103,7 +103,7 @@
                 android:textSize="@dimen/text_size_medium"
                 android:gravity="end"/>
 
-            <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            <com.apachat.loadingbutton.core.customViews.CircularProgressButton
                 android:id="@+id/loginBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,7 +118,7 @@
                 app:spinning_bar_color="@color/colorAccent"
                 app:spinning_bar_padding="6dp" />
 
-            <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            <com.apachat.loadingbutton.core.customViews.CircularProgressButton
                 android:id="@+id/googleSignInBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -127,8 +127,7 @@
                 android:layout_gravity="center"
                 android:background="@drawable/circular_border_shape"
                 android:drawableStart="@drawable/ic_google_glass_logo"
-                android:drawablePadding="@dimen/padding_10"
-                android:paddingHorizontal="@dimen/padding_80"
+                android:paddingHorizontal="@dimen/padding_60"
                 android:text="@string/sign_in_with_google"
                 android:textSize="14sp"
                 android:textColor="@color/colorWhite"

@@ -96,7 +96,7 @@
                 android:scrollbars="none"
                 tools:ignore="LabelFor" />
 
-            <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            <com.apachat.loadingbutton.core.customViews.CircularProgressButton
                 android:id="@+id/review_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

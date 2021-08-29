@@ -3,10 +3,14 @@ package com.quidvis.moneydrop.utility;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -26,6 +30,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
@@ -46,6 +51,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.snackbar.Snackbar;
 import com.quidvis.moneydrop.BuildConfig;
 import com.quidvis.moneydrop.R;
+import com.quidvis.moneydrop.activity.LoginActivity;
+import com.quidvis.moneydrop.activity.SplashActivity;
 import com.quidvis.moneydrop.interfaces.OnCustomDialogClickListener;
 import com.quidvis.moneydrop.utility.view.DialogSpinner;
 
@@ -66,7 +73,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton;
 
 import static com.quidvis.moneydrop.constant.Constant.FEMALE;
 import static com.quidvis.moneydrop.constant.Constant.MALE;
@@ -1187,5 +1194,14 @@ public class Utility {
 
     public static void toastMessage(Context context, String message, boolean longToast) {
         Toast.makeText(context, message, longToast ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
+    }
+
+    public static void restartApp(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        Intent intent = packageManager.getLaunchIntentForPackage(context.getPackageName());
+        ComponentName componentName = intent.getComponent();
+        Intent mainIntent = Intent.makeRestartActivityTask(componentName);
+        context.startActivity(mainIntent);
+        Runtime.getRuntime().exit(0);
     }
 }

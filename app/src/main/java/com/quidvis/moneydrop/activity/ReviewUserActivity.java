@@ -31,7 +31,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.quidvis.moneydrop.utility.Utility.startRevealActivity;

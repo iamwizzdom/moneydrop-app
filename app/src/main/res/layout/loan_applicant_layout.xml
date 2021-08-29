@@ -56,7 +56,7 @@
         android:orientation="vertical"
         android:layout_weight=".6">
 
-        <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        <com.apachat.loadingbutton.core.customViews.CircularProgressButton
             android:id="@+id/grant_btn"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
