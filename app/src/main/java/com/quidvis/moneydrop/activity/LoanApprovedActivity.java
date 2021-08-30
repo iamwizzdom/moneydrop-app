@@ -36,10 +36,10 @@ public class LoanApprovedActivity extends CustomCompatActivity {
 
         Intent intent = getIntent();
 
-        String loanApplicationString = intent.getStringExtra(LOAN_APPLICATION_KEY);
+        String loanApplicationKey = intent.getStringExtra(LOAN_APPLICATION_KEY);
         String message = intent.getStringExtra(LOAN_APPROVAL_MESSAGE_KEY);
 
-        if (loanApplicationString == null) {
+        if (loanApplicationKey == null) {
             Utility.toastMessage(this, "No loan application passed");
             finish();
             return;
@@ -47,7 +47,7 @@ public class LoanApprovedActivity extends CustomCompatActivity {
 
         LoanApplication loanApplication;
         try {
-            JSONObject loanApplicationObject = new JSONObject(loanApplicationString);
+            JSONObject loanApplicationObject = new JSONObject(loanApplicationKey);
             loanApplication = new LoanApplication(this, loanApplicationObject);
         } catch (JSONException e) {
             e.printStackTrace();
