@@ -97,6 +97,7 @@ public class TransactionReceiptActivity extends CustomCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 11) {
             if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 layoutToImage(null);
@@ -126,7 +127,7 @@ public class TransactionReceiptActivity extends CustomCompatActivity {
 
         try {
             Utility.saveByteArray(bytes.toByteArray(), FILE_PATH,
-                    transaction.getReference() + ".png",
+                     String.format("moneydrop-receipt-%s.png", transaction.getReference()),
                     true, true, this, findViewById(R.id.receipt_parent_layout));
         } catch (IOException e) {
             e.printStackTrace();
