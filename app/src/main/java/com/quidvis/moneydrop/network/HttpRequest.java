@@ -500,19 +500,18 @@ public abstract class HttpRequest {
             }
         }
 
-        if (httpRequestParams != null && httpRequestParams.getBody() != null) {
-            okHttpRequestBuilder.method(getRequestMethod(method), RequestBody.create(httpRequestParams.getBody()));
-            return;
-        }
-
         RequestBody requestBody = null;
-        
+
         if (httpRequestParams != null && httpRequestParams.getParams() != null) {
             FormBody.Builder formBody = new FormBody.Builder();
             for (Map.Entry<String, String> data : httpRequestParams.getParams().entrySet()) {
                 formBody.add(data.getKey(), data.getValue());
             }
             requestBody = formBody.build();
+        } else if (httpRequestParams != null && httpRequestParams.getBody() != null) {
+            requestBody = RequestBody.create(httpRequestParams.getBody());
+        } else if (method != Method.GET && method != Method.HEAD) {
+            requestBody = RequestBody.create(new byte[0]);
         }
 
         okHttpRequestBuilder.method(getRequestMethod(method), requestBody);
