@@ -134,7 +134,8 @@ public class LoginActivity extends CustomCompatActivity {
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        FingerprintHandler fingerprintHandler = new FingerprintHandler(this, new FingerprintHandler.FingerprintCallback() {
+        FingerprintHandler fingerprintHandler = new FingerprintHandler(this,
+                new FingerprintHandler.FingerprintCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 Utility.toastMessage(LoginActivity.this, errString.toString());
@@ -534,7 +535,6 @@ public class LoginActivity extends CustomCompatActivity {
             protected void onRequestError(String error, int statusCode, Map<String, String> headers) {
                 try {
 
-                    Log.e("error", error);
                     JSONObject object = new JSONObject(error);
                     AwesomeAlertDialog dialog = new AwesomeAlertDialog(LoginActivity.this);
 
@@ -788,14 +788,14 @@ public class LoginActivity extends CustomCompatActivity {
                     return;
                 }
                 googleSignInBtn.revertAnimation();
-                dialog.setMessage("Sorry, we couldn't not sign you in at this time with the selected Google account.");
+                dialog.setMessage("Sorry, we couldn't not sign you in at this time with your Google account.");
                 dialog.display();
             }
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             googleSignInBtn.revertAnimation();
-            dialog.setMessage("Sorry, an unexpected error occurred while trying you to sign you in with the selected Google account.");
+            dialog.setMessage("Sorry, an unexpected error occurred while trying you to sign you in with your Google account.");
             dialog.display();
         }
     }

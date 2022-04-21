@@ -14,8 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -31,13 +29,12 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
 
     private final AppCompatActivity activity;
     private ArrayList<BottomSheetLayoutModel> layoutModels;
-    private FragmentStatePagerAdapter pagerAdapter;
     private int resource;
     private LinearLayout sheetContainerLayout, sheetViewLayout;
-    private String title, message;
+    private CharSequence title, message;
+    private TextView tvTitle, tvMessage;
     private OnViewInflatedListener onViewInflatedListener;
     private int titleGravity, messageGravity;
-    private OnViewPagerMountedListener onViewPagerMountedListener;
     private OnDismissListener onDismissListener;
 
     public static CustomBottomSheet newInstance(AppCompatActivity activity) {
@@ -52,15 +49,10 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
         return new CustomBottomSheet(activity, layoutModels);
     }
 
-    public static CustomBottomSheet newInstance(AppCompatActivity activity, FragmentStatePagerAdapter pagerAdapter) {
-        return new CustomBottomSheet(activity, pagerAdapter);
-    }
-
     public CustomBottomSheet(AppCompatActivity activity) {
         this.activity = activity;
         this.resource = 0;
         this.layoutModels = null;
-        this.pagerAdapter = null;
     }
 
     public CustomBottomSheet(AppCompatActivity activity, int resource) {
@@ -73,33 +65,19 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
         setLayoutModel(layoutModels);
     }
 
-    public CustomBottomSheet(AppCompatActivity activity, FragmentStatePagerAdapter pagerAdapter) {
-        this.activity = activity;
-        setPagerAdapter(pagerAdapter);
-    }
-
     public void setViewResource(int resource) {
         this.resource = resource;
         this.layoutModels = null;
-        this.pagerAdapter = null;
     }
 
     public void addLayoutModel(BottomSheetLayoutModel layoutModel) {
         if (layoutModels == null) layoutModels = new ArrayList<>();
         layoutModels.add(layoutModel);
-        this.pagerAdapter = null;
         this.resource = 0;
     }
 
     public void setLayoutModel(ArrayList<BottomSheetLayoutModel> layoutModels) {
         this.layoutModels = layoutModels;
-        this.pagerAdapter = null;
-        this.resource = 0;
-    }
-
-    public void setPagerAdapter(FragmentStatePagerAdapter pagerAdapter) {
-        this.pagerAdapter = pagerAdapter;
-        this.layoutModels = null;
         this.resource = 0;
     }
 
@@ -122,9 +100,8 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
 
         sheetContainerLayout = view.findViewById(R.id.sheet_container_layout);
         sheetViewLayout = view.findViewById(R.id.sheet_layout);
-        ViewPager viewPager = view.findViewById(R.id.view_pager);
-        TextView tvTitle = view.findViewById(R.id.title);
-        TextView tvMessage = view.findViewById(R.id.message);
+        tvTitle = view.findViewById(R.id.title);
+        tvMessage = view.findViewById(R.id.message);
 
         if (title != null) {
             tvTitle.setText(title);
@@ -138,18 +115,9 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
             tvMessage.setVisibility(View.VISIBLE);
         }
 
-        if (this.onViewPagerMountedListener != null)
-            this.onViewPagerMountedListener.onMounted(viewPager);
-
         if (this.resource != 0) {
 
             sheetViewLayout.setVisibility(View.VISIBLE);
-            viewPager.setVisibility(View.GONE);
-
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            view.setLayoutParams(params);
             View view1 = activity.getLayoutInflater().inflate(this.resource, sheetViewLayout, false);
             sheetViewLayout.addView(view1);
             if (onViewInflatedListener != null) onViewInflatedListener.onInflated(view1);
@@ -157,7 +125,6 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
         } else if (this.layoutModels != null) {
 
             sheetViewLayout.setVisibility(View.VISIBLE);
-            viewPager.setVisibility(View.GONE);
 
             int size = this.layoutModels.size();
 
@@ -170,18 +137,9 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
                 );
                 sheetViewLayout.addView(linearLayout);
             }
-        } else if (pagerAdapter != null) {
-
-            sheetViewLayout.setVisibility(View.GONE);
-            viewPager.setVisibility(View.VISIBLE);
-            viewPager.setAdapter(pagerAdapter);
         }
         //dialog cancel when touches outside (Optional)
         Objects.requireNonNull(getDialog()).setCanceledOnTouchOutside(true);
-    }
-
-    public void setOnViewPagerMountedListener(OnViewPagerMountedListener onViewPagerMountedListener) {
-        this.onViewPagerMountedListener = onViewPagerMountedListener;
     }
 
     public void setOnDismissListener(OnDismissListener onDismissListener) {
@@ -195,15 +153,25 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
     public void setTitle(String title, int gravity) {
         this.title = title;
         this.titleGravity = gravity;
+        if (tvTitle != null) {
+            tvTitle.setText(title);
+            tvTitle.setGravity(titleGravity);
+            tvTitle.setVisibility(title != null ? View.VISIBLE : View.GONE);
+        }
     }
 
-    public void setMessage(String message) {
+    public void setMessage(CharSequence message) {
         setMessage(message, Gravity.START);
     }
 
-    public void setMessage(String message, int gravity) {
+    public void setMessage(CharSequence message, int gravity) {
         this.message = message;
         this.messageGravity = gravity;
+        if (tvMessage != null) {
+            tvMessage.setText(message);
+            tvMessage.setGravity(messageGravity);
+            tvMessage.setVisibility(message != null ? View.VISIBLE : View.GONE);
+        }
     }
 
     public LinearLayout getSheetContainerLayout() {
@@ -248,8 +216,8 @@ public class CustomBottomSheet extends BottomSheetDialogFragment {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         params.rightMargin = Utility.getDip(activity, 10);
 
-        tv.setTextAppearance(R.style.text_view_style);
-        tv.setTextColor(activity.getResources().getColor(R.color.titleColorGray, null));
+        tv.setTextAppearance(activity, R.style.text_view_style);
+        tv.setTextColor(ResourcesCompat.getColor(getResources(), R.color.titleColorGray, null));
         Typeface typeface = ResourcesCompat.getFont(activity, R.font.campton_light);
         tv.setTypeface(typeface, Typeface.BOLD);
         tv.setLayoutParams(params);

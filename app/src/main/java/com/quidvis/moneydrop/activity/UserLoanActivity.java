@@ -8,8 +8,10 @@ import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.quidvis.moneydrop.R;
 import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
@@ -42,10 +44,12 @@ public class UserLoanActivity extends CustomCompatActivity {
         itemCount = findViewById(R.id.item_count);
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, fragments);
-        ViewPager viewPager = findViewById(R.id.view_pager);
+        ViewPager2 viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(viewPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
-        tabs.setupWithViewPager(viewPager);
+        new TabLayoutMediator(tabs, viewPager,
+                (tab, position) -> tab.setText("OBJECT " + (position + 1))
+        ).attach();
         viewPagerAdapter.setTabLayout(tabs);
 
         TextView tv1 = getTextView();
@@ -63,7 +67,7 @@ public class UserLoanActivity extends CustomCompatActivity {
                     View v = tab.getCustomView();
                     if (v != null) selectView(v);
                     viewPagerAdapter.notifyDataSetChanged(tab.getPosition());
-                    viewPagerAdapter.getItem(tab.getPosition()).mount();
+                    viewPagerAdapter.createFragment(tab.getPosition()).mount();
                 }
             }
 
@@ -72,7 +76,7 @@ public class UserLoanActivity extends CustomCompatActivity {
                 if (tab != null) {
                     View v = tab.getCustomView();
                     if (v != null) deselectView(v);
-                    viewPagerAdapter.getItem(tab.getPosition()).dismount();
+                    viewPagerAdapter.createFragment(tab.getPosition()).dismount();
                 }
             }
 

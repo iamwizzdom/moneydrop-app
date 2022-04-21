@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -228,10 +229,13 @@ public class MainActivity extends CustomCompatActivity {
         DbHelper finalDbHelper = dbHelper;
 
         CustomBottomAlertDialog dialog = new CustomBottomAlertDialog((AppCompatActivity) activity);
-        if (code == 419) dialog.setLottieIcon(R.raw.locked);
-        else dialog.setIcon(R.drawable.ic_log_me_out);
-        dialog.setMessage(code == 419 ? "Current session expired, please login again to continue." : (message != null ? message : "Are you sure you want to logout?"));
+        if (code == 419) {
+            dialog.setLottieIcon(R.raw.locked);
+            message = "Current session expired, please login again to continue.";
+        } else dialog.setIcon(R.drawable.ic_log_me_out);
+        dialog.setMessage(message != null ? message : "Are you sure you want to logout?");
         dialog.setNegativeButton("No, Cancel");
+        String finalMessage = code != 419 ? message : null;
         dialog.setPositiveButton(String.format("%s, Log me out", code == 419 ? "Ok" : "Yes"), v -> {
 
             Utility.toastMessage(activity, "Logging out, please wait.");
@@ -245,7 +249,7 @@ public class MainActivity extends CustomCompatActivity {
 
                 Intent intent = new Intent(activity, LoginActivity.class);
                 if (title != null) intent.putExtra(LoginActivity.TITLE, title);
-                if (message != null) intent.putExtra(LoginActivity.MESSAGE, message);
+                if (finalMessage != null) intent.putExtra(LoginActivity.MESSAGE, finalMessage);
                 activity.startActivity(intent);
                 activity.finish();
 
@@ -546,7 +550,7 @@ public class MainActivity extends CustomCompatActivity {
                                 mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 mainFragment.setTransactions(transactions);
                                 mainFragment.saveState();
-                                mainFragment.setBalance(balance);
+                                mainFragment.setBalance(availableBalance);
                             }
 
                             JSONObject walletFragmentData = walletFragment.getData();
@@ -580,7 +584,7 @@ public class MainActivity extends CustomCompatActivity {
                                 mainFragmentData.put("transactions", transactions = Utility.prependJSONObject(transactions, transaction));
                                 mainFragment.setTransactions(transactions);
                                 mainFragment.saveState();
-                                mainFragment.setBalance(balance);
+                                mainFragment.setBalance(availableBalance);
                             }
 
                             Bundle walletFragmentState = Utility.getState(WalletFragment.STATE_KEY);

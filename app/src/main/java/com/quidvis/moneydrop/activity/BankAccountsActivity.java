@@ -343,7 +343,7 @@ public class BankAccountsActivity extends CustomCompatActivity implements EventL
 
     private void fetchAllAccounts(boolean refreshing) {
         HttpRequest httpRequest = new HttpRequest(this, URLContract.BANK_ACCOUNT_RETRIEVE_ALL_URL,
-                Request.Method.POST, new HttpRequestParams() {
+                Request.Method.GET, new HttpRequestParams() {
             @Override
             public Map<String, String> getParams() {
                 return null;

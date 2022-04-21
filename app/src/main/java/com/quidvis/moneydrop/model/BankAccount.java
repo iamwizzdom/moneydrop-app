@@ -2,14 +2,45 @@ package com.quidvis.moneydrop.model;
 
 import android.content.Context;
 
-import com.quidvis.moneydrop.database.DbHelper;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-public class BankAccount {
+import com.google.gson.annotations.SerializedName;
+import com.quidvis.moneydrop.database.DbHelper;
+import com.quidvis.moneydrop.interfaces.RecyclerViewItem;
+
+import java.io.Serializable;
+
+//@Entity(tableName = "bank_accounts")
+public class BankAccount implements RecyclerViewItem, Serializable {
 
     private final DbHelper dbHelper;
 
+//    @PrimaryKey
+//    @ColumnInfo(name = "id")
+//    @SerializedName("id")
     private int id;
-    private String uuid, bankName, accountName, accountNumber, recipientCode;
+
+//    @ColumnInfo(name = "uuid")
+//    @SerializedName("uuid")
+    private String uuid;
+
+//    @ColumnInfo(name = "bank_name", index = true)
+//    @SerializedName("bank_name")
+    private String bankName;
+
+//    @ColumnInfo(name = "account_name", index = true)
+//    @SerializedName("account_name")
+    private String accountName;
+
+//    @ColumnInfo(name = "account_number", index = true)
+//    @SerializedName("account_number")
+    private String accountNumber;
+
+//    @ColumnInfo(name = "recipient_code", index = true)
+//    @SerializedName("recipient_code")
+    private String recipientCode;
 
     public BankAccount(Context context) {
         this.dbHelper = new DbHelper(context);
@@ -65,5 +96,10 @@ public class BankAccount {
 
     public boolean update() {
         return dbHelper.updateBankAccount(this);
+    }
+
+    @Override
+    public int getItemType() {
+        return VIEW_TYPE_ITEM;
     }
 }

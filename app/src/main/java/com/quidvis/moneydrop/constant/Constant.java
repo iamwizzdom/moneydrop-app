@@ -15,7 +15,7 @@ public class Constant {
      */
     public static final String SERVER_CREDENTIAL = "Wizzdom007WasHere:PWBi2x4WKTSuperSonicBrain@91ga7bHWnKfr";
 
-    public static final String FILE_PATH = String.format("%s/MoneyDrop", Environment.getExternalStorageDirectory().getPath());
+    public static final String FILE_PATH = String.format("%s/MoneyDrop", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath());
 
     public static final String MONO_KEY = "test_pk_QkHIcvviN20Tbyap1wnF";
     public static final String FLUTTERWAVE_PUBKEY = "FLWPUBK_TEST-52ece87389c981bffbff5283aa35f00f-X";
@@ -32,7 +32,7 @@ public class Constant {
     /**
      * Volley retry time
      */
-    public static final int RETRY_IN_10_SEC = 30000;
+    public static final int RETRY_IN_10_SEC = 10000;
     public static final int RETRY_IN_20_SEC = 20000;
     public static final int RETRY_IN_30_SEC = 30000;
     public static final int RETRY_IN_60_SEC = 60000;

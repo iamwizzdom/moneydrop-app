@@ -11,13 +11,27 @@
     android:background="@drawable/layout_background_rounded"
     android:backgroundTint="@color/colorTransparent">
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/anim_layout"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/margin_10"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        android:visibility="gone"/>
+
     <ScrollView
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="@dimen/margin_10"
         android:scrollbars="none"
         app:layout_constrainedHeight="true"
+        app:layout_constraintTop_toBottomOf="@+id/anim_layout"
         app:layout_constraintBottom_toTopOf="@+id/dialog_btn_holder"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
@@ -30,20 +44,10 @@
             android:paddingStart="@dimen/padding_10"
             android:paddingEnd="@dimen/padding_10">
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/anim_layout"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_gravity="center"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"
-                android:visibility="gone"/>
-
             <TextView
                 android:id="@+id/dialog_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/margin_10"
                 android:gravity="center"
                 android:layout_gravity="center"
                 android:fontFamily="@font/poppins_light"

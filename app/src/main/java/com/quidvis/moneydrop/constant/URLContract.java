@@ -10,9 +10,9 @@ public class URLContract {
 
     private static final String URL_HTTP_SCHEME = "http://";
     private static final String URL_HTTPS_SCHEME = "https://";
-    public static final String URL_SCHEME = URL_HTTP_SCHEME;
-//    public static final String HOST_URL = "moneydrop.ng:8085/server";
-    public static final String HOST_URL = "192.168.0.186:8000";
+    public static final String URL_SCHEME = URL_HTTPS_SCHEME;
+    public static final String HOST_URL = "server.moneydrop.live";
+//    public static final String HOST_URL = "192.168.0.186:8000";
 //    public static final String HOST_URL = "10.101.187.107:8000";
 //    public static final String HOST_URL = "54.93.104.127/moneydrop/server";
     public static final String BASE_URL = URL_SCHEME + HOST_URL;

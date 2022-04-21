@@ -3,8 +3,6 @@ package com.quidvis.moneydrop.fragment;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
-
-import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -12,25 +10,19 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.util.Base64;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.quidvis.moneydrop.R;
-import com.quidvis.moneydrop.activity.LoanDetailsActivity;
 import com.quidvis.moneydrop.activity.MainActivity;
-import com.quidvis.moneydrop.activity.UserLoanActivity;
-import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
 import com.quidvis.moneydrop.adapter.LoanAdapter;
 import com.quidvis.moneydrop.adapter.ViewPagerAdapter;
 import com.quidvis.moneydrop.constant.Constant;
@@ -42,7 +34,6 @@ import com.quidvis.moneydrop.interfaces.HttpRequestParams;
 import com.quidvis.moneydrop.model.Loan;
 import com.quidvis.moneydrop.model.User;
 import com.quidvis.moneydrop.network.HttpRequest;
-import com.quidvis.moneydrop.utility.CustomBottomAlertDialog;
 import com.quidvis.moneydrop.utility.Utility;
 
 import org.json.JSONArray;
@@ -88,10 +79,12 @@ public class LoansFragment extends CustomCompatFragment {
         }
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter((AppCompatActivity) activity, fragments);
-        ViewPager viewPager = view.findViewById(R.id.view_pager);
+        ViewPager2 viewPager = view.findViewById(R.id.view_pager);
         viewPager.setAdapter(viewPagerAdapter);
         TabLayout tabs = view.findViewById(R.id.tabs);
-        tabs.setupWithViewPager(viewPager);
+        new TabLayoutMediator(tabs, viewPager,
+                (tab, position) -> tab.setText("OBJECT " + (position + 1))
+        ).attach();
         viewPagerAdapter.setTabLayout(tabs);
 
         TextView tv1 = getTextView();
@@ -108,7 +101,7 @@ public class LoansFragment extends CustomCompatFragment {
                 if (tab != null) {
                     View v = tab.getCustomView();
                     if (v != null) selectView(v);
-                    viewPagerAdapter.getItem(tab.getPosition()).mount();
+                    viewPagerAdapter.createFragment(tab.getPosition()).mount();
                     viewPagerAdapter.notifyDataSetChanged(tab.getPosition());
                 }
             }
@@ -118,7 +111,7 @@ public class LoansFragment extends CustomCompatFragment {
                 if (tab != null) {
                     View v = tab.getCustomView();
                     if (v != null) deselectView(v);
-                    viewPagerAdapter.getItem(tab.getPosition()).dismount();
+                    viewPagerAdapter.createFragment(tab.getPosition()).dismount();
                 }
             }
 

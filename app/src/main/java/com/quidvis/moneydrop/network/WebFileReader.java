@@ -137,7 +137,7 @@ public abstract class WebFileReader {
 
                     int responseCode = connection.getResponseCode();
 
-                    if (responseCode != HttpURLConnection.HTTP_OK) {
+                    if (responseCode != HttpURLConnection.HTTP_OK && responseCode != HttpURLConnection.HTTP_CREATED) {
                         setOngoingTask(false);
                         activity.runOnUiThread(() -> {
                             onReadCompleted(true);

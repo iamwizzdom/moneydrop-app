@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="../../../../layout/custom_preview.xml" value="0.15208333333333332" />
+        <entry key="app/src/main/res/drawable/edit_text_stroked_background.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_review_user.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_user_loan.xml" value="0.14583333333333334" />
+        <entry key="app/src/main/res/layout/content_review_user.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/content_user_loan.xml" value="0.14583333333333334" />
+        <entry key="app/src/main/res/layout/custom_bottom_alert_dialog.xml" value="0.12552083333333333" />
+        <entry key="app/src/main/res/layout/custom_bottom_sheet.xml" value="0.12552083333333333" />
+        <entry key="app/src/main/res/layout/loans_fragment.xml" value="0.12552083333333333" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK" />
 </project>

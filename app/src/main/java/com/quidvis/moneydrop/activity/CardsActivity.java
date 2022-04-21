@@ -85,10 +85,10 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
         dbHelper = new DbHelper(CardsActivity.this);
         user = dbHelper.getUser();
         cards = dbHelper.getCards();
-//        PaystackSdk.initialize(this);
+        PaystackSdk.initialize(this);
 
-        raveNonUIManager = new RaveNonUIManager();
-        verificationUtils = new RaveVerificationUtils(this, true, Constant.FLUTTERWAVE_PUBKEY, R.style.AppTheme);
+//        raveNonUIManager = new RaveNonUIManager();
+//        verificationUtils = new RaveVerificationUtils(this, true, Constant.FLUTTERWAVE_PUBKEY, R.style.AppTheme);
 
 //        animFadeIn = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in);
 //        animFadeOut = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_out);
@@ -230,89 +230,89 @@ public class CardsActivity extends CustomCompatActivity implements CardPaymentCa
                 }
                 int expiryMonth = Integer.parseInt(exp[0]);
                 int expiryYear = Integer.parseInt(exp[1]);
-//                Card card = new Card(etCardNum.getCardNumber(), expiryMonth, expiryYear, etCardCvv.getText().toString());
-//                if (card.isValid()) {
-//                    // charge card
-//                    try {
-//                        performPaystackCharge(card, etCardNum.getCardType());
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                        Utility.toastMessage(CardsActivity.this, "Operation failed.");
-//                    }
-//                } else {
-//                    Utility.toastMessage(CardsActivity.this, "Please enter valid card details");
-//                }
+                Card card = new Card(etCardNum.getCardNumber(), expiryMonth, expiryYear, etCardCvv.getText().toString());
+                if (card.isValid()) {
+                    // charge card
+                    try {
+                        performPaystackCharge(card, etCardNum.getCardType());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Utility.toastMessage(CardsActivity.this, "Operation failed.");
+                    }
+                } else {
+                    Utility.toastMessage(CardsActivity.this, "Please enter valid card details");
+                }
 
-                com.flutterwave.raveandroid.rave_presentation.card.Card card = new com.flutterwave.raveandroid.rave_presentation.card.Card(
-                        etCardNum.getCardNumber(), String.valueOf(expiryMonth), String.valueOf(expiryYear), etCardCvv.getText().toString());
-                performFlutterwaveCharge(card, etCardNum.getCardType());
+//                com.flutterwave.raveandroid.rave_presentation.card.Card card = new com.flutterwave.raveandroid.rave_presentation.card.Card(
+//                        etCardNum.getCardNumber(), String.valueOf(expiryMonth), String.valueOf(expiryYear), etCardCvv.getText().toString());
+//                performFlutterwaveCharge(card, etCardNum.getCardType());
 
             });
         });
         bottomSheet.show();
     }
 
-    public void performFlutterwaveCharge(com.flutterwave.raveandroid.rave_presentation.card.Card card, String cardName) {
-        flutterCardName = cardName;
-        raveNonUIManager.setAmount(50)
-                .setCurrency("NGN")
-                .setEmail(user.getEmail())
-                .setfName(user.getFirstname())
-                .setlName(user.getLastname())
-                .setPhoneNumber(user.getPhone())
-                .setNarration("MoneyDrop card test charge")
-                .setPublicKey(Constant.FLUTTERWAVE_PUBKEY)
-                .setEncryptionKey(Constant.FLUTTERWAVE_ENCKEY)
-                .setTxRef(flutterTransRef = UUID.randomUUID().toString())
-                .initialize();
-
-        cardPayManager = new CardPaymentManager(raveNonUIManager, this);
-        cardPayManager.chargeCard(card);
-    }
-
-//    public void performPaystackCharge(Card card, String cardName) {
-//        //create a Charge object
-//        Charge charge = new Charge();
-//        charge.setAmount(chargeAmount);
-//        charge.setEmail(user.getEmail());
-//        charge.setBearer(Charge.Bearer.account);
-//        charge.setCurrency("NGN");
-//        charge.setCard(card); //sets the card to charge
+//    public void performFlutterwaveCharge(com.flutterwave.raveandroid.rave_presentation.card.Card card, String cardName) {
+//        flutterCardName = cardName;
+//        raveNonUIManager.setAmount(50)
+//                .setCurrency("NGN")
+//                .setEmail(user.getEmail())
+//                .setfName(user.getFirstname())
+//                .setlName(user.getLastname())
+//                .setPhoneNumber(user.getPhone())
+//                .setNarration("MoneyDrop card test charge")
+//                .setPublicKey(Constant.FLUTTERWAVE_PUBKEY)
+//                .setEncryptionKey(Constant.FLUTTERWAVE_ENCKEY)
+//                .setTxRef(flutterTransRef = UUID.randomUUID().toString())
+//                .initialize();
 //
-//        addCardBtn.startAnimation();
-//
-//        PaystackSdk.chargeCard(CardsActivity.this, charge, new Paystack.TransactionCallback() {
-//            @Override
-//            public void onSuccess(Transaction transaction) {
-//                // This is called only after transaction is deemed successful.
-//                // Retrieve the transaction, and send its reference to your server
-//                // for verification.
-//                verifyTransaction(transaction.getReference(), cardName);
-//            }
-//
-//            @Override
-//            public void beforeValidate(Transaction transaction) {
-//                // This is called only before requesting OTP.
-//                // Save reference so you may send to server. If
-//                // error occurs with OTP, you should still verify on server.
-//                String reference = transaction.getReference();
-//                if (reference != null && !reference.isEmpty()) logTransRef(reference);
-//            }
-//
-//            @Override
-//            public void onError(Throwable error, Transaction transaction) {
-//                //handle error here
-//                String reference = transaction.getReference();
-//                if (reference != null && !reference.isEmpty())
-//                    verifyTransaction(reference, cardName);
-//                else {
-//                    addCardBtn.revertAnimation();
-//                    Utility.toastMessage(CardsActivity.this, error.getMessage());
-//                }
-//            }
-//
-//        });
+//        cardPayManager = new CardPaymentManager(raveNonUIManager, this);
+//        cardPayManager.chargeCard(card);
 //    }
+
+    public void performPaystackCharge(Card card, String cardName) {
+        //create a Charge object
+        Charge charge = new Charge();
+        charge.setAmount(5000);
+        charge.setEmail(user.getEmail());
+        charge.setBearer(Charge.Bearer.account);
+        charge.setCurrency("NGN");
+        charge.setCard(card); //sets the card to charge
+
+        addCardBtn.startAnimation();
+
+        PaystackSdk.chargeCard(CardsActivity.this, charge, new Paystack.TransactionCallback() {
+            @Override
+            public void onSuccess(Transaction transaction) {
+                // This is called only after transaction is deemed successful.
+                // Retrieve the transaction, and send its reference to your server
+                // for verification.
+                verifyTransaction(transaction.getReference(), cardName);
+            }
+
+            @Override
+            public void beforeValidate(Transaction transaction) {
+                // This is called only before requesting OTP.
+                // Save reference so you may send to server. If
+                // error occurs with OTP, you should still verify on server.
+                String reference = transaction.getReference();
+                if (reference != null && !reference.isEmpty()) logTransRef(reference);
+            }
+
+            @Override
+            public void onError(Throwable error, Transaction transaction) {
+                //handle error here
+                String reference = transaction.getReference();
+                if (reference != null && !reference.isEmpty())
+                    verifyTransaction(reference, cardName);
+                else {
+                    addCardBtn.revertAnimation();
+                    Utility.toastMessage(CardsActivity.this, error.getMessage());
+                }
+            }
+
+        });
+    }
 
     private void logTransRef(String reference) {
         HttpRequest httpRequest = new HttpRequest(this, URLContract.CARD_TRANS_LOG_URL,

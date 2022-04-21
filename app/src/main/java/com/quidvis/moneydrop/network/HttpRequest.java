@@ -11,10 +11,8 @@ import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
-import com.android.volley.RetryPolicy;
 import com.android.volley.toolbox.StringRequest;
 import com.quidvis.moneydrop.activity.MainActivity;
 import com.quidvis.moneydrop.activity.custom.CustomCompatActivity;
@@ -32,6 +30,11 @@ import java.util.Objects;
 
 import static com.quidvis.moneydrop.constant.Constant.RETRY_IN_30_SEC;
 
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+
 /**
  * Created by Wisdom Emenike.
  * Date: 10/1/2018
@@ -46,6 +49,9 @@ public abstract class HttpRequest {
     private final int method;
     private HttpRequestParams httpRequestParams;
     private StringRequest stringRequest;
+    private OkHttpRequest okHttpRequest;
+    private Request.Builder okHttpRequestBuilder;
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final Fragment fragment;
     private final AppCompatActivity activity;
     private Map<String, String> headers;
@@ -122,6 +128,10 @@ public abstract class HttpRequest {
         return stringRequest;
     }
 
+    public OkHttpRequest getOkHttpRequest() {
+        return okHttpRequest;
+    }
+
     protected abstract void onRequestStarted();
     protected abstract void onRequestCancelled();
     protected abstract void onRequestCompleted(boolean onError);
@@ -154,197 +164,133 @@ public abstract class HttpRequest {
             return;
         }
 
-        Response.Listener<String> listener = response -> {
-            // Give back the response string.
+//        Response.Listener<String> listener = response -> {
+//            // Give back the response string.
+//
+//            if (this.fragment instanceof CustomCompatFragment) {
+//                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(requestID);
+//            } else if (this.activity instanceof CustomCompatActivity) {
+//                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(requestID);
+//            }
+//
+//            setOngoingTask(false);
+//
+//            response = response.trim();
+//
+//            if (statusCode == 419) {
+//                String title = "Auth Error", message = "Seems your current session has expired, please login again to continue.";
+//                try {
+//                    JSONObject object = new JSONObject(response);
+//                    title = object.getString("title");
+//                    message = object.getString("message");
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                MainActivity.logout(activity, title, message, statusCode);
+//                return;
+//            }
+//            if (!runOnCompletedLast) onRequestCompleted(false);
+//            onRequestSuccess(response, statusCode, headers);
+//            if (runOnCompletedLast) onRequestCompleted(false);
+//            stringRequest.cancel();
+//        };
 
-            if (this.fragment instanceof CustomCompatFragment) {
-                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(requestID);
-            } else if (this.activity instanceof CustomCompatActivity) {
-                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(requestID);
-            }
-
-            setOngoingTask(false);
-
-            response = response.trim();
-
-            if (statusCode == 419) {
-                String title = "Auth Error", message = "Seems your current session has expired, please login again to continue.";
-                try {
-                    JSONObject object = new JSONObject(response);
-                    title = object.getString("title");
-                    message = object.getString("message");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                MainActivity.logout(activity, title, message, statusCode);
-                return;
-            }
-            if (!runOnCompletedLast) onRequestCompleted(false);
-            onRequestSuccess(response, statusCode, headers);
-            if (runOnCompletedLast) onRequestCompleted(false);
-            stringRequest.cancel();
-        };
-
-        Response.ErrorListener errorListener = error -> {
-
-            if (this.fragment instanceof CustomCompatFragment) {
-                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(requestID);
-            } else if (this.activity instanceof CustomCompatActivity) {
-                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(requestID);
-            }
-
-            setOngoingTask(false);
-
-            NetworkResponse response = error.networkResponse;
-            int statusCode = response != null ? response.statusCode : HttpURLConnection.HTTP_NO_CONTENT;
-            String responseData = response != null ? new String(response.data) : "";
-            responseData = responseData.trim();
-
-            if (statusCode == 419) {
-                String title = "Auth Error", message = "Seems your current session has expired, please login again to continue.";
-                try {
-                    JSONObject object = new JSONObject(responseData);
-                    title = object.getString("title");
-                    message = object.getString("message");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                MainActivity.logout(activity, title, message, statusCode);
-                return;
-            }
-            if (!runOnCompletedLast) onRequestCompleted(true);
-            onRequestError(responseData, statusCode, headers);
-            if (runOnCompletedLast) onRequestCompleted(true);
-            stringRequest.cancel();
-            error.printStackTrace();
-        };
+//        Response.ErrorListener errorListener = error -> {
+//
+//            if (this.fragment instanceof CustomCompatFragment) {
+//                ((CustomCompatFragment) this.fragment).removeOnStopFragmentListener(requestID);
+//            } else if (this.activity instanceof CustomCompatActivity) {
+//                ((CustomCompatActivity) this.activity).removeOnStopActivityListener(requestID);
+//            }
+//
+//            setOngoingTask(false);
+//
+//            NetworkResponse response = error.networkResponse;
+//            int statusCode = response != null ? response.statusCode : HttpURLConnection.HTTP_NO_CONTENT;
+//            String responseData = response != null ? new String(response.data) : "";
+//            responseData = responseData.trim();
+//
+//            if (statusCode == 419) {
+//                String title = "Auth Error", message = "Seems your current session has expired, please login again to continue.";
+//                try {
+//                    JSONObject object = new JSONObject(responseData);
+//                    title = object.getString("title");
+//                    message = object.getString("message");
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                MainActivity.logout(activity, title, message, statusCode);
+//                return;
+//            }
+//            if (!runOnCompletedLast) onRequestCompleted(true);
+//            onRequestError(responseData, statusCode, headers);
+//            if (runOnCompletedLast) onRequestCompleted(true);
+//            stringRequest.cancel();
+//            error.printStackTrace();
+//        };
 
         // Request a string response from the provided URL.
-        if (httpRequestParams != null) {
+//        setStringRequest(method, url, listener, errorListener);
+        setOkHttpRequestBuilder(method, url);
 
-            if (httpRequestParams.getParams() != null &&
-                    httpRequestParams.getHeaders() == null &&
-                    httpRequestParams.getBody() == null) {
+        okHttpRequest = new OkHttpRequest(okHttpRequestBuilder, new OkHttpRequest.Callback() {
+            @Override
+            public void onFailure() {
 
-                stringRequest = new StringRequest(method, url, listener, errorListener) {
+                if (HttpRequest.this.fragment instanceof CustomCompatFragment) {
+                    ((CustomCompatFragment) HttpRequest.this.fragment).removeOnStopFragmentListener(requestID);
+                } else if (HttpRequest.this.activity instanceof CustomCompatActivity) {
+                    ((CustomCompatActivity) HttpRequest.this.activity).removeOnStopActivityListener(requestID);
+                }
 
-                    @Override
-                    protected Map<String, String> getParams() {
-                        return httpRequestParams != null ? httpRequestParams.getParams() : null;
-                    }
-
-                    @Override
-                    protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                        statusCode = response.statusCode;
-                        headers = response.headers;
-                        return super.parseNetworkResponse(response);
-                    }
-                };
-            } else if (httpRequestParams.getParams() == null &&
-                    httpRequestParams.getHeaders() != null &&
-                    httpRequestParams.getBody() == null) {
-
-                stringRequest = new StringRequest(method, url, listener, errorListener) {
-
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        return httpRequestParams != null ? httpRequestParams.getHeaders() : null;
-                    }
-
-                    @Override
-                    protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                        statusCode = response.statusCode;
-                        headers = response.headers;
-                        return super.parseNetworkResponse(response);
-                    }
-
-                };
-            } else if (httpRequestParams.getParams() == null &&
-                    httpRequestParams.getHeaders() == null &&
-                    httpRequestParams.getBody() != null) {
-
-                stringRequest = new StringRequest(method, url, listener, errorListener) {
-
-                    @Override
-                    public byte[] getBody() {
-                        return httpRequestParams != null ? httpRequestParams.getBody() : null;
-                    }
-
-                    @Override
-                    protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                        statusCode = response.statusCode;
-                        headers = response.headers;
-                        return super.parseNetworkResponse(response);
-                    }
-
-                };
-            } else if (httpRequestParams.getParams() != null &&
-                    httpRequestParams.getHeaders() != null &&
-                    httpRequestParams.getBody() == null) {
-
-                stringRequest = new StringRequest(method, url, listener, errorListener) {
-
-                    @Override
-                    protected Map<String, String> getParams() {
-                        return httpRequestParams != null ? httpRequestParams.getParams() : null;
-                    }
-
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        return httpRequestParams != null ? httpRequestParams.getHeaders() : null;
-                    }
-
-                    @Override
-                    protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                        statusCode = response.statusCode;
-                        headers = response.headers;
-                        return super.parseNetworkResponse(response);
-                    }
-
-                };
-            } else {
-
-                stringRequest = new StringRequest(method, url, listener, errorListener) {
-
-                    @Override
-                    protected Map<String, String> getParams() {
-                        return httpRequestParams != null ? httpRequestParams.getParams() : null;
-                    }
-
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        return httpRequestParams != null ? httpRequestParams.getHeaders() : null;
-                    }
-
-                    @Override
-                    public byte[] getBody() {
-                        return httpRequestParams != null ? httpRequestParams.getBody() : null;
-                    }
-
-                    @Override
-                    protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                        statusCode = response.statusCode;
-                        headers = response.headers;
-                        return super.parseNetworkResponse(response);
-                    }
-
-                };
+                setOngoingTask(false);
+                if (!runOnCompletedLast) onRequestCompleted(true);
+                onRequestError("Request failed", 503, null);
+                if (runOnCompletedLast) onRequestCompleted(true);
             }
-
-        } else stringRequest = new StringRequest(method, url, listener, errorListener) {
 
             @Override
-            protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                statusCode = response.statusCode;
-                headers = response.headers;
-                return super.parseNetworkResponse(response);
+            public void onResponse(String response, int statusCode, Map<String, String> headers) {
+
+                if (HttpRequest.this.fragment instanceof CustomCompatFragment) {
+                    ((CustomCompatFragment) HttpRequest.this.fragment).removeOnStopFragmentListener(requestID);
+                } else if (HttpRequest.this.activity instanceof CustomCompatActivity) {
+                    ((CustomCompatActivity) HttpRequest.this.activity).removeOnStopActivityListener(requestID);
+                }
+
+                setOngoingTask(false);
+
+                if (statusCode == 419) {
+                    String title = "Auth Error", message = "Seems your current session has expired, please login again to continue.";
+                    try {
+                        JSONObject object = new JSONObject(response);
+                        title = object.getString("title");
+                        message = object.getString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    MainActivity.logout(activity, title, message, statusCode);
+                    return;
+                }
+
+                boolean success = (statusCode == HttpURLConnection.HTTP_OK || statusCode == HttpURLConnection.HTTP_CREATED);
+
+                if (!runOnCompletedLast) onRequestCompleted(false);
+                if (success) onRequestSuccess(response, statusCode, headers);
+                else onRequestError(response, statusCode, headers);
+                if (runOnCompletedLast) onRequestCompleted(false);
+
             }
-        };
+        });
+
+        okHttpRequest.setTimeout(timeout);
+        okHttpRequest.setInterceptor(new RetryInterceptor(2));
 
 
         // Add the request to the RequestQueue.// Add the request to the RequestQueue.
-        RetryPolicy policy = new DefaultRetryPolicy(timeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-        stringRequest.setRetryPolicy(policy);
+//        RetryPolicy policy = new DefaultRetryPolicy(timeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+//        stringRequest.setRetryPolicy(policy);
+
         // Add the request to the RequestQueue.
         loaderManager.initLoader(requestID, null, new LoaderCallback(activity, this, new RequestCallback() {
 
@@ -400,6 +346,197 @@ public abstract class HttpRequest {
 
     private static void setOngoingTask(boolean ongoingTask) {
         HttpRequest.ongoingTask = ongoingTask;
+    }
+
+    private void setStringRequest(int method, String url, Response.Listener<String> listener,
+                                  Response.ErrorListener errorListener) {
+
+        if (httpRequestParams == null) {
+
+            stringRequest = new StringRequest(method, url, listener, errorListener) {
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                    statusCode = response.statusCode;
+                    headers = response.headers;
+                    return super.parseNetworkResponse(response);
+                }
+            };
+
+            return;
+        }
+
+        if (httpRequestParams.getParams() != null &&
+                httpRequestParams.getHeaders() == null &&
+                httpRequestParams.getBody() == null) {
+
+            stringRequest = new StringRequest(method, url, listener, errorListener) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    return httpRequestParams != null ? httpRequestParams.getParams() : null;
+                }
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                    statusCode = response.statusCode;
+                    headers = response.headers;
+                    return super.parseNetworkResponse(response);
+                }
+            };
+
+            return;
+        }
+
+        if (httpRequestParams.getParams() == null &&
+                httpRequestParams.getHeaders() != null &&
+                httpRequestParams.getBody() == null) {
+
+            stringRequest = new StringRequest(method, url, listener, errorListener) {
+
+                @Override
+                public Map<String, String> getHeaders() {
+                    return httpRequestParams != null ? httpRequestParams.getHeaders() : null;
+                }
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                    statusCode = response.statusCode;
+                    headers = response.headers;
+                    return super.parseNetworkResponse(response);
+                }
+
+            };
+
+            return;
+        }
+
+        if (httpRequestParams.getParams() == null &&
+                httpRequestParams.getHeaders() == null &&
+                httpRequestParams.getBody() != null) {
+
+            stringRequest = new StringRequest(method, url, listener, errorListener) {
+
+                @Override
+                public byte[] getBody() {
+                    return httpRequestParams != null ? httpRequestParams.getBody() : null;
+                }
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                    statusCode = response.statusCode;
+                    headers = response.headers;
+                    return super.parseNetworkResponse(response);
+                }
+
+            };
+
+            return;
+        }
+
+        if (httpRequestParams.getParams() != null &&
+                httpRequestParams.getHeaders() != null &&
+                httpRequestParams.getBody() == null) {
+
+            stringRequest = new StringRequest(method, url, listener, errorListener) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    return httpRequestParams != null ? httpRequestParams.getParams() : null;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() {
+                    return httpRequestParams != null ? httpRequestParams.getHeaders() : null;
+                }
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                    statusCode = response.statusCode;
+                    headers = response.headers;
+                    return super.parseNetworkResponse(response);
+                }
+
+            };
+
+            return;
+        }
+
+        stringRequest = new StringRequest(method, url, listener, errorListener) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                return httpRequestParams != null ? httpRequestParams.getParams() : null;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                return httpRequestParams != null ? httpRequestParams.getHeaders() : null;
+            }
+
+            @Override
+            public byte[] getBody() {
+                return httpRequestParams != null ? httpRequestParams.getBody() : null;
+            }
+
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                statusCode = response.statusCode;
+                headers = response.headers;
+                return super.parseNetworkResponse(response);
+            }
+
+        };
+    }
+
+    private void setOkHttpRequestBuilder(int method, String url) {
+
+        okHttpRequestBuilder = new Request.Builder();
+        okHttpRequestBuilder.url(url);
+
+        if (httpRequestParams != null && httpRequestParams.getHeaders() != null) {
+            for (Map.Entry<String, String> data : httpRequestParams.getHeaders().entrySet()) {
+                okHttpRequestBuilder.addHeader(data.getKey(), data.getValue());
+            }
+        }
+
+        if (httpRequestParams != null && httpRequestParams.getBody() != null) {
+            okHttpRequestBuilder.method(getRequestMethod(method), RequestBody.create(httpRequestParams.getBody()));
+            return;
+        }
+
+        RequestBody requestBody = null;
+        
+        if (httpRequestParams != null && httpRequestParams.getParams() != null) {
+            FormBody.Builder formBody = new FormBody.Builder();
+            for (Map.Entry<String, String> data : httpRequestParams.getParams().entrySet()) {
+                formBody.add(data.getKey(), data.getValue());
+            }
+            requestBody = formBody.build();
+        }
+
+        okHttpRequestBuilder.method(getRequestMethod(method), requestBody);
+    }
+
+    private String getRequestMethod(int method) {
+        switch (method) {
+            case Method.POST:
+                return "POST";
+            case Method.PUT:
+                return "PUT";
+            case Method.DELETE:
+                return "DELETE";
+            case Method.HEAD:
+                return "HEAD";
+            case Method.OPTIONS:
+                return "OPTIONS";
+            case Method.TRACE:
+                return "TRACE";
+            case Method.PATCH:
+                return "PATCH";
+            default:
+                return "GET";
+        }
     }
 
     public interface Method {

@@ -117,6 +117,14 @@ public class CustomBottomAlertDialog {
         this.onGotDialogViewListener = onGotDialogViewListener;
     }
 
+    public void setTitle(String title) {
+        bottomSheet.setTitle(title);
+    }
+
+    public void setTitle(String title, int gravity) {
+        bottomSheet.setTitle(title, gravity);
+    }
+
     public void setMessage(@Nullable CharSequence message) {
         this.message = message;
     }
@@ -162,8 +170,10 @@ public class CustomBottomAlertDialog {
     }
 
     public void addView(View view) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
         view.setLayoutParams(params);
         this.views.add(view);
     }

@@ -62,14 +62,6 @@
 
         </LinearLayout>
 
-        <com.quidvis.moneydrop.utility.view.NonSwipeableViewPager
-            android:id="@+id/view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/margin_10"
-            android:visibility="gone"
-            app:layout_behavior="@string/bottom_sheet_behavior" />
-
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

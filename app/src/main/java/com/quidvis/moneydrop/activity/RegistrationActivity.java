@@ -76,7 +76,11 @@ public class RegistrationActivity extends CustomCompatActivity implements DatePi
         dbHelper = new DbHelper(this);
 
         if (TextUtils.isEmpty(session.getFirebaseToken())) {
-            FirebaseMessaging.getInstance().getToken().addOnSuccessListener(s -> FirebaseMessageReceiver.storeRegIdInPref(session, s));
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnSuccessListener(t -> FirebaseMessageReceiver.storeRegIdInPref(session, t))
+                    .addOnFailureListener(e -> Utility.alertDialog(this, "App Failure",
+                            "Sorry, the moneydrop app didn't start properly. To fix this, please restart the app.",
+                            "Restart", dialog -> Utility.restartApp(RegistrationActivity.this), false));
         }
 
         Intent intent = getIntent();
@@ -301,7 +305,7 @@ public class RegistrationActivity extends CustomCompatActivity implements DatePi
 
             }
         };
-        httpRequest.send();
+        httpRequest.send(Constant.RETRY_IN_60_SEC);
     }
 
     private void showMessage(JSONObject object) {

@@ -620,7 +620,7 @@ public class ProfileActivity extends CustomCompatActivity implements DatePickerD
     private void removePhoto() {
 
         HttpRequest httpRequest = new HttpRequest(this,
-                String.format(URLContract.PROFILE_UPDATE_REQUEST_URL, "picture-remove"), Request.Method.PUT,
+                String.format(URLContract.PROFILE_UPDATE_REQUEST_URL, "picture-remove"), Request.Method.DELETE,
                 new HttpRequestParams() {
                     @Override
                     public Map<String, String> getParams() {

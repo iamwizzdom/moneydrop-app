@@ -201,14 +201,14 @@ public class User {
         this.setFirstname(userObject.getString("firstname"));
         this.setMiddlename(userObject.getString("middlename"));
         this.setLastname(userObject.getString("lastname"));
-        this.setPhone(userObject.getString("phone"));
-        this.setEmail(userObject.getString("email"));
-        this.setBvn(userObject.getString("bvn"));
+        if (userObject.has("phone")) this.setPhone(userObject.getString("phone"));
+        if (userObject.has("email")) this.setEmail(userObject.getString("email"));
+        if (userObject.has("bvn")) this.setBvn(userObject.getString("bvn"));
         this.setPicture(userObject.getString("picture"));
         this.setDob(userObject.getString("dob"));
         this.setRating(userObject.getDouble("rating"));
         this.setGender(userObject.getInt("gender"));
-        this.setAddress(userObject.getString("address"));
+        if (userObject.has("address")) this.setAddress(userObject.getString("address"));
         if (userObject.has("country") && !Utility.castEmpty(userObject.getString("country")).isEmpty())
             setCountry(new Country(context, userObject.getJSONObject("country")));
         else setCountry(null);

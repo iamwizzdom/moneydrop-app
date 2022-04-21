@@ -1,7 +1,5 @@
 package com.quidvis.moneydrop.model;
 
-import android.content.Context;
-
 import com.quidvis.moneydrop.constant.URLContract;
 
 import org.json.JSONException;

@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:629705934099:android:3d56490b426a733f8946e6",
+        "mobilesdk_app_id": "1:629705934099:android:b72955cbc967ff3a8946e6",
         "android_client_info": {
           "package_name": "com.quidvis.moneydrop"
         }
       },
       "oauth_client": [
         {
-          "client_id": "629705934099-qegmlkl29i7m0sce8c3crlf987g8rb8j.apps.googleusercontent.com",
+          "client_id": "629705934099-0tmliagnc3r9a3dk1csbggghaojkabss.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.quidvis.moneydrop",
-            "certificate_hash": "80726ab3f65c2a99ea7e43644b1977ab1caa1900"
+            "certificate_hash": "de652180fadc41a8f0ece18dde994972d46af366"
           }
         },
         {
