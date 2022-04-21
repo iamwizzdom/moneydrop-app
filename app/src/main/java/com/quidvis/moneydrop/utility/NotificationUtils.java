@@ -57,7 +57,7 @@ public class NotificationUtils {
         final PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
                         mContext, 0, intent,
-                        PendingIntent.FLAG_CANCEL_CURRENT
+                        PendingIntent.FLAG_IMMUTABLE
                 );
 
         final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext, FirebaseConfig.NOTIFICATION_CHANNEL_ID);
@@ -173,6 +173,7 @@ public class NotificationUtils {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new java.util.Locale("en","ng"));
         try {
             Date date = format.parse(timeStamp);
+            assert date != null;
             return date.getTime();
         } catch (ParseException e) {
             e.printStackTrace();
